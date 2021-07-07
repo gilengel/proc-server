@@ -1,17 +1,15 @@
-#![feature(proc_macro_hygiene, decl_macro)]
+#[macro_use]
+extern crate rocket;
 
-#[macro_use] extern crate rocket;
+#[cfg(test)]
+mod tests;
 
 #[get("/")]
 fn hello() -> &'static str {
     "Hello, world!"
 }
 
-fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![hello])
+#[launch]
+fn rocket() -> _ {
+    rocket::build().mount("/", routes![hello])
 }
-
-fn main() {
-    rocket();
-}
-
