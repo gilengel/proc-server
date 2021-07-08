@@ -1,5 +1,12 @@
 language: rust
 cache: cargo
+os: linux
+arch: 
+  - arm64
+  - ppc64le
+  - s390x
+env:
+  - CODECOV_TOKEN='2492415e-6701-4af7-8d7a-7d01dbd80f29'
 rust:
   - stable
 before_cache: |
@@ -16,4 +23,6 @@ script: |
   cargo test &&
   cargo audit
 after_success: |
-  cargo tarpaulin --ignore-tests
+  cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+  cargo tarpaulin --out Xml
+  bash <(curl -s https://codecov.io/bash)
