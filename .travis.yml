@@ -10,19 +10,19 @@ env:
 rust:
   - stable
 before_cache: |
-  cargo install cargo-tarpaulin
+  - cargo install cargo-tarpaulin
 before_script:
-- rustup component add rustfmt
-- cargo install cargo-audit
+ - rustup component add rustfmt
+ - cargo install cargo-audit
 # As a result of https://github.com/travis-ci/travis-ci/issues/1066, we run
 # everything in one large command instead of multiple commands.
 # In this way, the build stops immediately if one of the commands fails.
 script: |
-  cargo fmt --all -- --check &&
-  cargo build &&
-  cargo test &&
-  cargo audit
+  - cargo fmt --all -- --check &&
+  - cargo build &&
+  - cargo test &&
+  - cargo audit
 after_success: |
-  cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
-  cargo tarpaulin --out Xml
-  bash <(curl -s https://codecov.io/bash)
+  - cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+  - cargo tarpaulin --out Xml
+  - bash <(curl -s https://codecov.io/bash)
