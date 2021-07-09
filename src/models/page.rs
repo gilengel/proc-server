@@ -1,12 +1,8 @@
-use serde::Serialize;
 use rocket::serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Serialize)]
-#[derive(Debug)]
-#[derive(Deserialize)]
-pub struct Page {
-
-}
+#[derive(Serialize, Debug, Deserialize)]
+pub struct Page {}
 impl PartialEq for Page {
     fn eq(&self, _: &Self) -> bool {
         true

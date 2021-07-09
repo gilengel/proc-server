@@ -1,22 +1,20 @@
 language: rust
 cache: cargo
 os: linux
-arch: 
+arch:
   - arm64
   - ppc64le
   - s390x
-env:
-  - CODECOV_TOKEN='2492415e-6701-4af7-8d7a-7d01dbd80f29'
 rust:
   - stable
 before_cache: |
   - cargo install cargo-tarpaulin
 before_script:
- - rustup component add rustfmt
- - cargo install cargo-audit
+  - rustup component add rustfmt
+  - cargo install cargo-audit
 # As a result of https://github.com/travis-ci/travis-ci/issues/1066, we run
 # everything in one large command instead of multiple commands.
-# In this way, the build stops immediately if one of the commands fails.
+# In this way, the build stops immediatelcay if one of the commands fails.
 script: |
   - cargo fmt --all -- --check &&
   - cargo build &&

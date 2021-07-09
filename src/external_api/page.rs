@@ -1,16 +1,16 @@
-use crate::models::page::{Page};
-use rocket::serde::{json::Json};
+use crate::models::page::Page;
+use rocket::serde::json::Json;
 
 #[get("/pages/v1")]
 pub fn all() -> Json<Vec<Page>> {
-    Json(vec![Page{}, Page{}])
+    Json(vec![Page {}, Page {}])
 }
 
 #[cfg(test)]
 mod test {
     use crate::ignite;
-    use rocket::local::blocking::Client;
     use rocket::http::Status;
+    use rocket::local::blocking::Client;
 
     #[test]
     fn hello_world() {
@@ -19,8 +19,8 @@ mod test {
         assert_eq!(response.status(), Status::Ok);
 
         let value = response.into_json::<Vec<super::Page>>();
-        let expected = Some(vec![super::Page{}, super::Page{}]);
-        
+        let expected = Some(vec![super::Page {}, super::Page {}]);
+
         assert_eq!(value, expected);
     }
-} 
+}

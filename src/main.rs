@@ -1,6 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
 mod external_api;
 mod models;
@@ -15,5 +16,5 @@ fn ignite() -> _ {
     rocket::build().mount("/", routes![hello, external_api::page::all])
 }
 
-	
-#[cfg(test)] mod tests;
+#[cfg(test)]
+mod tests;
