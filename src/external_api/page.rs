@@ -3,7 +3,7 @@ use rocket::serde::json::Json;
 
 #[get("/pages/v1")]
 pub fn all() -> Json<Vec<Page>> {
-    Json(vec![Page {}, Page {}])
+    Json(vec![Page { page_id: String::from("") }, Page { page_id: String::from("") }])
 }
 
 #[cfg(test)]
@@ -19,7 +19,7 @@ mod test {
         assert_eq!(response.status(), Status::Ok);
 
         let value = response.into_json::<Vec<super::Page>>();
-        let expected = Some(vec![super::Page {}, super::Page {}]);
+        let expected = Some(vec![super::Page { page_id: String::from("") }, super::Page { page_id: String::from("") }]);
 
         assert_eq!(value, expected);
     }
