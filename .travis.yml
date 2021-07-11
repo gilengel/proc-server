@@ -13,7 +13,7 @@ services:
   - postgresql
 before_script:
 - rustup component add rustfmt
-- cargo install cargo-audit
+#- cargo install cargo-audit
 # Database installation
 - cargo install diesel_cli
 - psql -c 'create database proc-server-test;' -U postgres
@@ -23,8 +23,9 @@ before_script:
 script: |
   cargo fmt --all -- --check &&
   cargo build &&
-  cargo test &&
-  cargo audit
+  cargo test 
+# &&
+#  cargo audit
 after_success: |
   cargo tarpaulin --out Xml
  # bash <(curl -s https://codecov.io/bash)
