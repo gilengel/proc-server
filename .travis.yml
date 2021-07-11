@@ -1,32 +1,26 @@
 language: rust
 cache: cargo
 os: linux
-arch: 
+arch:
   - arm64
   - ppc64le
   - s390x
 rust:
-  - nightly
+  - stable
 before_cache: |
-  cargo install cargo-tarpaulin
+  - cargo install cargo-tarpaulin
 services:
   - postgresql
 before_script:
-- rustup component add rustfmt
+  - rustup component add rustfmt
 #- cargo install cargo-audit
-# Database installation
-- cargo install diesel_cli
-- psql -c 'create database proc-server-test;' -U postgres
 # As a result of https://github.com/travis-ci/travis-ci/issues/1066, we run
 # everything in one large command instead of multiple commands.
 # In this way, the build stops immediately if one of the commands fails.
 script: |
-  cargo fmt --all -- --check &&
-  cargo build &&
-  cargo test 
-# &&
-#  cargo audit
+  - cargo fmt --all -- --check
+  - cargo build
+  - cargo test
 after_success: |
-  cargo tarpaulin --out Xml
- # bash <(curl -s https://codecov.io/bash)
-  curl -s https://codecov.io/bash | bash -s - -t 2492415e-6701-4af7-8d7a-7d01dbd80f29
+  - cargo tarpaulin --out Xml
+  - curl -s https://codecov.io/bash | bash -s - -t 2492415e-6701-4af7-8d7a-7d01dbd80f29
