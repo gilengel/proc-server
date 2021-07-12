@@ -11,12 +11,13 @@ rust:
 before_cache: |
   - rm -rf "$TRAVIS_HOME/.cargo/registry/src"
   - cargo install cargo-tarpaulin
-before_script: |
+before_script:
   - rustup component add rustfmt
 script:
   - cargo clean
   - cargo build --verbose
   - cargo test --verbose
+  - cargo fmt --all -- --check
 after_success: |
   - cargo tarpaulin --out Xml
   - curl -s https://codecov.io/bash | bash -s - -t 2492415e-6701-4af7-8d7a-7d01dbd80f29
