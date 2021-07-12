@@ -1,6 +1,7 @@
 language: rust
 cache: cargo
 os: linux
+dist: bionic
 arch:
   - arm64
   - ppc64le
@@ -8,18 +9,14 @@ arch:
 rust:
   - stable
 before_cache: |
+  - rm -rf "$TRAVIS_HOME/.cargo/registry/src"
   - cargo install cargo-tarpaulin
-services:
-  - postgresql
-before_script:
+before_script: |
   - rustup component add rustfmt
-#- cargo install cargo-audit
-# As a result of https://github.com/travis-ci/travis-ci/issues/1066, we run
-# everything in one large command instead of multiple commands.
-# In this way, the build stops immediately if one of the commands fails.
-script: |
-  - cargo build
-  - cargo test
+script:
+  - cargo clean
+  - cargo build --verbose
+  - cargo test --verbose
 after_success: |
   - cargo tarpaulin --out Xml
   - curl -s https://codecov.io/bash | bash -s - -t 2492415e-6701-4af7-8d7a-7d01dbd80f29
