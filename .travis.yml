@@ -7,7 +7,7 @@ arch:
   - ppc64le
   - s390x
 rust:
-  - stable
+  - nightly
 before_cache: |
   - rm -rf "$TRAVIS_HOME/.cargo/registry/src"
   - cargo install cargo-tarpaulin
@@ -15,8 +15,8 @@ before_script:
   - rustup component add rustfmt
 script:
   - cargo clean
-  - cargo build --verbose
-  - cargo test --verbose
+  - cargo build
+  - cargo test
   - cargo fmt --all -- --check
 after_success: |
   - cargo tarpaulin --out Xml
