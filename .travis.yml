@@ -4,7 +4,6 @@ os: linux
 dist: bionic
 arch:
   - arm64
-  - ppc64le
   - s390x
 rust:
   - nightly

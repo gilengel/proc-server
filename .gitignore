@@ -1,2 +1,5 @@
 /target
+/debug
 cobertura.xml
+lcov.info
+.rust_info.json
