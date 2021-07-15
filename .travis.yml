@@ -5,6 +5,8 @@ dist: bionic
 arch:
   - arm64
   - s390x
+services:
+  - postgresql
 rust:
   - nightly
 before_cache: |
@@ -13,6 +15,9 @@ before_cache: |
 before_script:
   - rustup component add rustfmt
 script:
+  - echo DATABASE_URL=postgres://postgres@localhost/proc_server_test > .env
+  - cargo install diesel_cli --no-default-features --features "postgres"
+  - (cd page_backend && diesel setup)
   - cargo clean
   - cargo build
   - cargo test
