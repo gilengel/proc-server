@@ -1,36 +1,34 @@
+//use chrono::NaiveDateTime;
+
 use chrono::NaiveDateTime;
+use diesel::{PgConnection, QueryResult, RunQueryDsl};
+use rocket::serde::{Deserialize, Serialize};
 
-use crate::models::schema::pages;
-use diesel::pg::PgConnection;
-use diesel::RunQueryDsl;
-use diesel::{self};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-
-#[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable, Identifiable)]
-#[primary_key(page_pk)]
-#[table_name = "pages"]
-pub struct DbPage {
-    pub page_pk: i32,
-    pub page_id: String,
-    pub name: String,
-    pub created_at: NaiveDateTime,
-    pub data: Option<Value>,
+table! {
+  pages(page_pk) {
+    page_pk -> Int4,
+    page_id -> Text,
+    name -> Text,
+    created_at -> Timestamp,
+    data -> Nullable<Jsonb>,
+  }
 }
 
-#[derive(AsChangeset, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable)]
+#[serde(crate = "rocket::serde")]
 #[table_name = "pages"]
-pub struct NewDbPage {
+pub struct DbPage {
+    #[serde(skip_deserializing)]
+    pub page_pk: Option<i32>,
     pub page_id: String,
     pub name: String,
     pub created_at: NaiveDateTime,
 }
 
 impl DbPage {
-    pub fn create(page: &Vec<NewDbPage>, connection: &PgConnection) -> Result<Vec<DbPage>, String> {
+    pub fn create(values: &Vec<DbPage>, conn: &PgConnection) -> QueryResult<usize> {
         diesel::insert_into(pages::table)
-            .values(page)
-            .get_results(connection)
-            .map_err(|err| err.to_string())
+            .values(values)
+            .execute(conn)
     }
 }
