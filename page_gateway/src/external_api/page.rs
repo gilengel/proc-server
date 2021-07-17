@@ -1,5 +1,5 @@
-use crate::models::page::Page;
 use crate::Redirect;
+use model::Page;
 use rocket::response::status::BadRequest;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;

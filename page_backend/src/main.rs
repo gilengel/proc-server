@@ -4,11 +4,13 @@ extern crate rocket;
 extern crate rocket_sync_db_pools;
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 
 mod api;
 mod models;
 
 #[launch]
-fn rocket() -> _ {
+fn ignite() -> _ {
     rocket::build().attach(api::page::stage())
 }

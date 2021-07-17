@@ -4,7 +4,6 @@
 extern crate rocket;
 
 mod external_api;
-mod models;
 
 pub struct Redirect {
     client: reqwest::Client,
