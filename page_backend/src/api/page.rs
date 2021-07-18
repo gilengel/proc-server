@@ -2,7 +2,8 @@ use std::convert::TryInto;
 
 use model::Page;
 use rocket::fairing::AdHoc;
-use rocket::response::{status::Created, Debug};
+use rocket::response::status::Created;
+use rocket::response::{status::NoContent, Debug};
 use rocket::serde::json::Json;
 
 use crate::models::db_page::DbPage;
@@ -37,9 +38,21 @@ async fn add_page(db: Db, page: Json<Page>) -> Result<Created<Json<Page>>> {
     Ok(Created::new("/").body(page))
 }
 
+#[get("/i_pages")]
+async fn get_all(db: Db) -> Result<Json<Vec<DbPage>>, NoContent> {
+    let a: Result<Vec<DbPage>, _> = db.run(move |conn| DbPage::read_all(conn)).await;
+
+    match a {
+        Ok(pages) => return Ok(Json(pages)),
+        Err(_) => return Err(NoContent),
+    };
+}
+
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("PageDB Stage", |rocket| async {
-        rocket.attach(Db::fairing()).mount("/", routes![add_page])
+        rocket
+            .attach(Db::fairing())
+            .mount("/", routes![add_page, get_all])
     })
 }
 
@@ -57,6 +70,7 @@ mod test {
     };
     use std::env;
 
+    use crate::ignite;
     use crate::models::db_page::DbPage;
 
     fn setup_connection() -> PgConnection {
@@ -137,5 +151,14 @@ mod test {
 
         assert_eq!(value[0].page_id, expected[0].page_id);
         assert_eq!(value[0].name, expected[0].name);
+    }
+
+    #[test]
+    fn get_pages_via_api() {
+        let client = Client::tracked(ignite()).expect("valid rocket instance");
+        let response = client.get("/i_pages").dispatch();
+        assert_eq!(response.status(), Status::Ok);
+
+        // TODO add proper test to validate that the actual result really matches the stored data
     }
 }

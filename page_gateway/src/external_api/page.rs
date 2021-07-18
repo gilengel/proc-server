@@ -93,7 +93,7 @@ mod test {
     }
 
     #[test]
-    fn get_pages() {
+    fn get_pages_with_mock() {
         // Mocking backend call
         let _m = mock("GET", "/i_pages")
             .with_status(200)
