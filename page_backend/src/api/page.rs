@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use model::Page;
 use rocket::fairing::AdHoc;
 use rocket::response::{status::Created, Debug};
@@ -25,8 +27,12 @@ impl From<Page> for DbPage {
 #[post("/i_pages", data = "<page>", format = "json")]
 async fn add_page(db: Db, page: Json<Page>) -> Result<Created<Json<Page>>> {
     let clone = page.clone();
-    db.run(move |conn| DbPage::create(&vec![clone.into()], conn))
-        .await?;
+    let a: Result<usize, _> = db
+        .run(move |conn| DbPage::create(&vec![clone.into()], conn))
+        .await?
+        .try_into();
+
+    assert!(!a.is_err());
 
     Ok(Created::new("/").body(page))
 }
@@ -43,7 +49,6 @@ mod test {
     use diesel::pg::PgConnection;
     use diesel::prelude::*;
     use diesel::result::Error;
-    use diesel_migrations::revert_latest_migration;
     use dotenv::dotenv;
     use model::Page;
     use rocket::{
@@ -77,14 +82,14 @@ mod test {
             let saved_pages = DbPage::create(&pages, &connection).unwrap();
 
             // Check that the returned user object has the correct values.
-            assert_ne!(saved_pages, 0);
+            assert_eq!(saved_pages, 1);
 
             Ok(())
         });
     }
 
     #[test]
-    fn add_page_via_api_without_db_storage() {
+    fn add_page_via_api_with_db_storage() {
         let page = Page {
             page_id: String::from("59411a76-827a-4896-83b7-eefa653fe456"),
             created_at: Utc::now(),
@@ -108,32 +113,29 @@ mod test {
     }
 
     #[test]
-    fn add_page_via_api_with_db_storage() {
-        embed_migrations!();
+    fn get_all_pages() {
         let connection = setup_connection();
-        assert_ne!(embedded_migrations::run(&connection).is_err(), true);
 
-        let page = Page {
+        let date = Utc::now().naive_utc();
+        let page = vec![DbPage {
+            page_pk: None,
             page_id: String::from("59411a76-827a-4896-83b7-eefa653fe456"),
-            created_at: Utc::now(),
-        };
+            name: String::from("test_page"),
+            created_at: date,
+        }];
 
-        let client =
-            Client::tracked(rocket::build().attach(super::stage())).expect("valid rocket instance");
+        assert_eq!(DbPage::create(&page, &connection).unwrap(), 1);
 
-        let api_page_str = serde_json::to_string(&page).unwrap();
+        let expected = vec![DbPage {
+            page_pk: Some(5),
+            page_id: String::from("59411a76-827a-4896-83b7-eefa653fe456"),
+            name: String::from("test_page"),
+            created_at: date,
+        }];
 
-        let response = client
-            .post("/i_pages")
-            .header(ContentType::JSON)
-            .body(api_page_str)
-            .dispatch();
-        assert_eq!(response.status(), Status::Created);
+        let value = DbPage::read_all(&connection).unwrap();
 
-        let value = response.into_json::<Page>().unwrap();
-
-        assert_eq!(value, page);
-
-        assert_ne!(revert_latest_migration(&connection).is_err(), true);
+        assert_eq!(value[0].page_id, expected[0].page_id);
+        assert_eq!(value[0].name, expected[0].name);
     }
 }

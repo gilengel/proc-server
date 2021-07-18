@@ -1008,6 +1008,7 @@ dependencies = [
  "diesel_migrations",
  "dotenv",
  "model",
+ "rand",
  "rocket 0.5.0-rc.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket_sync_db_pools",
  "serde",

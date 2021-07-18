@@ -18,10 +18,11 @@ script:
   - echo DATABASE_URL=postgres://postgres@localhost/proc_server_test > .env
   - cargo install diesel_cli --no-default-features --features "postgres"
   - (cd page_backend && diesel setup)
+  - (cd page_backend && diesel migration run)
   - cargo clean
   - cargo build
   - cargo test
   - cargo fmt --all -- --check
-after_success: |
+after_success:
   - cargo tarpaulin --out Xml
-  - curl -s https://codecov.io/bash | bash -s - -t 2492415e-6701-4af7-8d7a-7d01dbd80f29
+  - "curl -s https://codecov.io/bash | bash -s - -t 2492415e-6701-4af7-8d7a-7d01dbd80f29"

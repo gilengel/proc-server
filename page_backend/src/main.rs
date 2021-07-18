@@ -10,7 +10,32 @@ extern crate diesel_migrations;
 mod api;
 mod models;
 
+#[get("/")]
+fn hello() -> &'static str {
+    "Page Backend Service is running"
+}
+
 #[launch]
 fn ignite() -> _ {
-    rocket::build().attach(api::page::stage())
+    rocket::build()
+        .mount("/", routes![hello])
+        .attach(api::page::stage())
+}
+
+#[cfg(test)]
+mod test {
+    use super::ignite;
+    use rocket::http::Status;
+    use rocket::local::blocking::Client;
+
+    #[test]
+    fn hello_world() {
+        let client = Client::tracked(ignite()).expect("valid rocket instance");
+        let response = client.get("/").dispatch();
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(
+            response.into_string().unwrap(),
+            "Page Backend Service is running"
+        );
+    }
 }

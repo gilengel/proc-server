@@ -17,3 +17,6 @@ rocket = { version="0.5.0-rc.1", features=["json", "uuid"] }
 rocket_sync_db_pools = {version = "0.1.0-rc.1", features=["diesel_postgres_pool", "postgres_pool"] }
 
 model = { path = "../model" }
+
+[dev-dependencies]
+rand = "0.8.4"
