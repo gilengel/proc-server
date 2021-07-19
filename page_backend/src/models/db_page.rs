@@ -13,7 +13,7 @@ table! {
   }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable, AsChangeset)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "pages"]
 pub struct DbPage {
@@ -53,6 +53,16 @@ impl DbPage {
 
     pub fn delete_by_page_id(page_id: String, connection: &PgConnection) -> QueryResult<usize> {
         diesel::delete(pages::table.filter(pages::page_id.eq(page_id))).execute(connection)
+    }
+
+    pub fn update_by_page_pk(
+        page_pk: i32,
+        page: &DbPage,
+        connection: &PgConnection,
+    ) -> QueryResult<usize> {
+        diesel::update(pages::table.filter(pages::page_pk.eq(page_pk)))
+            .set(page)
+            .execute(connection)
     }
 }
 

@@ -73,11 +73,29 @@ async fn delete_by_page_id(page_id: String, db: Db) -> Status {
     };
 }
 
+#[put("/i_pages/<page_pk>", data = "<page>", format = "json")]
+async fn update_by_page_pk(page_pk: i32, page: Json<DbPage>, db: Db) -> Status {
+    let a: Result<usize, _> = db
+        .run(move |conn| DbPage::update_by_page_pk(page_pk, &page.into_inner(), conn))
+        .await;
+
+    match a {
+        Ok(_) => return Status::Ok,
+        Err(_) => return Status::BadRequest,
+    };
+}
+
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("PageDB Stage", |rocket| async {
         rocket.attach(Db::fairing()).mount(
             "/",
-            routes![add_page, get_all, get_by_page_id, delete_by_page_id],
+            routes![
+                add_page,
+                get_all,
+                get_by_page_id,
+                delete_by_page_id,
+                update_by_page_pk
+            ],
         )
     })
 }
@@ -93,6 +111,7 @@ mod test {
     use rocket::{
         http::{ContentType, Status},
         local::blocking::Client,
+        serde::json::Json,
     };
     use std::env;
 
@@ -247,6 +266,39 @@ mod test {
         let client = Client::tracked(ignite()).expect("valid rocket instance");
         let response = client
             .delete("/i_pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
+            .dispatch();
+        assert_eq!(response.status(), Status::Ok);
+    }
+
+    #[test]
+    #[serial]
+    fn update_page_by_page_id() {
+        let connection = setup_connection();
+        let expected = DbPage {
+            page_pk: None,
+            page_id: "9bbfa845-604c-4cd8-aca1-679c4b893f44".into(),
+            created_at: Utc::now().naive_utc(),
+            name: "Random Page".into(),
+        };
+
+        let rows_inserted = diesel::insert_into(pages::table)
+            .values(expected.clone())
+            .execute(&connection);
+
+        assert_eq!(Ok(1), rows_inserted);
+
+        let new_page = DbPage {
+            page_pk: None,
+            page_id: "9bbfa845-604c-4cd8-aca1-679c4b893f44".into(),
+            created_at: Utc::now().naive_utc(),
+            name: "Changed Page".into(),
+        };
+
+        let client = Client::tracked(ignite()).expect("valid rocket instance");
+        let response = client
+            .put("/i_pages/1")
+            .header(ContentType::JSON)
+            .json(&new_page)
             .dispatch();
         assert_eq!(response.status(), Status::Ok);
     }
