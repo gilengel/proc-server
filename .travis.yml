@@ -13,10 +13,10 @@ before_cache:
   - rm -rf "$TRAVIS_HOME/.cargo/registry/src"
 before_script:
   - rustup component add rustfmt
-script:
-  - echo DATABASE_URL=postgres://postgres@localhost/proc_server_test > .env
   - cargo install diesel_cli --no-default-features --features "postgres"
   - cargo install cargo-tarpaulin
+script:
+  - echo DATABASE_URL=postgres://postgres@localhost/proc_server_test > .env
   - (cd page_backend && diesel setup)
   - (cd page_backend && diesel migration run)
   - cargo clean

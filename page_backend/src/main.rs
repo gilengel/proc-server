@@ -4,8 +4,10 @@ extern crate rocket;
 extern crate rocket_sync_db_pools;
 #[macro_use]
 extern crate diesel;
+
+#[cfg(test)]
 #[macro_use]
-extern crate diesel_migrations;
+extern crate serial_test;
 
 mod api;
 mod models;

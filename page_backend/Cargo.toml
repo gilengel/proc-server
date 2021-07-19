@@ -20,3 +20,4 @@ model = { path = "../model" }
 
 [dev-dependencies]
 rand = "0.8.4"
+serial_test = "0.5.1"

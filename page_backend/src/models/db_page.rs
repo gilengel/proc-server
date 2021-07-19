@@ -1,9 +1,9 @@
 //use chrono::NaiveDateTime;
 
 use chrono::NaiveDateTime;
+use diesel::ExpressionMethods;
 use diesel::{PgConnection, QueryDsl, QueryResult, RunQueryDsl};
 use rocket::serde::{Deserialize, Serialize};
-
 table! {
   pub pages(page_pk) {
     page_pk -> Nullable<Int4>,
@@ -42,6 +42,17 @@ impl DbPage {
 
     pub fn read_all(conn: &PgConnection) -> QueryResult<Vec<DbPage>> {
         pages::table.order(pages::page_pk).load::<DbPage>(conn)
+    }
+
+    pub fn read_by_page_id(page_id: String, connection: &PgConnection) -> QueryResult<DbPage> {
+        pages::table
+            .find(pages::page_pk)
+            .filter(pages::page_id.eq_any(vec![page_id]))
+            .first(connection)
+    }
+
+    pub fn delete_by_page_id(page_id: String, connection: &PgConnection) -> QueryResult<usize> {
+        diesel::delete(pages::table.filter(pages::page_id.eq(page_id))).execute(connection)
     }
 }
 
