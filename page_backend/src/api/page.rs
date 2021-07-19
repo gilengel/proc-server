@@ -111,7 +111,6 @@ mod test {
     use rocket::{
         http::{ContentType, Status},
         local::blocking::Client,
-        serde::json::Json,
     };
     use std::env;
 
@@ -126,18 +125,22 @@ mod test {
             .expect(&format!("Error connecting to {}", database_url))
     }
 
+    fn create_test_db_page() -> DbPage {
+        DbPage {
+            page_pk: None,
+            page_id: "9bbfa845-604c-4cd8-aca1-679c4b893f44".into(),
+            created_at: Utc::now().naive_utc(),
+            name: "Random Page".into(),
+        }
+    }
+
     #[test]
     #[serial]
     fn add_page_to_db() {
         let connection = setup_connection();
 
         connection.test_transaction::<_, Error, _>(|| {
-            let pages = vec![DbPage {
-                page_pk: None,
-                page_id: String::from("59411a76-827a-4896-83b7-eefa653fe456"),
-                name: String::from("test_page"),
-                created_at: Utc::now().naive_utc(),
-            }];
+            let pages = vec![create_test_db_page()];
 
             let saved_pages = DbPage::create(&pages, &connection).unwrap();
 
@@ -177,28 +180,17 @@ mod test {
     #[serial]
     fn get_all_pages() {
         let connection = setup_connection();
+        let page = vec![create_test_db_page()];
 
-        let date = Utc::now().naive_utc();
-        let page = vec![DbPage {
-            page_pk: None,
-            page_id: String::from("59411a76-827a-4896-83b7-eefa653fe456"),
-            name: String::from("test_page"),
-            created_at: date,
-        }];
+        let value = diesel::delete(pages::table).execute(&connection);
+        assert_ne!(value, Ok(0));
 
         assert_eq!(DbPage::create(&page, &connection).unwrap(), 1);
 
-        let expected = vec![DbPage {
-            page_pk: Some(5),
-            page_id: String::from("59411a76-827a-4896-83b7-eefa653fe456"),
-            name: String::from("test_page"),
-            created_at: date,
-        }];
-
         let value = DbPage::read_all(&connection).unwrap();
 
-        assert_eq!(value[0].page_id, expected[0].page_id);
-        assert_eq!(value[0].name, expected[0].name);
+        assert_eq!(value[0].page_id, page[0].page_id);
+        assert_eq!(value[0].name, page[0].name);
     }
 
     #[test]
@@ -215,12 +207,7 @@ mod test {
     #[serial]
     fn get_page_by_id_via_api() {
         let connection = setup_connection();
-        let expected = DbPage {
-            page_pk: None,
-            page_id: "9bbfa845-604c-4cd8-aca1-679c4b893f44".into(),
-            created_at: Utc::now().naive_utc(),
-            name: "Random Page".into(),
-        };
+        let expected = create_test_db_page();
 
         let rows_inserted = diesel::insert_into(pages::table)
             .values(expected.clone())
@@ -250,15 +237,9 @@ mod test {
     #[serial]
     fn delete_page_by_id_via_api() {
         let connection = setup_connection();
-        let expected = DbPage {
-            page_pk: None,
-            page_id: "9bbfa845-604c-4cd8-aca1-679c4b893f44".into(),
-            created_at: Utc::now().naive_utc(),
-            name: "Random Page".into(),
-        };
 
         let rows_inserted = diesel::insert_into(pages::table)
-            .values(expected.clone())
+            .values(create_test_db_page())
             .execute(&connection);
 
         assert_eq!(Ok(1), rows_inserted);
@@ -274,15 +255,9 @@ mod test {
     #[serial]
     fn update_page_by_page_id() {
         let connection = setup_connection();
-        let expected = DbPage {
-            page_pk: None,
-            page_id: "9bbfa845-604c-4cd8-aca1-679c4b893f44".into(),
-            created_at: Utc::now().naive_utc(),
-            name: "Random Page".into(),
-        };
 
         let rows_inserted = diesel::insert_into(pages::table)
-            .values(expected.clone())
+            .values(create_test_db_page())
             .execute(&connection);
 
         assert_eq!(Ok(1), rows_inserted);
