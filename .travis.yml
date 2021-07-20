@@ -15,6 +15,7 @@ before_script:
   - rustup component add rustfmt
   - cargo install diesel_cli --no-default-features --features "postgres"
   - cargo install cargo-tarpaulin
+  - psql -c 'create database proc_server_test;' -U postgres
 script:
   - echo DATABASE_URL=postgres://postgres@localhost/proc_server_test > .env
   - (cd page_backend && diesel setup)
