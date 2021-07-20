@@ -14,9 +14,13 @@ addons:
 env:
   global:
     - PGPORT=5433
-    - PGUSER=travis
+    - PGUSER=postgres
 rust:
   - nightly
+before_install:
+  - sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/12/main/postgresql.conf
+  - sudo cp /etc/postgresql/{9.3,12}/main/pg_hba.conf
+  - sudo pg_ctlcluster 12 main restart
 before_cache:
   - rm -rf "$TRAVIS_HOME/.cargo/registry/src"
 before_script:
