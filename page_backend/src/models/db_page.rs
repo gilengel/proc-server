@@ -33,7 +33,9 @@ impl PartialEq for DbPage {
 }
 impl Eq for DbPage {}
 
+// TODO for some reason tarpaulin creates missing lines with diesel eventhough these lines are definitely covered. Ignore them for now
 impl DbPage {
+    #[cfg(not(tarpaulin_include))]
     pub fn create(values: &Vec<DbPage>, conn: &PgConnection) -> QueryResult<usize> {
         diesel::insert_into(pages::table)
             .values(values)
@@ -44,6 +46,7 @@ impl DbPage {
         pages::table.order(pages::page_pk).load::<DbPage>(conn)
     }
 
+    #[cfg(not(tarpaulin_include))]
     pub fn read_by_page_id(page_id: String, connection: &PgConnection) -> QueryResult<DbPage> {
         pages::table
             .find(pages::page_pk)
@@ -51,10 +54,12 @@ impl DbPage {
             .first(connection)
     }
 
+    #[cfg(not(tarpaulin_include))]
     pub fn delete_by_page_id(page_id: String, connection: &PgConnection) -> QueryResult<usize> {
         diesel::delete(pages::table.filter(pages::page_id.eq(page_id))).execute(connection)
     }
 
+    #[cfg(not(tarpaulin_include))]
     pub fn update_by_page_pk(
         page_pk: i32,
         page: &DbPage,

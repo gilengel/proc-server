@@ -10,7 +10,7 @@ use rocket::serde::json::Json;
 use crate::models::db_page::DbPage;
 use rocket_sync_db_pools::diesel;
 
-#[database("diesel")]
+#[database("postgres")]
 struct Db(diesel::PgConnection);
 
 type Result<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
@@ -43,46 +43,54 @@ async fn add_page(db: Db, page: Json<Page>) -> Result<Created<Json<Page>>> {
 async fn get_all(db: Db) -> Result<Json<Vec<DbPage>>, NoContent> {
     let db_result: Result<Vec<DbPage>, _> = db.run(move |conn| DbPage::read_all(conn)).await;
 
-    match db_result {
-        Ok(pages) => return Ok(Json(pages)),
-        Err(_) => return Err(NoContent),
+    let db_result = match db_result {
+        Ok(pages) => Ok(Json(pages)),
+        Err(_) => Err(NoContent),
     };
+
+    db_result
 }
 
 #[get("/i_pages/<page_id>")]
 async fn get_by_page_id(page_id: String, db: Db) -> Result<Json<DbPage>, NoContent> {
-    let a: Result<DbPage, _> = db
+    let db_result: Result<DbPage, _> = db
         .run(move |conn| DbPage::read_by_page_id(page_id, conn))
         .await;
 
-    match a {
-        Ok(page) => return Ok(Json(page)),
-        Err(_) => return Err(NoContent),
+    let db_result = match db_result {
+        Ok(page) => Ok(Json(page)),
+        Err(_) => Err(NoContent),
     };
+
+    db_result
 }
 
 #[delete("/i_pages/<page_id>")]
 async fn delete_by_page_id(page_id: String, db: Db) -> Status {
-    let a: Result<usize, _> = db
+    let db_result: Result<usize, _> = db
         .run(move |conn| DbPage::delete_by_page_id(page_id, conn))
         .await;
 
-    match a {
-        Ok(_) => return Status::Ok,
-        Err(_) => return Status::BadRequest,
+    let db_result = match db_result {
+        Ok(_) => Status::Ok,
+        Err(_) => Status::BadRequest,
     };
+
+    db_result
 }
 
 #[put("/i_pages/<page_pk>", data = "<page>", format = "json")]
 async fn update_by_page_pk(page_pk: i32, page: Json<DbPage>, db: Db) -> Status {
-    let a: Result<usize, _> = db
+    let db_result: Result<usize, _> = db
         .run(move |conn| DbPage::update_by_page_pk(page_pk, &page.into_inner(), conn))
         .await;
 
-    match a {
-        Ok(_) => return Status::Ok,
-        Err(_) => return Status::BadRequest,
+    let db_result = match db_result {
+        Ok(_) => Status::Ok,
+        Err(_) => Status::BadRequest,
     };
+
+    db_result
 }
 
 pub fn stage() -> AdHoc {
@@ -112,7 +120,7 @@ mod test {
         http::{ContentType, Status},
         local::blocking::Client,
     };
-    use std::env;
+    use std::{env, fs};
 
     use crate::ignite;
     use crate::models::db_page::{pages, DbPage};
@@ -134,10 +142,27 @@ mod test {
         }
     }
 
+    fn create_page_table(conn: &PgConnection) {
+        let contents = fs::read_to_string("migrations/2021-07-15-125948_create_pages/up.sql");
+        assert_eq!(contents.is_err(), false);
+        let result = diesel::sql_query(contents.unwrap()).execute(conn);
+        assert_eq!(result.is_err(), false);
+    }
+
+    fn delete_page_table(conn: &PgConnection) {
+        let contents = fs::read_to_string("migrations/2021-07-15-125948_create_pages/down.sql");
+        assert_eq!(contents.is_err(), false);
+        let delete_from_db_result = diesel::sql_query(contents.unwrap()).execute(conn);
+        assert_eq!(delete_from_db_result.is_err(), false);
+    }
+
     #[test]
     #[serial]
     fn add_page_to_db() {
         let connection = setup_connection();
+
+        delete_page_table(&connection);
+        create_page_table(&connection);
 
         connection.test_transaction::<_, Error, _>(|| {
             let pages = vec![create_test_db_page()];
@@ -154,6 +179,11 @@ mod test {
     #[test]
     #[serial]
     fn add_page_via_api_with_db_storage() {
+        let connection = setup_connection();
+
+        delete_page_table(&connection);
+        create_page_table(&connection);
+
         let page = Page {
             page_id: String::from("59411a76-827a-4896-83b7-eefa653fe456"),
             created_at: Utc::now(),
@@ -182,8 +212,8 @@ mod test {
         let connection = setup_connection();
         let page = vec![create_test_db_page()];
 
-        let value = diesel::delete(pages::table).execute(&connection);
-        assert_ne!(value, Ok(0));
+        delete_page_table(&connection);
+        create_page_table(&connection);
 
         assert_eq!(DbPage::create(&page, &connection).unwrap(), 1);
 
@@ -196,6 +226,10 @@ mod test {
     #[test]
     #[serial]
     fn get_pages_via_api() {
+        let connection = setup_connection();
+        delete_page_table(&connection);
+        create_page_table(&connection);
+
         let client = Client::tracked(ignite()).expect("valid rocket instance");
         let response = client.get("/i_pages").dispatch();
         assert_eq!(response.status(), Status::Ok);
@@ -205,8 +239,24 @@ mod test {
 
     #[test]
     #[serial]
+    fn get_pages_failing_via_api() {
+        let connection = setup_connection();
+
+        delete_page_table(&connection);
+
+        let client = Client::tracked(ignite()).expect("valid rocket instance");
+        let response = client.get("/i_pages").dispatch();
+        assert_eq!(response.status(), Status::NoContent);
+    }
+
+    #[test]
+    #[serial]
     fn get_page_by_id_via_api() {
         let connection = setup_connection();
+
+        delete_page_table(&connection);
+        create_page_table(&connection);
+
         let expected = create_test_db_page();
 
         let rows_inserted = diesel::insert_into(pages::table)
@@ -230,13 +280,30 @@ mod test {
             pages::table.filter(pages::page_id.eq("9bbfa845-604c-4cd8-aca1-679c4b893f44")),
         )
         .execute(&connection);
-        assert_eq!(value, Ok(1))
+        assert_eq!(value, Ok(1));
+    }
+
+    #[test]
+    #[serial]
+    fn get_page_by_id_via_api_failing() {
+        let connection = setup_connection();
+
+        delete_page_table(&connection);
+
+        let client = Client::tracked(ignite()).expect("valid rocket instance");
+        let response = client
+            .get("/i_pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
+            .dispatch();
+        assert_eq!(response.status(), Status::NoContent);
     }
 
     #[test]
     #[serial]
     fn delete_page_by_id_via_api() {
         let connection = setup_connection();
+
+        delete_page_table(&connection);
+        create_page_table(&connection);
 
         let rows_inserted = diesel::insert_into(pages::table)
             .values(create_test_db_page())
@@ -253,8 +320,25 @@ mod test {
 
     #[test]
     #[serial]
+    fn delete_page_by_id_via_api_failing() {
+        let connection = setup_connection();
+
+        delete_page_table(&connection);
+
+        let client = Client::tracked(ignite()).expect("valid rocket instance");
+        let response = client
+            .delete("/i_pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
+            .dispatch();
+        assert_eq!(response.status(), Status::BadRequest);
+    }
+
+    #[test]
+    #[serial]
     fn update_page_by_page_id() {
         let connection = setup_connection();
+
+        delete_page_table(&connection);
+        create_page_table(&connection);
 
         let rows_inserted = diesel::insert_into(pages::table)
             .values(create_test_db_page())
@@ -276,5 +360,28 @@ mod test {
             .json(&new_page)
             .dispatch();
         assert_eq!(response.status(), Status::Ok);
+    }
+
+    #[test]
+    #[serial]
+    fn update_page_by_page_id_failing() {
+        let connection = setup_connection();
+
+        delete_page_table(&connection);
+
+        let new_page = DbPage {
+            page_pk: None,
+            page_id: "9bbfa845-604c-4cd8-aca1-679c4b893f44".into(),
+            created_at: Utc::now().naive_utc(),
+            name: "Changed Page".into(),
+        };
+
+        let client = Client::tracked(ignite()).expect("valid rocket instance");
+        let response = client
+            .put("/i_pages/1")
+            .header(ContentType::JSON)
+            .json(&new_page)
+            .dispatch();
+        assert_eq!(response.status(), Status::BadRequest);
     }
 }
