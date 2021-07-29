@@ -1,6 +1,0 @@
-#[global.databases]
-#diesel = { url = "postgres://postgres:postgres@localhost/proc_server_test" }
-[default.databases.diesel]
-url = "postgres://postgres:postgres@localhost/proc_server_test"
-pool_size = 10
-timeout = 5

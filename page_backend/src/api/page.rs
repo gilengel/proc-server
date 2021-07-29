@@ -95,7 +95,8 @@ async fn update_by_page_pk(page_pk: i32, page: Json<DbPage>, db: Db) -> Status {
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("PageDB Stage", |rocket| async {
-        rocket.attach(Db::fairing()).mount(
+        rocket.attach(Db::fairing())
+        .mount(
             "/",
             routes![
                 add_page,

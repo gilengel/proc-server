@@ -1,2 +1,6 @@
 [workspace]
-members = ["page_backend", "page_gateway", "model"]
+members = [
+    "page_backend", 
+    "page_gateway", 
+    "model",
+]

@@ -13,12 +13,15 @@ pub struct Redirect {
 #[launch]
 fn ignite() -> _ {
     #[cfg(not(test))]
-    let host = "TODO_BACKEND_HERE";
+    let host = "http://127.0.0.1:8001";
 
     #[cfg(test)]
     let host = &mockito::server_url();
 
-    rocket::build()
+    let figment = rocket::Config::figment()
+        .merge(("port", 8000));
+
+    rocket::custom(figment)    
         .manage(Redirect {
             client: reqwest::Client::new(),
             backend_url: String::from(host),

@@ -1,5 +1,5 @@
 [package]
-name = "page_gateway"
+name = "page_backend"
 version = "0.1.0"
 edition = "2018"
 
@@ -11,6 +11,8 @@ chrono = { version = "0.4.19", features = ["serde"] }
 serde = { version = "1.0.126", default-features = true, features = ["derive"] }
 serde_derive = "1.0.126"
 serde_json = "1.0.64"
+openssl = "*"
+openssl-probe = "0.1.2"
 
 rocket = { version="0.5.0-rc.1", features=["json", "uuid"] }
 
@@ -21,3 +23,7 @@ model = { path = "../model" }
 [dev-dependencies]
 rand = "0.8.4"
 serial_test = "0.5.1"
+
+[[bin]]
+name = "page_backend"
+path = "src/main.rs"
