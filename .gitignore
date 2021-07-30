@@ -1,5 +1,6 @@
-/target
-/debug
-cobertura.xml
-lcov.info
-.rust_info.json
+backend/target
+backend/debug
+backend/cobertura.xml
+backend/lcov.info
+backend/.rust_info.json
+
