@@ -6,17 +6,7 @@ import {
   useStore as vuexUseStore,
 } from 'vuex'
 
-// import example from './module-example'
-// import { ExampleStateInterface } from './module-example/state';
-
-/*
- * If not building with SSR mode, you can
- * directly export the Store instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Store instance.
- */
+import Page from './page/index'
 
 export interface StateInterface {
   // Define your own store structure, using submodules if needed
@@ -33,12 +23,12 @@ declare module '@vue/runtime-core' {
 }
 
 // provide typings for `useStore` helper
-export const storeKey: InjectionKey<VuexStore<StateInterface>> = Symbol('vuex-key')
+export const storeKey: InjectionKey<VuexStore<StateInterface>> = Symbol('page_store')
 
 export default store(function (/* { ssrContext } */) {
   const Store = createStore<StateInterface>({
     modules: {
-      // example
+      Page,
     },
 
     // enable strict mode (adds overhead!)

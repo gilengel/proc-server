@@ -1,53 +1,68 @@
 import { describe, expect, it } from '@jest/globals';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-jest';
-import { mount, shallowMount } from '@vue/test-utils';
-import { QBtn } from 'quasar';
+import { mount } from '@vue/test-utils';
 import PageList from '../Pagelist.vue';
+
+import { jest, beforeEach } from '@jest/globals'
+import  { createStore, Store } from 'vuex'
+
 
 // Specify here Quasar config you'll need to test your component
 installQuasarPlugin();
 
 describe('PageList', () => {
-  it('has fetch from backend function', () => {
-    const wrapper = mount(PageList);
-    const { vm } = wrapper;
+  describe('Empty', () => {
+    let emptyStore: Store<unknown>;
+    
 
-    expect(typeof vm.fetch).toBe('function');
+    beforeEach(() => {
+      emptyStore = createStore({
+        getters: {
+          'Page/persistedPages': jest.fn(() => []),
+        }
+      })
+    });
+
+    it('shows message to create new page if non exist', () => {      
+      const wrapper = mount(PageList, {
+        global: {
+          plugins: [emptyStore]
+        }
+      });
+  
+      expect(wrapper.find('h2').text()).toBe('You don\'t have any pages yet. You can start by creating a new page right here.')
+    });  
+
+    it('shows dialog to create a new page', () => {
+      const wrapper = mount(PageList, {
+        global: {
+          plugins: [emptyStore]
+        }
+      });
+      
+      wrapper.find('a').cl
+    });    
+  })
+
+
+
+
+  it('calls the store getter to retrieve all available pages', () => {
+
+    const store = createStore({
+      //dispatch: jest.fn(),
+      getters: {
+        'Page/persistedPages': jest.fn(() => [{ page_id: '6ad60ccb-0ad7-4257-9ebe-919965e91ec7', name: 'test page', created_at: '2021-07-30'}]),
+      }
+    })
+    
+    const wrapper = mount(PageList, {
+      global: {
+        plugins: [store]
+      }
+    });
+
+    console.log(wrapper.text())
+    expect(wrapper.text()).toBe('Page Listtest page')
   });
-
-  it('returns an array while calling fetch', () => {
-    const wrapper = mount(PageList);
-    const { vm } = wrapper;
-
-    const result = vm.fetch();
-    expect(Array.isArray(result)).toBeTruthy();
-  });  
-/*
-  it('can check the inner text content', () => {
-    const wrapper = mount(MyButton);
-    const { vm } = wrapper;
-
-    expect((vm.$el as HTMLElement).textContent).toContain('rocket muffin');
-    expect(wrapper.find('.content').text()).toContain('rocket muffin');
-  });
-
-  it('sets the correct default data', () => {
-    const wrapper = mount(MyButton);
-    const { vm } = wrapper;
-
-    expect(typeof vm.counter).toBe('number');
-    expect(vm.counter).toBe(0);
-  });
-
-  it('correctly updates counter when button is pressed', async () => {
-    const wrapper = shallowMount(MyButton);
-    const { vm } = wrapper;
-
-    // Should be `wrapper.findComponent(QBtn)`, will be fixed in next Quasar release
-    // eslint-disable-next-line
-    const button = wrapper.findComponent<QBtn>({ name: QBtn.name! });
-    await button.trigger('click');
-    expect(vm.counter).toBe(1);
-  });
-  */
 });
