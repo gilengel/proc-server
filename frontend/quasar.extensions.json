@@ -11,5 +11,11 @@
     "harnesses": [
       "e2e-webdriver"
     ]
+  },
+  "@quasar/testing-e2e-cypress": {
+    "options": [
+      "scripts",
+      "typescript"
+    ]
   }
 }
