@@ -54,7 +54,7 @@ const actions: ActionTree<PageStateInterface, StateInterface> = {
    */
    async persistNewPage(stage, page: NewPage) {
     await PostOne<NewPage, Page>(`${PAGES_URL}`, page).then((page: Page) => {      
-      this.commit('Page/_persistNewPage', page)
+      this.commit('Page/_addPersistedPages', [page])
     });
      
    },

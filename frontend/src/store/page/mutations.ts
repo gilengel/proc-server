@@ -61,14 +61,6 @@ const mutation: MutationTree<PageStateInterface> = {
     state._newPages.push(newPage);
   },
 
-  /**
-   * Persists a new page to the backend and adding the result to the local store
-   * @param newPage The page to be saved
-   */
-  _persistNewPage(state, newPage: Page) {
-    state._persistedPages.push(newPage);
-  },
-
   _deletePersistedPageById(state, pageId: string) {
     state._persistedPages.splice(state._persistedPages.findIndex((p) => p.page_id === pageId), 1)
   }
