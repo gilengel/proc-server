@@ -11,7 +11,6 @@ COPY    Cargo.toml .
 COPY    model ./model
 COPY    page_backend ./page_backend
 COPY    page_gateway ./page_gateway
-COPY    hello ./hello
 
 RUN     cargo build --release
 

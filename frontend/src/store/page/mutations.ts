@@ -1,7 +1,7 @@
 import { MutationTree } from 'vuex';
 import { PageStateInterface } from './state';
 import { Page, NewPage, UpdateNewPage } from 'src/models/Page';
-import { PAGES_URL, UpdateOne, PostOne } from 'src/models/Backend';
+import { PAGES_URL, UpdateOne } from 'src/models/Backend';
 
 const mutation: MutationTree<PageStateInterface> = {
   /**
@@ -65,11 +65,13 @@ const mutation: MutationTree<PageStateInterface> = {
    * Persists a new page to the backend and adding the result to the local store
    * @param newPage The page to be saved
    */
-  _persistNewPage(state, newPage: NewPage) {
-    void PostOne<NewPage, Page>(`${PAGES_URL}`, newPage).then((page: Page) => {
-      state._persistedPages.push(page);
-    });
+  _persistNewPage(state, newPage: Page) {
+    state._persistedPages.push(newPage);
   },
+
+  _deletePersistedPageById(state, pageId: string) {
+    state._persistedPages.splice(state._persistedPages.findIndex((p) => p.page_id === pageId), 1)
+  }
 };
 
 export default mutation;

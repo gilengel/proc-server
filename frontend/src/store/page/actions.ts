@@ -2,7 +2,7 @@ import { ActionTree } from 'vuex';
 import { StateInterface } from '../index';
 import { PageStateInterface } from './state';
 import { Page, NewPage, UpdateNewPage } from 'src/models/Page'
-import { GetMultiple, PAGES_URL } from 'src/models/Backend';
+import { PAGES_URL, PostOne, DeleteOne, GetMultiple } from 'src/models/Backend';
 
 const actions: ActionTree<PageStateInterface, StateInterface> = {
   /**
@@ -15,6 +15,7 @@ const actions: ActionTree<PageStateInterface, StateInterface> = {
   fetchAllFromBackend() {
     GetMultiple<Page>(`${PAGES_URL}`)
       .then((result) => {
+        
         this.commit('Page/_addPersistedPages', result)
       })
       .catch((err) => console.error(err));
@@ -51,10 +52,18 @@ const actions: ActionTree<PageStateInterface, StateInterface> = {
    * In case you only want to store it to the local store withtout backend persistance @see storeNewPage.
    * @param newPage The page to be saved
    */
-   persistNewPage(stage, page: NewPage) {
-     console.log(page)
-     this.commit('Page/_persistNewPage', page)
-   }
+   async persistNewPage(stage, page: NewPage) {
+    await PostOne<NewPage, Page>(`${PAGES_URL}`, page).then((page: Page) => {      
+      this.commit('Page/_persistNewPage', page)
+    });
+     
+   },
+
+   deletePageById(stage, pageId: string) {
+    DeleteOne(`${PAGES_URL}`, pageId)
+    .then(() => this.commit('Page/_deletePersistedPageById', pageId))
+    .catch((e) => console.error(e))
+   }    
 };
 
 export default actions;

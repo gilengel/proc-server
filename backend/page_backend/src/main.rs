@@ -13,10 +13,44 @@ extern crate serial_test;
 mod api;
 mod models;
 
+use std::io::Cursor;
+
+use rocket::{Request, Response, fairing::{Fairing, Info, Kind}, http::{ContentType, Header, Method}};
+
 #[get("/")]
 fn hello() -> &'static str {
     "Page Backend Service is running"
 }
+
+pub struct CORS();
+
+#[rocket::async_trait]
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to requests",
+            kind: Kind::Response,
+        }
+    }
+
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Methods",
+            "DELETE, PUT, POST, GET, PATCH, OPTIONS",
+        ));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+
+        if request.method() == Method::Options {
+            response.set_header(ContentType::Plain);
+
+            let string = "";
+            response.set_sized_body(string.len(), Cursor::new(string));
+        }
+    }
+}
+
 
 #[launch]
 fn ignite() -> _ {
@@ -27,6 +61,7 @@ fn ignite() -> _ {
 
     rocket::custom(figment)    
         .mount("/", routes![hello])
+        .attach(CORS())
         .attach(api::page::stage())
 }
 

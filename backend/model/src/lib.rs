@@ -3,13 +3,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug, Deserialize, Clone)]
 pub struct Page {
+    pub page_pk: Option<i32>,
     pub page_id: String,
+    pub name: String,
     pub created_at: DateTime<Utc>,
 }
 
 impl PartialEq for Page {
     fn eq(&self, other: &Self) -> bool {
-        self.page_id == other.page_id && self.created_at == other.created_at
+        self.page_pk == other.page_pk
+            && self.page_id == other.page_id
+            && self.name == other.name
+            && self.created_at == other.created_at
     }
 }
 impl Eq for Page {}
@@ -19,11 +24,15 @@ fn pages_are_eq() {
     let utc: DateTime<Utc> = Utc::now();
     let uuid = String::from("8aa719b2-2800-40b4-b45f-0e5c0addd353");
     let value = Page {
+        page_pk: None,
         page_id: uuid.clone(),
+        name: "".into(),
         created_at: utc,
     };
     let expected = Page {
+        page_pk: None,
         page_id: uuid.clone(),
+        name: "".into(),
         created_at: utc,
     };
 
@@ -37,11 +46,15 @@ fn pages_are_not_eq() {
         .with_timezone(&Utc);
 
     let value = Page {
+        page_pk: None,
         page_id: String::from("8aa719b2-2800-40b4-b45f-0e5c0addd353"),
+        name: "".into(),
         created_at: date,
     };
     let expected = Page {
+        page_pk: None,
         page_id: String::from("24f1428a-53c6-4fa1-9bd0-e70c6fc2c9ce"),
+        name: "".into(),
         created_at: date,
     };
 

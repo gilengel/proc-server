@@ -4,3 +4,6 @@ backend/cobertura.xml
 backend/lcov.info
 backend/.rust_info.json
 
+frontend/test/jest/coverage/lcov-report
+frontend/test/jest/coverage/coverage-final.json
+frontend/test/jest/coverage/clover.xml

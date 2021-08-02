@@ -37,6 +37,8 @@ impl Eq for DbPage {}
 impl DbPage {
     #[cfg(not(tarpaulin_include))]
     pub fn create(values: &Vec<DbPage>, conn: &PgConnection) -> QueryResult<usize> {
+        println!("{:?}", values);
+        
         diesel::insert_into(pages::table)
             .values(values)
             .execute(conn)
@@ -48,10 +50,19 @@ impl DbPage {
 
     #[cfg(not(tarpaulin_include))]
     pub fn read_by_page_id(page_id: String, connection: &PgConnection) -> QueryResult<DbPage> {
-        pages::table
-            .find(pages::page_pk)
-            .filter(pages::page_id.eq_any(vec![page_id]))
-            .first(connection)
+        use diesel::debug_query;
+
+        let query = pages::table            
+            .select((pages::page_pk, pages::page_id, pages::name, pages::created_at))
+            .filter(pages::page_id.eq(page_id));
+            
+
+        let debug = debug_query::<diesel::pg::Pg, _>(&query);
+        println!("{:?}", debug);
+            
+
+        query.first(connection)
+
     }
 
     #[cfg(not(tarpaulin_include))]

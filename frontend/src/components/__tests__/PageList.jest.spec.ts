@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { describe, expect, it } from '@jest/globals';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-jest';
 import { mount } from '@vue/test-utils';
@@ -14,10 +15,17 @@ describe('PageList', () => {
     let emptyStore: Store<unknown>;
 
     beforeEach(() => {
+      // hide vue warning about the store
+      console.warn = jest.fn()
+
       emptyStore = createStore({
         getters: {
           'Page/persistedPages': jest.fn(() => []),
         },
+
+        actions: {
+          'Page/storeNewPage': jest.fn()
+        }
       });
     });
 
@@ -49,6 +57,24 @@ describe('PageList', () => {
 
       expect(wrapper.vm.isNewPageDialogVisisble).toBeTruthy();
     });
+
+    it('calls "create page" backend function after click on "Create Page"', async () => {
+      const wrapper = mount(PageList, {
+        global: {
+          plugins: [emptyStore],
+        },
+      });
+
+      const newPageLink = wrapper.find('button');
+      await newPageLink.trigger('click');
+
+      expect(wrapper.vm.isNewPageDialogVisisble).toBeTruthy();
+
+      const createNewPageBtn = wrapper.find('#btn__create_page');
+      await createNewPageBtn.trigger('click');
+
+      expect(wrapper.vm.isNewPageDialogVisisble).toBeFalsy();
+    });  
   });
 
   /*

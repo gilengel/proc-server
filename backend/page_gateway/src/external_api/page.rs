@@ -9,6 +9,9 @@ extern crate reqwest;
 
 type Pages = Vec<Page>;
 
+#[options("/pages/v1")]
+pub fn options() {}
+
 #[get("/pages/v1")]
 pub async fn all(redirect: &State<Redirect>) -> Result<Json<Pages>, BadRequest<String>> {
     let backend_call = async || -> Result<Pages, reqwest::Error> {
@@ -20,7 +23,7 @@ pub async fn all(redirect: &State<Redirect>) -> Result<Json<Pages>, BadRequest<S
 
     match backend_call().await {
         Ok(pages) => return Ok(Json(pages)),
-        Err(_) => return Err(BadRequest(Some(String::from("error message")))),
+        Err(e) => return Err(BadRequest(Some(format!("{:?}", e)))),
     };
 }
 
@@ -109,11 +112,15 @@ mod test {
         let value = response.into_json::<Vec<super::Page>>();
         let expected = Some(vec![
             super::Page {
+                page_pk: None,
                 page_id: String::from("mia"),
+                name: "".into(),
                 created_at: date,
             },
             super::Page {
+                page_pk: None,
                 page_id: String::from("maya"),
+                name: "".into(),
                 created_at: date,
             },
         ]);
@@ -156,7 +163,9 @@ mod test {
         let date = create_date();
         let value = response.into_json::<super::Page>();
         let expected = Some(super::Page {
+            page_pk: None,
             page_id: String::from("77bce157-1426-4906-8bea-4813259cf33c"),
+            name: "".into(),
             created_at: date,
         });
 
@@ -211,7 +220,9 @@ mod test {
 
         let value = response.into_json::<super::Page>();
         let expected = Some(super::Page {
+            page_pk: None,
             page_id: String::from("mia"),
+            name: "".into(),
             created_at: date,
         });
 
