@@ -10,8 +10,8 @@ const mutation: MutationTree<PageStateInterface> = {
    * @param stage
    */
   _addPersistedPages(state, pages: Page[]) {
-    for(const page of pages) {
-      state._persistedPages.push(page)
+    for (const page of pages) {
+      state._persistedPages.push(page);
     }
   },
 
@@ -20,19 +20,17 @@ const mutation: MutationTree<PageStateInterface> = {
    * @param updatedPage
    */
   _updatePage(state, updatedPage: Page) {
-    // Persist the page on backend
-    UpdateOne<Page>(`${PAGES_URL}/${updatedPage.page_id}`, updatedPage)
-      .then(() => {
-        // Update the page in the client store
-        let found = state._persistedPages.find(
-          (page: Page) => page.page_pk === updatedPage.page_pk
-        );
+    const found = state._persistedPages.find(
+      (page: Page) => page.page_pk === updatedPage.page_pk
+    );
 
-        if (found) {
-          found = Object.assign({}, found, updatedPage);
-        }
-      })
-      .catch((er) => console.error(er));
+    if (found) {
+      found.page_pk = updatedPage.page_pk;
+      found.page_id = updatedPage.page_id;
+      found.name = updatedPage.name;
+      found.created_at = updatedPage.created_at;
+      //found = Object.assign({}, found, updatedPage);
+    }
   },
 
   /**
@@ -51,6 +49,10 @@ const mutation: MutationTree<PageStateInterface> = {
     if (params.update.name) {
       state._newPages[foundIndex].name = params.update.name;
     }
+
+    if (params.update.created_at) {
+      state._newPages[foundIndex].created_at = params.update.created_at;
+    }
   },
 
   /**
@@ -62,8 +64,11 @@ const mutation: MutationTree<PageStateInterface> = {
   },
 
   _deletePersistedPageById(state, pageId: string) {
-    state._persistedPages.splice(state._persistedPages.findIndex((p) => p.page_id === pageId), 1)
-  }
+    state._persistedPages.splice(
+      state._persistedPages.findIndex((p) => p.page_id === pageId),
+      1
+    );
+  },
 };
 
 export default mutation;

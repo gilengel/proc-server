@@ -1,10 +1,10 @@
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { PageStateInterface } from './state';
-import { Page, NewPage } from 'src/models/Page'
+import { Page, NewPage } from 'src/models/Page';
 
 export const getters: GetterTree<PageStateInterface, StateInterface> = {
- /**
+  /**
    * Returns all pages that are persisted in the backend and requested by the client.
    * Be aware that this list does necessarily contain all of the pages from backend
    * side.
@@ -35,8 +35,12 @@ export const getters: GetterTree<PageStateInterface, StateInterface> = {
    * @param page_id The uuid of the page
    * @returns Page if page is found, undefined if not
    */
-  persistedPage(state)  {
-    return (page_id: string) : Page | undefined => {  return state._persistedPages.find((page: Page) => page.page_id === page_id) }
+  persistedPageById(state) {
+    return (page_id: string): Page | undefined => {
+      return state._persistedPages.find(
+        (page: Page) => page.page_id === page_id
+      );
+    };
   },
 
   /**
@@ -46,8 +50,10 @@ export const getters: GetterTree<PageStateInterface, StateInterface> = {
    * @returns Page if page is found, undefined if not
    */
   newPageById(state) {
-    return (page_id: string) : NewPage | undefined => { return state._newPages.find((page: NewPage) => page.page_id === page_id) }
-  }
+    return (page_id: string): NewPage | undefined => {
+      return state._newPages.find((page: NewPage) => page.page_id === page_id);
+    };
+  },
 };
 
 export default getters;
