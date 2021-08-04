@@ -1,42 +1,106 @@
-import { expect, test, describe, afterEach, jest } from '@jest/globals';
-import mockAxios from 'jest-mock-axios';
+import { test, describe, afterEach, expect, jest } from '@jest/globals';
+import { StateInterface } from 'src/store';
+import { ActionContext } from 'vuex';
+
 import actions from '../actions';
-import { PageStateInterface } from '../state';
+import { PageState } from '../state';
+
+import { ImportMock } from 'ts-mock-imports';
+
+import * as BackendModule from 'src/models/Backend'
+import { Page } from 'src/models/Page';
+
+
+const actionContext: ActionContext<PageState, StateInterface> = {
+    dispatch: () => Promise.resolve(),
+    commit: () => jest.fn(),
+    state: {
+        _persistedPages: [],
+        _newPages: []
+    }, // here goes your auth state mock
+    getters: {},
+    rootState: {}, // here goes your root state mock
+    rootGetters: {}
+};
 
 describe('Page', () => {
-  test('fetchAllFromBackend calls backend and updates state', () => {
-    const catchFn = jest.fn(),
-      thenFn = jest.fn();
+    test('fetchAllFromBackend', () => {
+        ImportMock.mockFunction(BackendModule, 'GetMultiple', new Promise((resolve) => resolve([{}, {}, {}])));
 
-    const { fetchAllFromBackend } = actions;
+        actions.fetchAllFromBackend(actionContext).then((r) => {
+            expect(r.length).toBe(3);
+        }).catch(() => null)
+    })
 
-    // using the component, which should make a server response
-    const clientMessage = 'client is saying hello!';
+    test('fetchAllFromBackend returning error', () => {
+        ImportMock.mockFunction(BackendModule, 'GetMultiple', new Promise((resolve, reject) => reject('Too bad :(')));
 
-    fetchAllFromBackend(clientMessage).then(thenFn).catch(catchFn);
+        actions.fetchAllFromBackend(actionContext)
+            .then(() => {
+                expect(true).toBe(false);
+            }).catch((e: string) => expect(e).toBe('Too bad :('))
 
-    // since `post` method is a spy, we can check if the server request was correct
-    // a) the correct method was used (post)
-    // b) went to the correct web service URL ('/web-service-url/')
-    // c) if the payload was correct ('client is saying hello!')
-    expect(mockAxios.post).toHaveBeenCalledWith('/web-service-url/', {
-      data: clientMessage,
-    });
+    })
 
-    // simulating a server response
-    let responseObj = { data: 'server says hello!' };
-    mockAxios.mockResponse(responseObj);
+    test('updatePage', async () => {
+        ImportMock.mockFunction(BackendModule, 'UpdateOne', new Promise<boolean>((resolve) => resolve(true)));
 
-    // checking the `then` spy has been called and if the
-    // response from the server was converted to upper case
-    expect(thenFn).toHaveBeenCalledWith('SERVER SAYS HELLO!');
+        const result = await actions.updatePage(actionContext, { page_pk: 0, page_id: 'id', name: 'page to be changed', created_at: ''})
+        expect(result).toBeTruthy()
+    })    
 
-    // catch should not have been called
-    expect(catchFn).not.toHaveBeenCalled();
-  });
+    test('updatePage returning error', async () => {
+        ImportMock.mockFunction(BackendModule, 'UpdateOne', new Promise((resolve, reject) => reject('Too bad :(')));
 
-  afterEach(() => {
-    // cleaning up the mess left behind the previous test
-    mockAxios.reset();
-  });
-});
+        actions.updatePage(actionContext, { page_pk: 0, page_id: 'id', name: 'page to be changed', created_at: ''})
+        .then(() => {
+            expect(true).toBe(false);
+        }).catch((e: string) => expect(e).toBe('Too bad :('))
+    })  
+    
+    
+    test('updateNewPage', () => {
+        actions.updateNewPage(actionContext, { page: { page_id: 'id', name: 'page to be changed', created_at: '' }, update: { name: 'new name'}})
+    })    
+
+    test('storeNewPage', () => {
+        actions.storeNewPage(actionContext, { page_id: 'id', name: 'page to be changed', created_at: '' })
+    })    
+
+    test('persistNewPage', async () => {
+        ImportMock.mockFunction(BackendModule, 'PostOne', new Promise<Page>((resolve) => resolve({ page_pk: 0, page_id: 'id', name: 'new page', created_at: ''})));
+
+        const result = await actions.persistNewPage(actionContext, { page_id: 'id', name: 'new page', created_at: ''})
+        expect(result).toBeTruthy()
+    })    
+
+    test('persistNewPage returning error', () => {
+        ImportMock.mockFunction(BackendModule, 'PostOne', new Promise((resolve, reject) => reject('Too bad :(')));
+
+        actions.persistNewPage(actionContext, { page_id: 'id', name: 'new page', created_at: ''})
+        .then(() => {
+            expect(true).toBe(false);
+        }).catch((e: string) => expect(e).toBe('Too bad :('))
+    })  
+
+    test('deletePageById', async () => {
+        ImportMock.mockFunction(BackendModule, 'DeleteOne', new Promise<boolean>((resolve) => resolve(true)));
+
+        const result = await actions.deletePageById(actionContext, 'id')
+        expect(result).toBeTruthy()
+    })    
+
+    test('deletePageById returning error', () => {
+        ImportMock.mockFunction(BackendModule, 'DeleteOne', new Promise((resolve, reject) => reject('Too bad :(')));
+
+        actions.deletePageById(actionContext, 'id')
+        .then(() => {
+            expect(true).toBe(false);
+        }).catch((e: string) => expect(e).toBe('Too bad :('))
+    })  
+
+    afterEach(() => {
+        ImportMock.restore()
+    })
+
+})

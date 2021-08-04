@@ -1,6 +1,6 @@
 import { Page, NewPage } from 'src/models/Page'
 
-export interface PageStateInterface {
+export type PageState = {
   /**
    * Holds all pages that are persisted in the backend and requested by the client.
    * Be aware that this list does necessarily contain all of the pages from backend
@@ -23,7 +23,7 @@ export interface PageStateInterface {
    _newPages: Array<NewPage>
 }
 
-function state(): PageStateInterface {
+function state(): PageState {
   return {
     _persistedPages: [],
     _newPages: []

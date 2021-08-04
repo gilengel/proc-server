@@ -1,12 +1,12 @@
 import { expect, test, describe } from '@jest/globals';
 
 import { getters } from '../getters';
-import { PageStateInterface } from '../state';
+import { PageState } from '../state';
 import { Page, NewPage } from '../../../models/Page';
 
 describe('Page', () => {
   test('persistedPages returns all persistedPages', () => {
-    const state: PageStateInterface = {
+    const state: PageState = {
       _persistedPages: [
         {
           page_pk: 0,
@@ -29,7 +29,7 @@ describe('Page', () => {
   });
 
   test('newPages returns all intermediate cached pages', () => {
-    const state: PageStateInterface = {
+    const state: PageState = {
       _persistedPages: [],
       _newPages: [
         {
@@ -60,7 +60,7 @@ describe('Page', () => {
   });
 
   test('persistedPageById returns persisted page by id', () => {
-    const state: PageStateInterface = {
+    const state: PageState = {
       _persistedPages: [
         {
           page_pk: 0,
@@ -94,7 +94,7 @@ describe('Page', () => {
   });
 
   test('newPageById returns intermediate cached page by id', () => {
-    const state: PageStateInterface = {
+    const state: PageState = {
       _persistedPages: [],
       _newPages: [
         {

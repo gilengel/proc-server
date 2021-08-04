@@ -1,7 +1,8 @@
-import { ActionTree } from 'vuex';
+import { ActionContext, ActionTree } from 'vuex';
 import { StateInterface } from '../index';
-import { PageStateInterface } from './state';
+import { PageState } from './state';
 import { Page, NewPage, UpdateNewPage } from 'src/models/Page';
+import { Mutations, PageMutationTypes } from './mutations';
 import {
   PAGES_URL,
   PostOne,
@@ -10,7 +11,23 @@ import {
   UpdateOne,
 } from 'src/models/Backend';
 
-const actions: ActionTree<PageStateInterface, StateInterface> = {
+type PageActionContext = {
+  commit<K extends keyof Mutations>(
+    key: K,
+    payload: Parameters<Mutations[K]>[1],
+  ): ReturnType<Mutations[K]>;
+} & Omit<ActionContext<PageState, StateInterface>, 'commit'>
+
+export interface Actions {
+  fetchAllFromBackend({ commit }: PageActionContext): Promise<Page[]>
+  updatePage({ commit }: PageActionContext, page: Page): Promise<boolean>
+  updateNewPage({ commit }: PageActionContext, params: { page: NewPage; update: UpdateNewPage }) : void
+  storeNewPage({ commit }: PageActionContext, page: NewPage) : void
+  persistNewPage({ commit }: PageActionContext, page: NewPage): Promise<Page>
+  deletePageById({ commit }: PageActionContext, pageId: string) : Promise<boolean>    
+}
+
+const actions: ActionTree<PageState, StateInterface> & Actions = {
   /**
    * Fetches all stored pages from the backend.
    *
@@ -18,31 +35,38 @@ const actions: ActionTree<PageStateInterface, StateInterface> = {
    * to prevent slowing down the application
    * @param stage
    */
-  fetchAllFromBackend() {
-    GetMultiple<Page>(`${PAGES_URL}`)
-      .then((result) => {
-        this.commit('Page/_addPersistedPages', result);
+  async fetchAllFromBackend({ commit }): Promise<Page[]> {
+    return new Promise((resolve, reject) => {
+      GetMultiple<Page>(`${PAGES_URL}`)
+      .then((result) => {        
+        commit(PageMutationTypes.ADD_PERSISTED_PAGES, result);
+
+        resolve(result)
       })
-      .catch((err) => console.error(err));
+      .catch((err) => reject(err));
+    })
+
   },
 
   /**
    * Updates an already stored page in the store and in the backend.
    * @param page
    */
-  updatePage(stage, page: Page) {
+  async updatePage({ commit }, page: Page): Promise<boolean> {
+    return new Promise((resolve, reject) => {
     // Persist the page on backend
     UpdateOne<Page>(`${PAGES_URL}/${page.page_id}`, page)
-      .then(() => this.commit('_updatePage', page))
-      .catch((er) => console.error(er));
+      .then(() => { commit(PageMutationTypes.UPDATE_PAGE, page); resolve(true); })
+      .catch((er) => reject(er));
+      })
   },
 
   /**
    * Updates an already stored new page in the store.
    * @param page
    */
-  updateNewPage(stage, params: { page: NewPage; update: UpdateNewPage }) {
-    this.commit('_updateNewPage', params);
+  updateNewPage({ commit }, params: { page: NewPage; update: UpdateNewPage }) {
+    commit(PageMutationTypes.UPDATE_NEW_PAGE, params);
   },
 
   /**
@@ -50,8 +74,8 @@ const actions: ActionTree<PageStateInterface, StateInterface> = {
    * Be aware that the page is not persisted to backend. For this see @see persistNewPage.
    * @param newPage The page to be saved
    */
-  storeNewPage(stage, page: NewPage) {
-    this.commit('Page/_storeNewPage', page);
+  storeNewPage({ commit }, page: NewPage) {
+    commit(PageMutationTypes.STORE_NEW_PAGE, page);
   },
 
   /**
@@ -59,16 +83,21 @@ const actions: ActionTree<PageStateInterface, StateInterface> = {
    * In case you only want to store it to the local store withtout backend persistance @see storeNewPage.
    * @param newPage The page to be saved
    */
-  async persistNewPage(stage, page: NewPage) {
-    await PostOne<NewPage, Page>(`${PAGES_URL}`, page).then((page: Page) => {
-      this.commit('Page/_addPersistedPages', [page]);
-    });
+  async persistNewPage({ commit }, page: NewPage) : Promise<Page> {
+    return new Promise((resolve, reject) => {
+      PostOne<NewPage, Page>(`${PAGES_URL}`, page).then((page: Page) => {
+        commit(PageMutationTypes.STORE_NEW_PAGE, page);
+        resolve(page)
+      }).catch((e) => reject(e))
+    })
   },
 
-  deletePageById(stage, pageId: string) {
-    DeleteOne(`${PAGES_URL}`, pageId)
-      .then(() => this.commit('Page/_deletePersistedPageById', pageId))
-      .catch((e) => console.error(e));
+  deletePageById({ commit }, pageId: string) {
+    return new Promise<boolean>((resolve, reject) => {
+      DeleteOne(`${PAGES_URL}`, pageId)
+        .then(() => { commit(PageMutationTypes.DELETE_PERSISTED_PAGE_BY_ID, pageId); resolve(true) })
+        .catch((e) => reject(e))
+    })
   },
 };
 

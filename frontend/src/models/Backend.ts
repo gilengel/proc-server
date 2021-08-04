@@ -1,7 +1,7 @@
 import { ServerSingleResponse } from './ServerResponse';
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:8001';
+export const BACKEND_URL = 'http://localhost:8001';
 
 export const LAYOUTS_URL = 'layout';
 export const PAGES_URL = 'i_pages';

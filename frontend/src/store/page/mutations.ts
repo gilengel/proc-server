@@ -1,15 +1,30 @@
 import { MutationTree } from 'vuex';
-import { PageStateInterface } from './state';
+import { PageState } from './state';
 import { Page, NewPage, UpdateNewPage } from 'src/models/Page';
-import { PAGES_URL, UpdateOne } from 'src/models/Backend';
 
-const mutation: MutationTree<PageStateInterface> = {
+export enum PageMutationTypes {
+  ADD_PERSISTED_PAGES = 'ADD_PERSISTED_PAGES',
+  UPDATE_PAGE = 'UPDATE_PAGE',
+  UPDATE_NEW_PAGE = 'UPDATE_NEW_PAGE',
+  STORE_NEW_PAGE = 'STORE_NEW_PAGE',
+  DELETE_PERSISTED_PAGE_BY_ID = 'DELETE_PERSISTED_PAGE_BY_ID',
+}
+
+export type Mutations<S = PageState> = {
+  [PageMutationTypes.ADD_PERSISTED_PAGES](state: S, pages: Page[]): void
+  [PageMutationTypes.UPDATE_PAGE](state: S, updatedPage: Page): void
+  [PageMutationTypes.UPDATE_NEW_PAGE](state: S, params: { page: NewPage; update: UpdateNewPage }): void
+  [PageMutationTypes.STORE_NEW_PAGE](state: S, newPage: NewPage): void
+  [PageMutationTypes.DELETE_PERSISTED_PAGE_BY_ID](state: S, pageId: string): void
+}
+
+const mutation: MutationTree<PageState> & Mutations = {
   /**
    * Adds already persisted pages to the intermediate memory of the store
    *
    * @param stage
    */
-  _addPersistedPages(state, pages: Page[]) {
+   [PageMutationTypes.ADD_PERSISTED_PAGES](state, pages: Page[]) {
     for (const page of pages) {
       state._persistedPages.push(page);
     }
@@ -19,7 +34,7 @@ const mutation: MutationTree<PageStateInterface> = {
    * Updates an existing page on backend side and in local store
    * @param updatedPage
    */
-  _updatePage(state, updatedPage: Page) {
+   [PageMutationTypes.UPDATE_PAGE](state, updatedPage: Page) {
     const found = state._persistedPages.find(
       (page: Page) => page.page_pk === updatedPage.page_pk
     );
@@ -37,7 +52,7 @@ const mutation: MutationTree<PageStateInterface> = {
    * Updates a new page on local store
    * @param updatedNewPage
    */
-  _updateNewPage(state, params: { page: NewPage; update: UpdateNewPage }) {
+   [PageMutationTypes.UPDATE_NEW_PAGE](state, params: { page: NewPage; update: UpdateNewPage }) {
     const foundIndex = state._newPages.findIndex(
       (page: NewPage) => page.page_id === params.page.page_id
     );
@@ -59,11 +74,11 @@ const mutation: MutationTree<PageStateInterface> = {
    * Stores the new page in the local store
    * @param newPage
    */
-  _storeNewPage(state, newPage: NewPage) {
+   [PageMutationTypes.STORE_NEW_PAGE](state, newPage: NewPage) {
     state._newPages.push(newPage);
   },
 
-  _deletePersistedPageById(state, pageId: string) {
+  [PageMutationTypes.DELETE_PERSISTED_PAGE_BY_ID](state, pageId: string) {
     state._persistedPages.splice(
       state._persistedPages.findIndex((p) => p.page_id === pageId),
       1

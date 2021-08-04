@@ -1,9 +1,9 @@
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
-import { PageStateInterface } from './state';
+import { PageState } from './state';
 import { Page, NewPage } from 'src/models/Page';
 
-export const getters: GetterTree<PageStateInterface, StateInterface> = {
+export const getters: GetterTree<PageState, StateInterface> = {
   /**
    * Returns all pages that are persisted in the backend and requested by the client.
    * Be aware that this list does necessarily contain all of the pages from backend
