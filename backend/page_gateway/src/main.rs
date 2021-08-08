@@ -13,6 +13,11 @@ pub struct Redirect {
     backend_url: String,
 }
 
+#[get("/")]
+fn hello() -> &'static str {
+    "Page Gateway Service is running"
+}
+
 pub struct CORS();
 
 #[rocket::async_trait]
@@ -62,6 +67,7 @@ fn ignite() -> _ {
         .mount(
             "/",
             routes![
+                hello,
                 external_api::page::all,
                 external_api::page::add_page,
                 external_api::page::latest,

@@ -6,5 +6,5 @@ backend/.rust_info.json
 
 frontend/test/jest/coverage
 frontend/test/cypress/coverage
-
+frontend/coverage
 reports

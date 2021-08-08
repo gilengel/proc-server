@@ -86,7 +86,7 @@ const actions: ActionTree<PageState, StateInterface> & Actions = {
   async persistNewPage({ commit }, page: NewPage) : Promise<Page> {
     return new Promise((resolve, reject) => {
       PostOne<NewPage, Page>(`${PAGES_URL}`, page).then((page: Page) => {
-        commit(PageMutationTypes.STORE_NEW_PAGE, page);
+        commit(PageMutationTypes.ADD_PERSISTED_PAGES, [page]);
         resolve(page)
       }).catch((e) => reject(e))
     })

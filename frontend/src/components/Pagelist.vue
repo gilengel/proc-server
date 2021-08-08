@@ -9,11 +9,11 @@
     <h2 v-if="persistedPages.length == 0">
       You don't have any pages yet. You can start by
     </h2>
-    <q-list bordered separator v-else>
+    <q-list id="lst__pages" bordered separator v-else>
       <q-item
         clickable
         v-ripple
-        v-for="page in persistedPages"
+        v-for="(page, index) in persistedPages"
         :key="page.page_id"
       >
         <q-item-section>{{ page.name }}</q-item-section>
@@ -21,6 +21,7 @@
         <q-item-section top side>
           <div class="text-grey-8 q-gutter-xs">
             <q-btn
+              :id="`btn__delete_page_${index}`"
               class="gt-xs"
               size="12px"
               flat
@@ -45,6 +46,7 @@
 
         <q-card-section class="q-pt-none">
           <q-input
+            for="txt__new_page_name"
             dense
             v-model="newPageName"
             autofocus
@@ -54,7 +56,7 @@
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup />
+          <q-btn id="btn__cancel_create_page" flat label="Cancel" v-close-popup />
           <q-btn
             id="btn__create_page"
             flat
@@ -140,6 +142,8 @@ export default defineComponent({
 
     const isDeletePageDialogVisisble = ref(false);
     const selectedPageId = ref('');
+    selectedPageId.value = '';
+
     const showDeletePageDialog = () => {
       isDeletePageDialogVisisble.value = true;
     };
