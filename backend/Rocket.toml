@@ -1,5 +1,5 @@
 [global.databases]
-postgres = { url = "postgres://yugabyte:yugabyte@10.111.71.185:5433/___test_db_backend" }
+postgres = { url = "postgres://yugabyte:yugabyte@http://yb-tserver-service/___test_db_backend" }
 
 [debug]
 log = "off"

@@ -2,6 +2,8 @@
   <div>
     <h1>Page List</h1>
 
+    <h2>{{ BACKEND_URL }}</h2>
+
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
       <q-btn fab icon="add" color="accent" id="new_page_link" @click="showNewPageDialog" />
     </q-page-sticky>
@@ -104,6 +106,8 @@ import { mapGetters, Store, useStore } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
 import { NewPage } from '../models/Page';
 import { CreateNowTimestamp } from '../models/Date';
+
+import { BACKEND_URL } from '../models/Backend';
 
 async function updateCachedPagesInState(store: Store<StateInterface>) {
   await store.dispatch('Page/fetchAllFromBackend');

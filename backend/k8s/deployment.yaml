@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: page-backend-deployment
+  labels:
+    app: page-backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: page-pod
+  
+  template:
+    metadata:
+      name: page-pod
+      labels:
+        app: page-pod
+    spec:
+      containers:
+      - name: blog-node-container
+        image: page_backend:dev
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 8000
+            name: gateway-port
+          - containerPort: 8001
+            name: backend-port
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"          

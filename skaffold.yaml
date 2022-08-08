@@ -1,0 +1,23 @@
+apiVersion: skaffold/v2beta21
+kind: Config
+metadata:
+  name: proc-server
+build:
+  artifacts:
+  - image: page_backend
+    context: backend
+    docker:
+      dockerfile: Dockerfile
+  - image: page_ui
+    context: frontend
+    docker:
+      dockerfile: Dockerfile
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+    - backend/k8s/deployment.yaml
+    - backend/k8s/service.yaml
+    - frontend/k8s/deployment.yaml
+    - frontend/k8s/service.yaml
+    - kubernetes/mimayu-namespace.yaml

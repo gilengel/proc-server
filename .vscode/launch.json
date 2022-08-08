@@ -1,20 +1,39 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "firefox",
-            "request": "launch",
-            "name": "Page Frontend FIREFOX",
-            "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}/frontend/src",
-            "breakOnLoad": true,
-            "sourceMapPathOverrides": {
-              "webpack:///./src/*": "${webRoot}/*"
-            }
-          }
-          
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "name": "page_backend with Kubernetes",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/target/debug/page_backend",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "bridge-to-kubernetes.resource",
+      "env": {
+        "GRPC_DNS_RESOLVER": "native"
+      }
+    },
+    {
+      "type": "firefox",
+      "request": "launch",
+      "name": "Page Frontend FIREFOX",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "breakOnLoad": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "type": "lldb",
+      "name": "page_backend",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/target/debug/page_backend",
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
 }

@@ -1,10 +1,10 @@
 import { ServerSingleResponse } from './ServerResponse';
 import axios from 'axios';
 
-export const BACKEND_URL = 'http://localhost:8001';
+export const BACKEND_URL = 'http://page-backend-service';
 
 export const LAYOUTS_URL = 'layout';
-export const PAGES_URL = 'i_pages';
+export const PAGES_URL = 'i_pages/';
 export const PAGE_CONNECTIONS_URL = 'page_connection';
 export const TEMP_FLOW_URL = 'temp_flow';
 
