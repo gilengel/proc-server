@@ -1,0 +1,34 @@
+name: Database Integration Test
+on: [push]
+jobs:
+  Database-Integration-Action:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup YugabyteDB cluster
+      uses: yugabyte/yugabyte-db-action@master
+      id: server
+      with:
+        ysql_user: yugabyte
+        ysql_password: yugabyte
+        #ysql_db: ___test_db_backend
+        ycql_user: yugabyte
+        ycql_password: yugabyte
+        ycql_keyspace: testks
+        ysql_port: 5433
+
+    - uses: actions/checkout@v1
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        override: true
+    - run: cargo test
+      env:
+        DATABASE_URL: postgres://yugabyte:yugabyte@localhost:${{ steps.server.outputs.ysql_port }}/___test_db_backend
+    - uses: actions-rs/grcov@v0.1
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ${{ steps.coverage.outputs.report }}
+
+   

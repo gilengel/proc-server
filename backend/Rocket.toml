@@ -1,5 +1,4 @@
 [global.databases]
-postgres = { url = "postgres://yugabyte:yugabyte@http://yb-tserver-service/___test_db_backend" }
-
-[debug]
-log = "off"
+diesel = { url = "postgres://yugabyte:yugabyte@localhost:5433/___test_db_backend" }
+pool_size = 10
+timeout = 5

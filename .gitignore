@@ -3,8 +3,10 @@ backend/debug
 backend/cobertura.xml
 backend/lcov.info
 backend/.rust_info.json
+backend/*.profraw
 
 frontend/test/jest/coverage
 frontend/test/cypress/coverage
 frontend/coverage
 reports
+

@@ -1,5 +1,3 @@
-//use chrono::NaiveDateTime;
-
 use chrono::NaiveDateTime;
 use diesel::ExpressionMethods;
 use diesel::{PgConnection, QueryDsl, QueryResult, RunQueryDsl};

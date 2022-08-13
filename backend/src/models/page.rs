@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{NaiveDateTime, DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug, Deserialize, Clone)]
@@ -6,7 +6,7 @@ pub struct Page {
     pub page_pk: Option<i32>,
     pub page_id: String,
     pub name: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
 }
 
 impl PartialEq for Page {
@@ -21,7 +21,7 @@ impl Eq for Page {}
 
 #[test]
 fn pages_are_eq() {
-    let utc: DateTime<Utc> = Utc::now();
+    let utc = Utc::now().naive_utc();
     let uuid = String::from("8aa719b2-2800-40b4-b45f-0e5c0addd353");
     let value = Page {
         page_pk: None,
@@ -43,7 +43,8 @@ fn pages_are_eq() {
 fn pages_are_not_eq() {
     let date = DateTime::parse_from_rfc3339("2021-12-19T16:39:57-08:00")
         .unwrap()
-        .with_timezone(&Utc);
+        .with_timezone(&Utc)
+        .naive_utc();
 
     let value = Page {
         page_pk: None,
