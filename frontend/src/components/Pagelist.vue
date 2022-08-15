@@ -2,8 +2,6 @@
   <div>
     <h1>Page List</h1>
 
-    <h2>{{ BACKEND_URL }}</h2>
-
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
       <q-btn fab icon="add" color="accent" id="new_page_link" @click="showNewPageDialog" />
     </q-page-sticky>
@@ -15,13 +13,14 @@
       <q-item
         clickable
         v-ripple
-        v-for="(page, index) in persistedPages"
+        v-for="page in persistedPages"
         :key="page.page_id"
       >
         <q-item-section>{{ page.name }}</q-item-section>
 
         <q-item-section top side>
           <div class="text-grey-8 q-gutter-xs">
+            <!--
             <q-btn
               :id="`btn__delete_page_${index}`"
               class="gt-xs"
@@ -35,6 +34,7 @@
                 showDeletePageDialog();
               "
             />
+            -->
           </div>
         </q-item-section>
       </q-item>
@@ -86,6 +86,7 @@
 
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" v-close-popup />
+          <!--
           <q-btn
             id="btn__delete_page"
             flat
@@ -93,6 +94,7 @@
             v-close-popup
             @click="deletePersistedPagesById(selectedPageId)"
           />
+          -->
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -100,30 +102,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { StateInterface, storeKey } from '../store';
-//import { mapGetters, Store, useStore } from 'vuex';
+import { defineComponent, ref, computed } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import { NewPage } from '../models/Page';
 import { CreateNowTimestamp } from '../models/Date';
+import { usePageStore } from 'src/stores/page';
 
-import { BACKEND_URL } from '../models/Backend';
-
+/*
 async function updateCachedPagesInState(store: Store<StateInterface>) {
   await store.dispatch('Page/fetchAllFromBackend');
 }
+*/
 
 export default defineComponent({
   name: 'PageList',
   props: {},
 
+/*
   computed: {
     ...mapGetters({ persistedPages: 'Page/persistedPages' }),
   },
+  */
   setup() {
-    const store = useStore(storeKey);
+    const store = usePageStore();
 
-    updateCachedPagesInState(store).catch((e) => console.error(e));
+    const persistedPages = computed(() => store.persistedPages)
+
+    //updateCachedPagesInState(store).catch((e) => console.error(e));
 
     const isNewPageDialogVisisble = ref(false);
     const newPageName = ref('');
@@ -135,13 +140,13 @@ export default defineComponent({
     const createNewPage = async () => {
       isNewPageDialogVisisble.value = false;
 
-      const payload: NewPage = {
+      const newPage: NewPage = {
         page_id: uuidv4(),
         name: newPageName.value,
         created_at: CreateNowTimestamp(),
       };
 
-      await store.dispatch('Page/persistNewPage', payload);
+      await store.persistNewPage(newPage);
     };
 
     const isDeletePageDialogVisisble = ref(false);
@@ -157,7 +162,7 @@ export default defineComponent({
 
       console.log(page_id);
 
-      await store.dispatch('Page/deletePageById', page_id);
+      await store.deletePageById(page_id);
     };
 
     return {
@@ -169,6 +174,7 @@ export default defineComponent({
       createNewPage,
       showDeletePageDialog,
       deletePersistedPagesById,
+      persistedPages
     };
   },
 });

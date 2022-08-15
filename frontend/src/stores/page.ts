@@ -7,12 +7,14 @@ import {
   GetMultiple,
   UpdateOne,
 } from 'src/models/Backend';
+import { reactive } from 'vue';
 
 export const usePageStore = defineStore('page', {
-  state: () => ({
-    _persistedPages: [],
-    _newPages: [],
-  }),
+  state: () =>
+    reactive({
+      _persistedPages: [] as Page[],
+      _newPages: [] as NewPage[],
+    }),
 
   getters: {
     /**
@@ -77,13 +79,15 @@ export const usePageStore = defineStore('page', {
      * to prevent slowing down the application
      * @param stage
      */
-    async fetchAllFromBackend({ commit }): Promise<Page[]> {
+    async fetchAllFromBackend(): Promise<Page[]> {
       return new Promise((resolve, reject) => {
         GetMultiple<Page>(`${PAGES_URL}`)
-          .then((result) => {
-            commit(PageMutationTypes.ADD_PERSISTED_PAGES, result);
+          .then((fetchedBackendPages) => {
+            for (const page of fetchedBackendPages) {
+              this._persistedPages.push(page);
+            }
 
-            resolve(result);
+            resolve(fetchedBackendPages);
           })
           .catch((err) => reject(err));
       });
@@ -93,12 +97,23 @@ export const usePageStore = defineStore('page', {
      * Updates an already stored page in the store and in the backend.
      * @param page
      */
-    async updatePage({ commit }, page: Page): Promise<boolean> {
+    async updatePage(page: Page): Promise<boolean> {
       return new Promise((resolve, reject) => {
         // Persist the page on backend
         UpdateOne<Page>(`${PAGES_URL}/${page.page_id}`, page)
           .then(() => {
-            commit(PageMutationTypes.UPDATE_PAGE, page);
+            const found = this._persistedPages.find(
+              (page: Page) => page.page_pk === page.page_pk
+            );
+        
+            if (found) {
+              found.page_pk = page.page_pk;
+              found.page_id = page.page_id;
+              found.name = page.name;
+              found.created_at = page.created_at;
+              //found = Object.assign({}, found, updatedPage);
+            }
+
             resolve(true);
           })
           .catch((er) => reject(er));
@@ -109,11 +124,22 @@ export const usePageStore = defineStore('page', {
      * Updates an already stored new page in the store.
      * @param page
      */
-    updateNewPage(
-      { commit },
-      params: { page: NewPage; update: UpdateNewPage }
-    ) {
-      commit(PageMutationTypes.UPDATE_NEW_PAGE, params);
+    updateNewPage(params: { page: NewPage; update: UpdateNewPage }) {
+      const foundIndex = this._newPages.findIndex(
+        (page: NewPage) => page.page_id === params.page.page_id
+      );
+  
+      if (foundIndex === -1) {
+        return;
+      }
+  
+      if (params.update.name) {
+        this._newPages[foundIndex].name = params.update.name;
+      }
+  
+      if (params.update.created_at) {
+        this._newPages[foundIndex].created_at = params.update.created_at;
+      }
     },
 
     /**
@@ -121,8 +147,9 @@ export const usePageStore = defineStore('page', {
      * Be aware that the page is not persisted to backend. For this see @see persistNewPage.
      * @param newPage The page to be saved
      */
-    storeNewPage({ commit }, page: NewPage) {
-      commit(PageMutationTypes.STORE_NEW_PAGE, page);
+    storeNewPage(page: NewPage) {
+      this._newPages.push(page);
+      //commit(PageMutationTypes.STORE_NEW_PAGE, page);
     },
 
     /**
@@ -130,22 +157,32 @@ export const usePageStore = defineStore('page', {
      * In case you only want to store it to the local store withtout backend persistance @see storeNewPage.
      * @param newPage The page to be saved
      */
-    async persistNewPage({ commit }, page: NewPage): Promise<Page> {
+    async persistNewPage(page: NewPage): Promise<Page> {
       return new Promise((resolve, reject) => {
         PostOne<NewPage, Page>(`${PAGES_URL}`, page)
           .then((page: Page) => {
-            commit(PageMutationTypes.ADD_PERSISTED_PAGES, [page]);
+            this._persistedPages.push(page);
+            //commit(PageMutationTypes.ADD_PERSISTED_PAGES, [page]);
             resolve(page);
           })
           .catch((e) => reject(e));
       });
     },
 
-    deletePageById({ commit }, pageId: string) {
+    deletePageById(pageId: string) {
       return new Promise<boolean>((resolve, reject) => {
         DeleteOne(`${PAGES_URL}`, pageId)
           .then(() => {
-            commit(PageMutationTypes.DELETE_PERSISTED_PAGE_BY_ID, pageId);
+            const index = this._persistedPages.findIndex(
+              (page) => page.page_id === pageId
+            );
+
+            if (index === -1) {
+              resolve(false);
+              return;
+            }
+
+            this._persistedPages.splice(index, 1);
             resolve(true);
           })
           .catch((e) => reject(e));
