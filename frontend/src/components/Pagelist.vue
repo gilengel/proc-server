@@ -102,7 +102,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { StateInterface, storeKey } from '../store';
-import { mapGetters, Store, useStore } from 'vuex';
+//import { mapGetters, Store, useStore } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
 import { NewPage } from '../models/Page';
 import { CreateNowTimestamp } from '../models/Date';

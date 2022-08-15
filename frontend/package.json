@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A Quasar Framework app",
   "productName": "Quasar App",
-  "author": "Gil Engel <gil.engel@web.de>",
+  "author": "Gil Engel <fernwaerts@gmail.com>",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
@@ -28,52 +28,28 @@
     "report:combined": "npx nyc report --reporter lcov --reporter text --report-dir coverage"
   },
   "dependencies": {
-    "@quasar/cli": "^1.2.1",
-    "@quasar/extras": "^1.0.0",
-    "@types/uuid": "^8.3.1",
     "axios": "^0.21.1",
-    "core-js": "^3.6.5",
-    "jest-mock-axios": "^4.4.0",
-    "quasar": "^2.0.0",
-    "sinon": "^11.1.2",
-    "ts-mock-imports": "^1.3.7",
-    "vuex": "^4.0.1"
+    "@quasar/extras": "^1.0.0",
+    "quasar": "^2.6.0",
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0",
+    "uuid": "^8.3.2",
+    "pinia": "^2.0.18"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.13.14",
-    "@cypress/code-coverage": "^3.9.10",
-    "@cypress/webpack-preprocessor": "^5.9.1",
-    "@quasar/app": "^3.0.0",
-    "@quasar/quasar-app-extension-testing": "^1.0.3",
-    "@quasar/quasar-app-extension-testing-e2e-cypress": "^4.0.0-beta.4",
-    "@quasar/quasar-app-extension-testing-unit-jest": "^3.0.0-alpha.3",
-    "@types/node": "^10.17.15",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.16.1",
-    "eslint": "^7.14.0",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "eslint": "^8.10.0",
+    "eslint-plugin-vue": "^9.0.0",
     "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-cypress": "^2.11.3",
-    "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-vue": "^7.0.0",
-    "find-webpack": "^2.2.1",
-    "majestic": "^1.7.0"
+    "prettier": "^2.5.1",
+    "@types/node": "^12.20.21",
+    "@quasar/app-vite": "^1.0.0",
+    "autoprefixer": "^10.4.2",
+    "typescript": "^4.5.4"
   },
-  "nyc": {
-    "report-dir": "test/cypress/coverage"
-  },
-  "browserslist": [
-    "last 10 Chrome versions",
-    "last 10 Firefox versions",
-    "last 4 Edge versions",
-    "last 7 Safari versions",
-    "last 8 Android versions",
-    "last 8 ChromeAndroid versions",
-    "last 8 FirefoxAndroid versions",
-    "last 10 iOS versions",
-    "last 5 Opera versions"
-  ],
   "engines": {
-    "node": ">= 12.22.1",
+    "node": "^18 || ^16 || ^14.19",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   }

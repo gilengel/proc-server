@@ -1,4 +1,4 @@
-use chrono::{NaiveDateTime, DateTime, Utc};
+use chrono::{NaiveDateTime};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug, Deserialize, Clone)]
@@ -21,7 +21,7 @@ impl Eq for Page {}
 
 #[test]
 fn pages_are_eq() {
-    let utc = Utc::now().naive_utc();
+    let utc = chrono::Utc::now().naive_utc();
     let uuid = String::from("8aa719b2-2800-40b4-b45f-0e5c0addd353");
     let value = Page {
         page_pk: None,
@@ -41,9 +41,9 @@ fn pages_are_eq() {
 
 #[test]
 fn pages_are_not_eq() {
-    let date = DateTime::parse_from_rfc3339("2021-12-19T16:39:57-08:00")
+    let date = chrono::DateTime::parse_from_rfc3339("2021-12-19T16:39:57-08:00")
         .unwrap()
-        .with_timezone(&Utc)
+        .with_timezone(&chrono::Utc)
         .naive_utc();
 
     let value = Page {
