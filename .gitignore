@@ -1,11 +1,11 @@
 target
+*.profraw
 
 backend/target
 backend/debug
 backend/cobertura.xml
 backend/lcov.info
 backend/.rust_info.json
-backend/*.profraw
 
 frontend/test/jest/coverage
 frontend/test/cypress/coverage
