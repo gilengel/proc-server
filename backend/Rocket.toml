@@ -1,4 +1,4 @@
 [global.databases]
-diesel = { url = "postgres://yugabyte:yugabyte@localhost:5433/___test_db_backend" }
+diesel = { url = "postgres://procserver:procserver@localhost:5432/procserver" }
 pool_size = 10
 timeout = 5

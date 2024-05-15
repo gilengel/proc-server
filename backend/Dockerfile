@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM rust:1.62.1 as builder
+FROM rust:1.78.0-alpine3.19 as builder
 WORKDIR /usr/src/myapp
 COPY . .
 RUN cargo install --path .

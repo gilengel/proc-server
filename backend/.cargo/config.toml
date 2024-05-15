@@ -1,2 +1,2 @@
 [env]
-DATABASE_URL = "postgres://yugabyte:yugabyte@localhost:5433/___test_db_backend"
+DATABASE_URL = "postgres://procserver:procserver@localhost:5432/procserver"
