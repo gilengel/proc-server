@@ -3,8 +3,7 @@ extern crate rocket;
 #[macro_use]
 extern crate rocket_sync_db_pools;
 
-mod api;
-mod models;
+pub mod api_pages;
 pub mod schema;
 
 use std::io::Cursor;
@@ -14,6 +13,15 @@ use rocket::{
     http::{ContentType, Header, Method},
     Build, Request, Response, Rocket,
 };
+
+use rocket::response::Debug;
+
+use rocket_sync_db_pools::diesel;
+
+#[database("diesel")]
+pub struct Db(diesel::PgConnection);
+
+type DatabaseResult<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
 
 #[get("/")]
 fn hello() -> &'static str {
@@ -55,7 +63,7 @@ fn create_rocket() -> Rocket<Build> {
     rocket::build()
         .mount("/", routes![hello])
         .attach(CORS())
-        .attach(api::page::stage())
+        .attach(api_pages::controller::stage())
 }
 
 #[rocket::main]

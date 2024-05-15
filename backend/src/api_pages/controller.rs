@@ -1,31 +1,16 @@
 use rocket::fairing::AdHoc;
 use rocket::http::Status;
 use rocket::response::status::Created;
-use rocket::response::{status::NoContent, Debug};
+use rocket::response::status::NoContent;
 use rocket::serde::json::Json;
 
-use crate::models::db_page::{ChangeDbPage, DbPage, NewDbPage};
-
-use crate::models::page::Page;
 use rocket_sync_db_pools::diesel;
 
+use crate::api_pages::db_entity::DbPage;
+use crate::api_pages::dto::{ChangeDbPage, NewDbPage};
+use crate::DatabaseResult;
+
 use self::diesel::prelude::*;
-
-#[database("diesel")]
-struct Db(diesel::PgConnection);
-
-type Result<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
-
-impl From<Page> for DbPage {
-    fn from(page: Page) -> Self {
-        DbPage {
-            page_pk: i32::default(),
-            page_id: page.page_id,
-            name: "".into(),
-            created_at: page.created_at,
-        }
-    }
-}
 
 #[options("/i_pages")]
 pub fn options() {}
@@ -34,7 +19,7 @@ pub fn options() {}
 pub fn pages_delete_options(_page_id: String) {}
 
 #[post("/i_pages", data = "<page>", format = "json")]
-async fn add_page(db: Db, page: Json<NewDbPage>) -> Result<Created<Json<DbPage>>> {
+async fn add_page(db: crate::Db, page: Json<NewDbPage>) -> DatabaseResult<Created<Json<DbPage>>> {
     let result = db
         .run(move |conn| {
             diesel::insert_into(crate::schema::pages::table)
@@ -49,7 +34,7 @@ async fn add_page(db: Db, page: Json<NewDbPage>) -> Result<Created<Json<DbPage>>
 }
 
 #[get("/i_pages")]
-async fn get_all(db: Db) -> Result<Json<Vec<DbPage>>, NoContent> {
+async fn get_all(db: crate::Db) -> Result<Json<Vec<DbPage>>, NoContent> {
     let db_result: Result<Vec<DbPage>, _> = db.run(move |conn| DbPage::read_all(conn)).await;
     let pages = db_result.unwrap();
 
@@ -57,7 +42,7 @@ async fn get_all(db: Db) -> Result<Json<Vec<DbPage>>, NoContent> {
 }
 
 #[get("/i_pages/<page_id>")]
-async fn get_by_page_id(page_id: String, db: Db) -> Result<Json<DbPage>, NoContent> {
+async fn get_by_page_id(page_id: String, db: crate::Db) -> Result<Json<DbPage>, NoContent> {
     let db_result: Result<DbPage, _> = db
         .run(move |conn| DbPage::read_by_page_id(page_id, conn))
         .await;
@@ -71,7 +56,7 @@ async fn get_by_page_id(page_id: String, db: Db) -> Result<Json<DbPage>, NoConte
 }
 
 #[delete("/i_pages/<page_id>")]
-async fn delete_by_page_id(page_id: String, db: Db) -> Status {
+async fn delete_by_page_id(page_id: String, db: crate::Db) -> Status {
     let db_result: Result<usize, _> = db
         .run(move |conn| DbPage::delete_by_page_id(page_id, conn))
         .await;
@@ -85,7 +70,7 @@ async fn delete_by_page_id(page_id: String, db: Db) -> Status {
 }
 
 #[put("/i_pages/<page_pk>", data = "<page>", format = "json")]
-async fn update_by_page_pk(page_pk: i32, page: Json<ChangeDbPage>, db: Db) -> Status {
+async fn update_by_page_pk(page_pk: i32, page: Json<ChangeDbPage>, db: crate::Db) -> Status {
     let db_result: Result<usize, _> = db
         .run(move |conn| DbPage::update_by_page_pk(page_pk, &page.into_inner(), conn))
         .await;
@@ -100,7 +85,7 @@ async fn update_by_page_pk(page_pk: i32, page: Json<ChangeDbPage>, db: Db) -> St
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("PageDB Stage", |rocket| async {
-        rocket.attach(Db::fairing()).mount(
+        rocket.attach(crate::Db::fairing()).mount(
             "/",
             routes![
                 options,
@@ -117,6 +102,7 @@ pub fn stage() -> AdHoc {
 
 #[cfg(test)]
 mod test {
+    use crate::schema::pages;
     use chrono::Utc;
     use diesel::pg::PgConnection;
     use diesel::prelude::*;
@@ -128,11 +114,10 @@ mod test {
     use std::fs;
 
     use crate::{
+        api_pages::{self, db_entity::DbPage, dto::NewDbPage, entity::Page},
         create_rocket,
-        models::{db_page::NewDbPage, page::Page},
         test::{run_test, setup_connection},
     };
-    use crate::{models::db_page::DbPage, schema::pages};
 
     fn create_test_db_page() -> NewDbPage {
         NewDbPage {
@@ -165,9 +150,9 @@ mod test {
             delete_page_table(&mut connection);
             create_page_table(&mut connection);
 
-            let pages = vec![create_test_db_page()];
+            let _pages = vec![create_test_db_page()];
 
-            let result = DbPage::create(&pages, &mut connection);
+            let result = DbPage::create(&_pages, &mut connection);
             let expected = "Random Page".to_owned();
 
             assert_eq!(result.name, expected);
@@ -264,8 +249,8 @@ mod test {
 
             assert_eq!(Ok(1), rows_inserted);
 
-            let pages = DbPage::read_all(&mut connection).unwrap();
-            for page in pages.iter() {
+            let _pages = DbPage::read_all(&mut connection).unwrap();
+            for page in _pages.iter() {
                 println!("{:?}", page);
             }
 

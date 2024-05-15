@@ -15,6 +15,7 @@ openssl = "*"
 openssl-probe = "0.1.2"
 rocket = { version="0.5.0", features=["json", "uuid"] }
 rocket_sync_db_pools = {version = "0.1.0", features=["diesel_postgres_pool", "postgres_pool"] }
+rocket_okapi = { version="*", features = [ "swagger", "rapidoc" ] }
 
 [dev-dependencies]
 rand = "0.8.4"

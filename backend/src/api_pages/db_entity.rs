@@ -5,6 +5,8 @@ use diesel::prelude::*;
 
 use crate::schema::pages;
 
+use super::dto::{ChangeDbPage, NewDbPage};
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(crate = "rocket::serde")]
 #[derive(Queryable, Selectable, AsChangeset)]
@@ -15,21 +17,6 @@ pub struct DbPage {
     pub page_id: String,
     pub name: String,
     pub created_at: NaiveDateTime,
-}
-
-#[derive(Debug, Clone, Insertable, Deserialize, Serialize)]
-#[diesel(table_name = crate::schema::pages)]
-pub struct NewDbPage {
-    pub page_id: String,
-    pub name: String,
-    pub created_at: NaiveDateTime,
-}
-
-#[derive(AsChangeset, Deserialize, Serialize)]
-#[diesel(table_name = crate::schema::pages)]
-pub struct ChangeDbPage {
-    pub page_id: Option<String>,
-    pub name: Option<String>,
 }
 
 impl PartialEq for DbPage {
