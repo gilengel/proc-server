@@ -14,20 +14,8 @@
   </q-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
 
 import PageList from '../components/Pagelist.vue';
 
-export default defineComponent({
-  name: 'MainLayout',
-
-  components: {
-    PageList,
-  },
-
-  setup() {
-    return {};
-  },
-});
 </script>
