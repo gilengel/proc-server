@@ -13,12 +13,42 @@
 </div>
 
 # Vision
-* Tool to create workflows for processing large amounts of data remotely in the cloud. 
-* Easy to use and visual appealing
-* Fast and secure on the backend
+
+- Tool to create workflows for processing large amounts of data remotely in the cloud.
+- Easy to use and visual appealing
+- Fast and secure on the backend
+
+# Technologies
+
+## Backend
+
+- Rust (2018 Edition)
+- Rocket (>= 0.5) as server
+- Diesel (>= 2.0) as ORM layer
+- Postgres
+
+## Frontend
+
+- Vue3 (most of the code is still written for Vue2 but is integrated bit by bit to Vue3)
+
+## DevOps / Environment
+
+- Docker
+- K8s
+- Skaffold
 
 # Status
-Development is ongoing but don't expect any release soon due to limited time.
 
-It currently contains only one service with rudimentary frontend serving as a base for further development. 
+Development is ongoing but very slowly as it is currently maintained only by one developer with limited time available. Don't expect a release in the near future.
 
+It currently contains only one service with rudimentary frontend serving as a base for further development.
+
+# Impressions
+
+The logic editor to link elements together. Linked elements react on changes on each other.
+In the following example the "Text" block represents a text input field that shows the value
+from the "Input" block to the user. If the user changes the value within the "Text" block the updated value is then available to the "Output" block.
+![image](Snapshot_2024-05-15_13-50-31.png)
+
+The UI builder where the user can create custome forms and pages. The single elements are logically linked together by the "logic editor" (see screenshot above).
+![image](Snapshot_2024-05-14_20-47-11.png)

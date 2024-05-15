@@ -12,13 +12,13 @@ use crate::DatabaseResult;
 
 use self::diesel::prelude::*;
 
-#[options("/i_pages")]
+#[options("/pages")]
 pub fn options() {}
 
-#[options("/i_pages/<_page_id>")]
+#[options("/pages/<_page_id>")]
 pub fn pages_delete_options(_page_id: String) {}
 
-#[post("/i_pages", data = "<page>", format = "json")]
+#[post("/pages", data = "<page>", format = "json")]
 async fn add_page(db: crate::Db, page: Json<NewDbPage>) -> DatabaseResult<Created<Json<DbPage>>> {
     let result = db
         .run(move |conn| {
@@ -33,7 +33,7 @@ async fn add_page(db: crate::Db, page: Json<NewDbPage>) -> DatabaseResult<Create
     Ok(Created::new("/").body(Json(result)))
 }
 
-#[get("/i_pages")]
+#[get("/pages")]
 async fn get_all(db: crate::Db) -> Result<Json<Vec<DbPage>>, NoContent> {
     let db_result: Result<Vec<DbPage>, _> = db.run(move |conn| DbPage::read_all(conn)).await;
     let pages = db_result.unwrap();
@@ -41,7 +41,7 @@ async fn get_all(db: crate::Db) -> Result<Json<Vec<DbPage>>, NoContent> {
     Ok(Json(pages))
 }
 
-#[get("/i_pages/<page_id>")]
+#[get("/pages/<page_id>")]
 async fn get_by_page_id(page_id: String, db: crate::Db) -> Result<Json<DbPage>, NoContent> {
     let db_result: Result<DbPage, _> = db
         .run(move |conn| DbPage::read_by_page_id(page_id, conn))
@@ -55,7 +55,7 @@ async fn get_by_page_id(page_id: String, db: crate::Db) -> Result<Json<DbPage>, 
     db_result
 }
 
-#[delete("/i_pages/<page_id>")]
+#[delete("/pages/<page_id>")]
 async fn delete_by_page_id(page_id: String, db: crate::Db) -> Status {
     let db_result: Result<usize, _> = db
         .run(move |conn| DbPage::delete_by_page_id(page_id, conn))
@@ -69,7 +69,7 @@ async fn delete_by_page_id(page_id: String, db: crate::Db) -> Status {
     }
 }
 
-#[put("/i_pages/<page_pk>", data = "<page>", format = "json")]
+#[put("/pages/<page_pk>", data = "<page>", format = "json")]
 async fn update_by_page_pk(page_pk: i32, page: Json<ChangeDbPage>, db: crate::Db) -> Status {
     let db_result: Result<usize, _> = db
         .run(move |conn| DbPage::update_by_page_pk(page_pk, &page.into_inner(), conn))
@@ -180,7 +180,7 @@ mod test {
             let api_page_str = serde_json::to_string(&page).unwrap();
 
             let response = client
-                .post("/i_pages")
+                .post("/pages")
                 .header(ContentType::JSON)
                 .body(api_page_str)
                 .dispatch();
@@ -225,7 +225,7 @@ mod test {
             create_page_table(&mut connection);
 
             let client = Client::tracked(create_rocket()).expect("valid rocket instance");
-            let response = client.get("/i_pages").dispatch();
+            let response = client.get("/pages").dispatch();
             assert_eq!(response.status(), Status::Ok);
 
             // TODO add proper test to validate that the actual result really matches the stored data
@@ -256,7 +256,7 @@ mod test {
 
             let client = Client::tracked(create_rocket()).expect("valid rocket instance");
             let response = client
-                .get("/i_pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
+                .get("/pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
                 .dispatch();
             assert_eq!(response.status(), Status::Ok);
             assert_eq!(response.content_type(), Some(ContentType::JSON));
@@ -289,7 +289,7 @@ mod test {
 
             let client = Client::tracked(create_rocket()).expect("valid rocket instance");
             let response = client
-                .get("/i_pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
+                .get("/pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
                 .dispatch();
             assert_eq!(response.status(), Status::NoContent);
         })
@@ -312,7 +312,7 @@ mod test {
 
             let client = Client::tracked(create_rocket()).expect("valid rocket instance");
             let response = client
-                .delete("/i_pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
+                .delete("/pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
                 .dispatch();
             assert_eq!(response.status(), Status::Ok);
         })
@@ -329,7 +329,7 @@ mod test {
 
             let client = Client::tracked(create_rocket()).expect("valid rocket instance");
             let response = client
-                .delete("/i_pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
+                .delete("/pages/9bbfa845-604c-4cd8-aca1-679c4b893f44")
                 .dispatch();
             assert_eq!(response.status(), Status::BadRequest);
         })
@@ -358,7 +358,7 @@ mod test {
 
             let client = Client::tracked(create_rocket()).expect("valid rocket instance");
             let response = client
-                .put(format!("/i_pages/{}", page.page_pk))
+                .put(format!("/pages/{}", page.page_pk))
                 .header(ContentType::JSON)
                 .json(&new_page)
                 .dispatch();
@@ -383,7 +383,7 @@ mod test {
 
             let client = Client::tracked(create_rocket()).expect("valid rocket instance");
             let response = client
-                .put("/i_pages/1")
+                .put("/pages/1")
                 .header(ContentType::JSON)
                 .json(&new_page)
                 .dispatch();
