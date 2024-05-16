@@ -9,13 +9,33 @@
     </q-header>
 
     <q-page-container>
-      <page-list />
+      <!--
+      <FlowEditor :nodes="nodes" :dockWidth="10" flowTitle="Graph" />
+      -->
+      <!--<FlowGraph />-->
+      <WidgetLayout :grid />
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
+import { useGridModuleStore } from '../stores/gridModule';
 
-import PageList from '../components/Pagelist.vue';
+const gridModuleStore = useGridModuleStore();
 
+const grid: Grid = gridModuleStore.grid as Grid;
+
+import { Grid } from 'src/models/Grid';
+//import FlowGraph from '../components/flow/FlowGraph.vue';
+import WidgetLayout from '../components/ui_builder/WidgetLayout.vue';
+
+//import FlowEditor from '../components/flow/FlowGraph.vue';
+
+//import { getRegisteredComponentCategories } from 'src/components/flow/components/Index';
+//import FlowEditor from '../components/flow/FlowEditor.vue';
+//import { ref } from 'vue';
+
+//const nodes = ref(getRegisteredComponentCategories());
+//console.log(nodes);
+//import PageList from '../components/Pagelist.vue';
 </script>
