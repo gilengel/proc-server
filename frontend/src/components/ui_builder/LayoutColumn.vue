@@ -1,11 +1,16 @@
 <template>
   <div class="layout-col" v-bind:class="{ active: !linkModeActive }">
-    <div class="actions" v-if="!linkModeActive && editable">
+    <div class="actions" v-if="!linkModeActive">
       <q-btn dark flat round color="white" icon="las la-plus">
         <q-menu dark>
           <q-list style="min-width: 100px">
-            <template v-for="element in allowedElements" :key="element">
-              <q-item clickable v-close-popup @click="addElement(element)">
+            <template v-for="element in allowedElements">
+              <q-item
+                clickable
+                v-close-popup
+                @click="addElement(element)"
+                :key="element"
+              >
                 <q-item-section>{{ element }}</q-item-section>
               </q-item>
             </template>
@@ -19,7 +24,7 @@
         round
         color="white"
         icon="las la-columns"
-        @click="gridModuleStore.splitColumn(rowIndex, columnIndex)"
+        @click="splitColumn(columnIndex)"
       />
       <q-btn
         dark
@@ -27,208 +32,207 @@
         round
         color="white"
         icon="las la-trash-alt"
-        :disable="model.width === 12"
-        @click="gridModuleStore.deleteColumn(rowIndex, columnIndex)"
+        @click="deleteColumn(columnIndex)"
       />
     </div>
 
-    <!--
     <draggable
       @change="elementAdded"
-      :list="list"
-      group="widget"
-      ghost-class="ghost"
-      :disabled="linkModeActive"
-    >
-      <TextElement
-        data-key="itemId"
-        :model="model.element"
-        :dataValue="model.element.type"
-        :active="linkModeActive"
-        :editable="() => true"
-        v-if="model && model.element && model.element.type === 'Text'"
-      />
+        :list="list"
+        group="widget"
+        ghost-class="ghost"
+        :disabled="linkModeActive"
+      >
+    <TextElement
+      data-key="itemId"
+      :model="model.element"
+      :dataValue="model.element.type"
+      :active="linkModeActive"
+      editable="true"
+      v-if="model && model.element && model.element.type === 'Text'"
+    />
 
+    <ButtonElement
+      data-key="itemId"
+      :model="model.element"
+      :dataValue="model.element.type"
+      :active="linkModeActive"
+      editable="true"
+      v-if="model && model.element && model.element.type === 'Button'"
+      @keyup.native="removeElementFromColumn(model)"
+    />
 
-      <ButtonElement
-        data-key="itemId"
-        :model="model.element"
-        :dataValue="model.element.type"
-        :active="linkModeActive"
-        :editable="() => true"
-        v-if="model && model.element && model.element.type === 'Button'"
-        @keyup="removeElementFromColumn(model)"
-      />
+    <HeadingElement
+      data-key="itemId"
+      :model="model.element"
+      :dataValue="model.element.type"
+      :active="linkModeActive"
+      editable="true"
+      v-if="model && model.element && model.element.type === 'Heading'"
+    />
 
-
-      <HeadingElement
-        data-key="itemId"
-        :model="model.element"
-        :dataValue="model.element.type"
-        :active="linkModeActive"
-        :editable="() => true"
-        v-if="model && model.element && model.element.type === 'Heading'"
-      />
-
-      <MapElement
-        data-key="itemId"
-        :model="model.element"
-        :dataValue="model.element.type"
-        :active="linkModeActive"
-        editable="true"
-        v-if="model && model.element && model.element.type === 'Map'"
-      />
+    <MapElement
+      data-key="itemId"
+      :model="model.element"
+      :dataValue="model.element.type"
+      :active="linkModeActive"
+      editable="true"
+      v-if="model && model.element && model.element.type === 'Map'"
+    />
 
     </draggable>
-  --></div>
+  </div>
 </template>
 
-<script setup lang="ts">
-//import ButtonElement from './ButtonElement.vue';
-//import TextElement from './TextElement.vue';
-//import HeadingElement from './HeadingElement.vue';
-//import draggable from 'vuedraggable';
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+
+import ButtonElement from "./ButtonElement.vue";
+import TextElement from "./TextElement.vue";
+import HeadingElement from "./HeadingElement.vue";
+import MapElement from "./MapElement.vue";
+import draggable from "vuedraggable";
 import {
+  Row,
   Column,
   Element,
   ElementType,
   ElementAttribute,
   ElementAttributeType,
-} from '../../models/Grid';
+} from "../../models/Grid";
+import { Action } from "vuex-class";
 
-import { useGridModuleStore } from '../../stores/gridModule';
+import { v4 as uuidv4 } from "uuid";
 
-const gridModuleStore = useGridModuleStore();
+@Component({
+  name: "LayoutColumn",
 
-import { v4 as uuidv4 } from 'uuid';
-import { colValidator } from './common';
-
-//const list = [
-//  { name: 'John', id: 0 },
-//  { name: 'Joao', id: 1 },
-//  { name: 'Jean', id: 2 },
-//];
-
-const props = defineProps({
-  rowIndex: {
-    type: Number,
-    required: true,
+  components: {
+    ButtonElement,
+    TextElement,
+    HeadingElement,
+    MapElement,
+    draggable
   },
+})
+export default class LayoutColumn extends Vue {
+      list= [
+        { name: "John", id: 0 },
+        { name: "Joao", id: 1 },
+        { name: "Jean", id: 2 }
+      ];
 
-  columnIndex: {
-    type: Number,
-    default: 2,
-    required: true,
-    validator: colValidator,
-  },
-
-  linkModeActive: Boolean,
-
-  editable: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-
-  model: {
-    type: Object as () => Column,
-    required: true,
-  },
-
-  splitDisabled: Boolean,
-
-  click: {
-    type: Object as (element: Element) => void,
-  },
-
-  addElementToColumn: {
-    type: Object as (param: { column: Column; element: Element }) => void,
-  },
-
-  removeElementFromColumn: {
-    type: Object as (column: Column) => void,
-  },
-});
-
-const allowedElements = ['Button', 'Text', 'Heading'];
-
-//function elementAdded(evt: { added: unknown; removed: unknown }) {
-//  if (evt.added) {
-//    props.addElement(
-//      ElementType[evt.added.element.name as keyof typeof ElementType],
-//    );
-//  }
-//
-//  if (evt.removed) {
-//    props.removeElementFromColumn(props.model);
-//  }
-//}
-
-function addElement(widgetType: ElementType) {
-  const widgetAttributes = new Array<ElementAttribute>();
-  const uuid = uuidv4();
-  if (widgetType === ElementType.Button) {
-    widgetAttributes.push({
-      name: 'type',
-      type: ElementAttributeType.String,
-      value: 'button',
-    });
-    widgetAttributes.push({
-      name: 'icon',
-      type: ElementAttributeType.String,
-      value: 'lab la-accessible-icon',
-    });
-    widgetAttributes.push({
-      name: 'hasIcon',
-      type: ElementAttributeType.Boolean,
-      value: true,
-    });
-    widgetAttributes.push({
-      name: 'isHighlighted',
-      type: ElementAttributeType.Boolean,
-      value: true,
-    });
-    widgetAttributes.push({
-      name: 'label',
-      type: ElementAttributeType.String,
-      value: 'Button',
-    });
-  }
-
-  if (widgetType === ElementType.Text) {
-    widgetAttributes.push({
-      name: 'variable',
-      type: ElementAttributeType.String,
-      value: 'Some_text',
-    });
-    widgetAttributes.push({
-      name: 'label',
-      type: ElementAttributeType.String,
-      value: 'Some text',
-    });
-    widgetAttributes.push({
-      name: 'type',
-      type: ElementAttributeType.String,
-      value: 'date',
-    });
-    widgetAttributes.push({
-      name: 'withLabel',
-      type: ElementAttributeType.Boolean,
-      value: true,
-    });
-  }
-
-  if (widgetType === ElementType.Heading) {
-  }
-
-  props.addElementToColumn({
-    column: props.model,
-    element: {
-      uuid: uuid,
-      type: widgetType,
-      attributes: widgetAttributes,
+  // Minimal size for one column
+  @Prop({
+    validator(x) {
+      return typeof x === "number" && x >= 0 && x < 12;
     },
-  });
+  })
+  columnIndex!: number;
+
+  @Prop({
+    validator(x) {
+      return typeof x === "boolean";
+    },
+  })
+  linkModeActive!: boolean;
+
+  @Prop() splitDisabled!: (colIndex: number) => void;
+
+  @Prop() splitColumn!: (columnIndex: number) => void;
+
+  @Prop() deleteColumn!: (colIndex: number) => void;
+
+  @Prop() model!: Column;
+
+  @Prop() click!: (element: Element) => void;
+
+  @Action("addElementToColumn")
+  addElementToColumn!: (param: { column: Column; element: Element }) => void;
+
+  @Action("removeElementFromColumn")
+  removeElementFromColumn!: (column: Column) => void;
+
+  allowedElements = ["Button", "Text", "Heading"];
+
+  elementAdded(evt) {
+
+    if(evt.added) {
+      this.addElement(ElementType[evt.added.element.name as keyof typeof ElementType])
+    }
+
+    if(evt.removed) {
+      this.removeElementFromColumn(this.model)
+    }
+
+  }
+
+  private addElement(widgetType: ElementType) {
+    const widgetAttributes = new Array<ElementAttribute>();
+    const uuid = uuidv4();
+    if (widgetType === ElementType.Button) {
+      widgetAttributes.push({
+        name: "type",
+        type: ElementAttributeType.String,
+        value: "button",
+      });
+      widgetAttributes.push({
+        name: "icon",
+        type: ElementAttributeType.String,
+        value: "lab la-accessible-icon",
+      });
+      widgetAttributes.push({
+        name: "hasIcon",
+        type: ElementAttributeType.Boolean,
+        value: true,
+      });
+      widgetAttributes.push({
+        name: "isHighlighted",
+        type: ElementAttributeType.Boolean,
+        value: true,
+      });
+      widgetAttributes.push({
+        name: "label",
+        type: ElementAttributeType.String,
+        value: "Button",
+      });
+    }
+
+    if (widgetType === ElementType.Text) {
+      widgetAttributes.push({
+        name: "variable",
+        type: ElementAttributeType.String,
+        value: "Some_text",
+      });
+      widgetAttributes.push({
+        name: "label",
+        type: ElementAttributeType.String,
+        value: "Some text",
+      });
+      widgetAttributes.push({
+        name: "type",
+        type: ElementAttributeType.String,
+        value: "date",
+      });
+      widgetAttributes.push({
+        name: "withLabel",
+        type: ElementAttributeType.Boolean,
+        value: true,
+      });
+    }
+
+    if (widgetType === ElementType.Heading) {
+    }
+
+    this.addElementToColumn({
+      column: this.model,
+      element: {
+        uuid: uuid,
+        type: widgetType,
+        attributes: widgetAttributes,
+      },
+    });
+  }
 }
 </script>
 

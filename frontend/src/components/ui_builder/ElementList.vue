@@ -6,15 +6,24 @@
       </template>
     </q-input>
 
-    <Sortable
-      :list="list"
-      :itemKey="(element) => element.id"
-      :move="onMove"
-      @choose="(event) => console.log(event)"
-      @end="(event) => console.log(event)"
+    <draggable
+      class="q-list q-list--bordered q-list--separator q-list--dark"
+      tag="div"
+      v-model="list"
+      v-bind="dragOptions"
+      @start="onStart"
+      @end="onEnd"
+      :move="onMoveCallback"
+      :group="{ name: 'widget', pull: 'clone', put: false }"
     >
-      <template #item="{ element }">
-        <q-item clickable v-ripple class="list-group-item" :key="element.id">
+      <transition-group type="transition" :name="!drag ? 'flip-list' : null">
+        <q-item
+          clickable
+          v-ripple
+          class="list-group-item"
+          v-for="(element, index) in list"
+          :key="index"
+        >
           <q-item-section>
             <i
               :class="
@@ -26,32 +35,35 @@
             {{ element.name }}
           </q-item-section>
         </q-item>
-      </template>
-    </Sortable>
+      </transition-group>
+    </draggable>
   </div>
 </template>
 
-<script setup lang="ts">
-import { Sortable } from 'sortablejs-vue3';
-import { computed } from 'vue';
+<script lang="ts">
+import Vue from "vue";
+import { Component } from "vue-property-decorator";
+import draggable from "vuedraggable";
 
-const text = '';
-const elements = ['Heading', 'Text', 'Button', 'Map'];
+interface ListItem {
+  name: string;
+  order: number;
+  fixed: boolean;
+}
 
-const list = computed(() =>
-  elements.map((transform, index) => {
-    return { name: transform, order: index, fixed: false };
-  }),
-);
+@Component({
+  name: "ElementList",
 
-//const dragOptions = {
-//  animation: 200,
-//  group: 'description',
-//  disabled: false,
-//  ghostClass: 'ghost',
-//};
+  components: {
+    draggable,
+  },
+})
+export default class ElementList extends Vue {
+  text = "";
+  elements = ["Heading", "Text", "Button", "Map"];
 
-/*
+  drag = false;
+
   get list(): Array<ListItem> {
     return this.elements.map((transform, index) => {
       return { name: transform, order: index, fixed: false };
@@ -66,7 +78,6 @@ const list = computed(() =>
     this.elements = list;
   }
 
-
   get dragOptions() {
     return {
       animation: 200,
@@ -75,32 +86,28 @@ const list = computed(() =>
       ghostClass: "ghost",
     };
   }
-  */
 
-/*
-const emit = defineEmits(['startDragging', 'stopDragging']);
-
-
-function onStart() {
-  emit('startDragging');
-}
-
-function onEnd() {
-  emit('stopDragging');
-}
-*/
-function onMove(evt: { related: { classList: DOMTokenList } }): boolean {
-  const targetClassList = evt.related.classList;
-
-  if (targetClassList.contains('layout-row')) {
-    //return false;
+  onStart() {
+    this.$emit('startDragging')
   }
 
-  console.log(evt.related);
+  onEnd() {
+    this.$emit('stopDragging')
+  }
+  onMoveCallback(evt: any, originalEvent: any): boolean {
+    const targetClassList = evt.related.classList as DOMTokenList;
 
-  return true;
-  // return false; — for cancel
+    if (targetClassList.contains("layout-row")) {
+      //return false;
+    }
+
+    console.log(evt.related)
+
+    return true;
+    // return false; — for cancel
+  }
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>

@@ -1,5 +1,5 @@
-import { NodeData, WorkerInputs, WorkerOutputs } from 'rete/types/core/data';
-import { FlowComponent } from '../models/Component';
+import { FlowComponent } from '../models/Component'
+import { NodeData, WorkerInputs, WorkerOutputs } from 'rete/types/core/data'
 
 export default new FlowComponent({
   label: 'Text',
@@ -9,7 +9,7 @@ export default new FlowComponent({
       type: 'variable',
       label: 'Variable',
       mandatory: true,
-    },
+    }
   ],
 
   outputs: [
@@ -17,21 +17,16 @@ export default new FlowComponent({
       type: 'variable',
       label: 'Variable',
       mandatory: true,
-    },
+    }
   ],
 
   workerFn: (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     node: NodeData,
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     inputs: WorkerInputs,
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    outputs: WorkerOutputs,
+    outputs: WorkerOutputs
   ): Promise<void> => {
     return new Promise((resolve) => {
-      resolve();
-    });
-  },
-});
+      resolve()
+    })
+  }
+})

@@ -1,12 +1,14 @@
 import { StringTransform } from './String';
 
 export enum ElementType {
-  Button = 'Button',
-  Text = 'Text',
-  Row = 'Row',
-  Heading = 'Heading',
-  Map = 'Map',
+  Button = "Button",
+  Text = "Text",
+  Row = "Row",
+  Heading = "Heading",
+  Map = "Map"
 }
+
+
 
 export interface Element {
   uuid: string;
@@ -20,10 +22,10 @@ export interface Element {
 }
 
 export interface ElementPin {
-  type: ElementAttributeType;
-  identifier: string;
-  connection?: ElementConnection;
-  children: Array<ElementPin | ElementPin>;
+  type: ElementAttributeType,
+  identifier: string,
+  connection?: ElementConnection
+  children: Array<ElementPin | ElementPin>
 }
 
 export interface Point {
@@ -35,21 +37,21 @@ export interface ElementConnection {
   input: string;
   output: string;
 
-  value?: unknown;
+  value?: any;
   transform: Array<StringTransform>;
 }
 
 export enum ElementAttributeType {
-  Number = 'Number',
-  String = 'String',
-  Boolean = 'Boolean',
-  Coolection = 'Collection',
+  Number = "Number",
+  String = "String",
+  Boolean = "Boolean",
+  Coolection = "Collection",
 }
 
 export interface ElementAttribute {
   name: string;
   type: ElementAttributeType;
-  value: unknown;
+  value: any;
 }
 
 export interface Column {

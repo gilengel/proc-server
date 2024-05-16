@@ -15,7 +15,7 @@
         round
         color="white"
         icon="las la-trash-alt"
-        @click="gridModuleStore.deleteRow(rowIndex)"
+        @click="deleteRow(rowIndex)"
       />
     </div>
     <div class="row" ref="container">
@@ -26,229 +26,256 @@
         :rowIndex="rowIndex"
         :model="column"
         :class="colClass(col_index)"
+        :splitColumn="_splitColumn"
         :splitDisabled="column.width <= 2"
-        :editable="!isDraggingColumnSize"
+        :deleteColumn="_deleteColumn"
         v-for="(column, col_index) in model.columns"
-        :key="col_index"
-      />
+      >
+      </LayoutColumn>
 
       <div
         class="splitter"
         :style="splitterStyleFn(i)"
         v-for="(n, i) in model.columns.length - 1"
-        :key="i"
         @mousedown="dragMouseDown($event, i)"
       ></div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { useGridModuleStore } from '../../stores/gridModule';
-import { Row } from '../../models/Grid';
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+import { Action } from 'vuex-class';
+import LayoutColumn from "./LayoutColumn.vue";
 
-const gridModuleStore = useGridModuleStore();
+import { Row, Column } from "../../models/Grid";
 
-import LayoutColumn from './LayoutColumn.vue';
+@Component({
+  name: "LayoutRow",
 
-import { Ref, onMounted, ref } from 'vue';
-import { colValidator } from './common';
+  components: {
+    LayoutColumn,
+  },
+})
+export default class LayoutRow extends Vue {
 
-const container: Ref<HTMLElement | null> = ref(null);
+  @Action("deleteRow")
+  deleteRow!: (rowIndex: number) => void;
 
-const props = defineProps({
-  minColSize: {
-    type: Number,
+  @Action("splitColumn")
+  splitColumn!: (param: { row: Row, columnIndex: number }) => void;
+
+  private _splitColumn(columnIndex: number) {
+    this.splitColumn({ row: this.model, columnIndex: columnIndex })
+  }
+
+  @Action("deleteColumn")
+  deleteColumn!: (param: { row: Row, columnIndex: number }) => void;
+
+  private _deleteColumn(columnIndex: number) {
+    this.deleteColumn({ row: this.model, columnIndex: columnIndex })
+  }
+
+  @Action("updateColumnWidth")
+  updateColumnWidth!: (params: { column: Column, newWidth: number }) => void;
+/*
+  private _updateColumnWidth(width: number) {
+    this.updateColumnWidth({ column: this.model, newWidth: width })
+  }
+*/
+
+  // Minimal size for one column
+  @Prop({
     default: 2,
-    required: false,
-    validator: colValidator,
-  },
+    validator(x) {
+      return x > 0 && x <= 12;
+    },
+  })
+  minColSize!: number;
 
-  maxColSize: {
-    type: Number,
+  // Maximal size for one column
+  @Prop({
     default: 11,
-    required: false,
-    validator: colValidator,
-  },
+    validator(x) {
+      return x > 0 && x <= 12;
+    },
+  })
+  maxColSize!: number;
 
-  rowIndex: {
-    type: Number,
-    required: true,
-    validator: (x: number) => x >= 0,
-  },
+  @Prop({
+    validator(x) {
+      return typeof x === "number" && x >= 0;
+    },
+  })
+  rowIndex!: number;
 
-  linkModeActive: Boolean,
+  @Prop({
+      validator(x) { return typeof x === "boolean" }
+  })
+  linkModeActive!: boolean;
 
-  model: {
-    type: Object as () => Row,
-    required: true,
-  },
-});
+  @Prop() model!: Row;
 
-// Individual splitter positions
-const splitterPositions = new Array<number>();
+  // Individual column sized
+  colSizes = new Array<number>();
 
-const flexColumns = 12;
+  // Individual splitter positions
+  splitterPositions = new Array<number>();
 
-const selectedSplitter: Ref<HTMLElement | undefined> = ref(undefined);
-const selectedSplitterIndex: Ref<number> = ref(-1);
+  flexColumns = 12;
 
-const isDraggingColumnSize: Ref<boolean> = ref(false);
+  selectedSplitter: HTMLElement | null = null;
+  selectedSplitterIndex: number = -1;
 
-const positions = {
-  clientX: 0,
-  clientY: 0,
-  movementX: 0,
-  movementY: 0,
-};
-
-function previosColSize(index: number): number {
-  let result = 0;
-  for (let i = 0; i < index; i++) {
-    result += props.model.columns[i].width;
-  }
-
-  return result;
-}
-
-function colClass(i: number): string {
-  const width = props.model.columns[i].width;
-  return `col col-${width}`;
-}
-
-function splitterStyleFn(i: number): string {
-  const left = (previosColSize(i + 1) / flexColumns) * 100;
-
-  return `left: ${left}%`;
-}
-
-onMounted(() => {
-  for (let column of props.model.columns) {
-    column;
-  }
-
-  const numColumns = props.model.columns.length;
-  for (let i = 0; i < numColumns - 1; i++) {
-    splitterPositions.push(((i + 1) / numColumns) * 100);
-  }
-});
-
-function dragMouseDown(event: MouseEvent, index: number) {
-  event.preventDefault();
-  // get the mouse cursor position at startup:
-  positions.clientX = event.clientX;
-  positions.clientY = event.clientY;
-  document.onmousemove = elementDrag;
-  document.onmouseup = closeDragElement;
-
-  selectedSplitter.value = event.target as HTMLElement;
-  selectedSplitterIndex.value = index;
-
-  isDraggingColumnSize.value = true;
-}
-
-function containerWidth(): number {
-  return (container.value as HTMLElement).getBoundingClientRect().width;
-}
-
-function updatePositions(event: MouseEvent) {
-  positions.movementX = positions.clientX - event.clientX;
-  positions.movementY = positions.clientY - event.clientY;
-  positions.clientX = event.clientX;
-  positions.clientY = event.clientY;
-}
-
-function affectedColumnSizes(): { [key: string]: number } {
-  const left = props.model.columns[selectedSplitterIndex.value].width;
-  const right = props.model.columns[selectedSplitterIndex.value + 1].width;
-  return {
-    left: left,
-    right: right,
-    complete: left + right,
+  positions = {
+    clientX: 0,
+    clientY: 0,
+    movementX: 0,
+    movementY: 0,
   };
-}
 
-function restrictNewColumnSizes(newColumnSize: number): {
-  [key: string]: number;
-} {
-  const completeColumnSize = affectedColumnSizes().complete;
-
-  if (newColumnSize < props.minColSize) {
-    newColumnSize = props.minColSize;
+  private splitDisabled(columnIndex: number) {
+    return this.colSizes[columnIndex] < this.minColSize * 2;
   }
 
-  if (newColumnSize > completeColumnSize - 1) {
-    newColumnSize = completeColumnSize - 1;
+  previosColSize(index: number): number {
+    let result = 0;
+    for (let i = 0; i < index; i++) {
+      result += this.model.columns[i].width;
+    }
+
+    return result;
   }
 
-  if (newColumnSize > props.maxColSize) {
-    newColumnSize = props.maxColSize;
+  colClass(i: number): string {
+    const width = this.model.columns[i].width;
+    return `col col-${width}`;
   }
 
-  let rightColumnSize = completeColumnSize - newColumnSize;
-  if (rightColumnSize < props.minColSize) {
-    const difference = props.minColSize - rightColumnSize;
-    rightColumnSize = props.minColSize;
-    newColumnSize -= difference;
+  splitterStyleFn(i: number): string {
+    const left = (this.previosColSize(i + 1) / this.flexColumns) * 100;
+
+    return `left: ${left}%`;
   }
 
-  if (rightColumnSize > props.maxColSize) {
-    const difference = props.maxColSize - rightColumnSize;
-    rightColumnSize = props.maxColSize;
-    newColumnSize -= difference;
+  mounted() {
+    for (let column of this.model.columns) {
+      column;
+    }
+
+    const numColumns = this.model.columns.length;
+    for (let i = 0; i < numColumns - 1; i++) {
+      this.splitterPositions.push(((i + 1) / numColumns) * 100);
+    }
   }
 
-  return {
-    left: newColumnSize,
-    right: rightColumnSize,
-  };
-}
+  dragMouseDown(event: MouseEvent, index: number) {
+    event.preventDefault();
+    // get the mouse cursor position at startup:
+    this.positions.clientX = event.clientX;
+    this.positions.clientY = event.clientY;
+    document.onmousemove = this.elementDrag;
+    document.onmouseup = this.closeDragElement;
 
-function elementDrag(event: MouseEvent) {
-  event.preventDefault();
-
-  updatePositions(event);
-
-  if (!container.value) {
-    return;
+    this.selectedSplitter = event.target as HTMLElement;
+    this.selectedSplitterIndex = index;
   }
 
-  const positionLeft = positions.clientX - container.value.offsetLeft;
-
-  if (selectedSplitter.value) {
-    const previousColSizes = previosColSize(selectedSplitterIndex.value);
-    const flexSize =
-      Math.ceil((positionLeft / containerWidth()) * flexColumns) -
-      previousColSizes;
-
-    const newColumnSizes = restrictNewColumnSizes(flexSize);
-
-    gridModuleStore.updateColumnWidth({
-      column: props.model.columns[selectedSplitterIndex.value],
-      newWidth: newColumnSizes.left,
-    });
-    gridModuleStore.updateColumnWidth({
-      column: props.model.columns[selectedSplitterIndex.value + 1],
-      newWidth: newColumnSizes.right,
-    });
-  }
-}
-
-function closeDragElement() {
-  document.onmouseup = null;
-  document.onmousemove = null;
-
-  const previousColSizes =
-    previosColSize(selectedSplitterIndex.value + 1) / flexColumns;
-  const el = selectedSplitter;
-
-  if (!el.value) {
-    return;
+  private containerWidth(): number {
+    return (this.$refs.container as HTMLElement).getBoundingClientRect().width;
   }
 
-  el.value.style.left = `${previousColSizes * containerWidth()}px`;
+  private updatePositions(event: MouseEvent) {
+    this.positions.movementX = this.positions.clientX - event.clientX;
+    this.positions.movementY = this.positions.clientY - event.clientY;
+    this.positions.clientX = event.clientX;
+    this.positions.clientY = event.clientY;
+  }
 
-  isDraggingColumnSize.value = false;
+  private calculateExpectedFlexSize(relativeLeft: number): number {
+    const containerWidth = this.containerWidth();
+
+    return Math.ceil((relativeLeft / containerWidth) * this.flexColumns);
+  }
+
+  private get affectedColumnSizes(): { [key: string]: number } {
+    const left = this.model.columns[this.selectedSplitterIndex].width;
+    const right = this.model.columns[this.selectedSplitterIndex + 1].width;
+    return {
+      left: left,
+      right: right,
+      complete: left + right,
+    };
+  }
+
+  private restrictNewColumnSizes(
+    newColumnSize: number
+  ): { [key: string]: number } {
+    const completeColumnSize = this.affectedColumnSizes.complete;
+
+    if (newColumnSize < this.minColSize) {
+      newColumnSize = this.minColSize;
+    }
+
+    if (newColumnSize > completeColumnSize - 1) {
+      newColumnSize = completeColumnSize - 1;
+    }
+
+    if (newColumnSize > this.maxColSize) {
+      newColumnSize = this.maxColSize;
+    }
+
+    let rightColumnSize = completeColumnSize - newColumnSize;
+    if (rightColumnSize < this.minColSize) {
+      const difference = this.minColSize - rightColumnSize;
+      rightColumnSize = this.minColSize;
+      newColumnSize -= difference;
+    }
+
+    if (rightColumnSize > this.maxColSize) {
+      const difference = this.maxColSize - rightColumnSize;
+      rightColumnSize = this.maxColSize;
+      newColumnSize -= difference;
+    }
+
+    return {
+      left: newColumnSize,
+      right: rightColumnSize,
+    };
+  }
+
+  elementDrag(event: MouseEvent) {
+    event.preventDefault();
+
+    this.updatePositions(event);
+    const positionLeft =
+      this.positions.clientX - this.$refs.container.offsetLeft;
+
+    if (this.selectedSplitter) {
+      const previousColSizes = this.previosColSize(this.selectedSplitterIndex);
+      const flexSize =
+        Math.ceil((positionLeft / this.containerWidth()) * this.flexColumns) -
+        previousColSizes;
+
+      const newColumnSizes = this.restrictNewColumnSizes(flexSize);
+      this.updateColumnWidth({ column: this.model.columns[this.selectedSplitterIndex], newWidth: newColumnSizes.left })
+      this.updateColumnWidth({ column: this.model.columns[this.selectedSplitterIndex+1], newWidth: newColumnSizes.right })
+    }
+  }
+
+  closeDragElement() {
+    console.log("=)=")
+    document.onmouseup = null;
+    document.onmousemove = null;
+
+    const previousColSizes =
+      this.previosColSize(this.selectedSplitterIndex + 1) / this.flexColumns;
+    const el = this.selectedSplitter;
+
+    if (el) {
+      el.style.left = `${previousColSizes * this.containerWidth()}px`;
+    }
+  }
 }
 </script>
 
@@ -288,6 +315,8 @@ function closeDragElement() {
 .row {
   height: 100%;
   position: relative;
+
+
 
   .splitter {
     position: absolute;

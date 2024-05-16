@@ -1,10 +1,10 @@
-# Quasar App (frontend)
+# nantu (nantu_app)
 
 A Quasar Framework app
 
 ## Install the dependencies
 ```bash
-yarn
+npm install
 ```
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
@@ -14,7 +14,7 @@ quasar dev
 
 ### Lint the files
 ```bash
-yarn run lint
+npm run lint
 ```
 
 ### Build the app for production
@@ -23,4 +23,4 @@ quasar build
 ```
 
 ### Customize the configuration
-See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
+See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).

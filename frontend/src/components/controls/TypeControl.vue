@@ -1,6 +1,6 @@
 <template>
   <div class="linked-control column q-gutter-md">
-    <div class="row" style="gap: 1em; padding-left: 1em; padding-right: 1em">
+    <div class="row">
       <q-input
         class="col"
         label="Name"
@@ -22,57 +22,67 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ElementAttributeType } from 'src/models/Grid';
-import { ControlProps } from './ControlProps';
+<script lang="ts">
+import { Component } from "vue-property-decorator";
+
+import VueFlowControl from "./FlowControl";
+
+import { ElementAttributeType } from "src/models/Grid";
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
   return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
 }
 
-let props = defineProps<ControlProps>();
+@Component
+export default class TypeControl extends VueFlowControl {
+  variableName: string = "";
 
-let scope = {
-  value: {
-    identifier: '',
-    type: ElementAttributeType.String,
-  },
-  changeIdentifier: changeIdentifier.bind(this),
-};
+  newFilter: string = "String";
 
-function filterOptions() {
-  let a = [];
-  for (const value of enumKeys(ElementAttributeType)) {
-    a.push(ElementAttributeType[value]);
+  model: string = "";
+
+  scope = {
+    value: {
+      identifier: '',
+      type: ElementAttributeType.String
+    },
+    changeIdentifier: this.changeIdentifier.bind(this)
   }
 
-  return a;
-}
-/*
-get options() {
-  let result = [];
-  for (const transform in ElementAttributeType) {
-    result.push(transform);
+  get filterOptions() {
+    let a = [];
+    for (const value of enumKeys(ElementAttributeType)) {
+      a.push(ElementAttributeType[value]);
+    }
+
+    return a;
   }
 
-  return result;
-}
-*/
+  get options() {
+    let result = [];
+    for (const transform in ElementAttributeType) {
+      result.push(transform);
+    }
 
-function changeIdentifier(e: string) {
-  scope.value.identifier = e;
-  update();
-}
+    return result;
+  }
 
-function changeType(e: ElementAttributeType) {
-  scope.value.type = e;
-  update();
-}
+  changeIdentifier(e: any) {
+    this.scope.value.identifier = e
+    this.update()
+  }
 
-function update() {
-  props.putData(props.propertyKey as string, scope.value);
-  props.emitter?.trigger('process');
+  changeType(e: any) {
+    this.scope.value.type = e
+    this.update()
+  }
+
+  update() {
+    this.putData(this.propertyKey, this.scope.value)
+    this.emitter?.trigger('process')
+  }
 }
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+</style>

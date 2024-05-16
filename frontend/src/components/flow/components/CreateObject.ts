@@ -1,14 +1,13 @@
-import { NodeData, WorkerInputs, WorkerOutputs } from 'rete/types/core/data';
-import TypeControlVue from 'src/components/controls/TypeControl.vue';
-import OutputControlVue from 'src/components/controls/OutputControl.vue';
-import { ElementAttributeType } from 'src/models/Grid';
-import { VariableModel } from 'src/models/Variable';
-import { FlowComponent } from '../models/Component';
+import { FlowComponent } from '../models/Component'
+import { NodeData, WorkerInputs, WorkerOutputs } from 'rete/types/core/data'
+import TypeControlVue from 'src/components/controls/TypeControl.vue'
+import OutputControlVue from 'src/components/controls/OutputControl.vue'
 
-function convertVariableToFlatbuffer(
-  identifier: string,
-  type: ElementAttributeType,
-): string {
+import { ElementAttributeType } from "src/models/Grid";
+
+import { VariableModel } from "src/models/Variable";
+
+function convertVariableToFlatbuffer(identifier: string, type: ElementAttributeType): string {
   let result = '';
   switch (type) {
     case ElementAttributeType.Boolean: {
@@ -24,15 +23,13 @@ function convertVariableToFlatbuffer(
       break;
     }
     case ElementAttributeType.Coolection: {
-      throw new Error(
-        'Collection is currently not supported as output variable',
-      );
+      throw new Error("Collection is currently not supported as output variable")
     }
   }
 
-  result += ';\n';
+  result += ";\n"
 
-  return result;
+  return result
 }
 
 export default new FlowComponent({
@@ -46,9 +43,9 @@ export default new FlowComponent({
 
       control: {
         identifier: 'variable0',
-        component: TypeControlVue,
-      },
-    },
+        component: TypeControlVue
+      }
+    }
   ],
 
   outputs: [
@@ -56,35 +53,36 @@ export default new FlowComponent({
       type: 'variable',
       label: 'Variable',
       mandatory: true,
-    },
+    }
   ],
 
   controls: [
     {
       identifier: 'variable',
-      component: OutputControlVue,
-    },
+      component: OutputControlVue
+    }
   ],
 
   workerFn: (
     node: NodeData,
     inputs: WorkerInputs,
-    outputs: WorkerOutputs,
+    outputs: WorkerOutputs
   ): Promise<void> => {
     return new Promise((resolve) => {
-      const data = node.data as Record<string, VariableModel>;
+      const data = node.data as Record<string, VariableModel>
+      const result = new Array()
 
       let flatbuffer = 'struct Pobres {\n';
       for (const key in data) {
-        const entry = data[key];
+        const entry = data[key]
 
-        flatbuffer += convertVariableToFlatbuffer(entry.identifier, entry.type);
+        flatbuffer += convertVariableToFlatbuffer(entry.identifier, entry.type)
       }
-      flatbuffer += '}';
+      flatbuffer += "}"
 
-      outputs['variable'] = flatbuffer;
+      outputs['variable'] = flatbuffer
 
-      resolve();
-    });
-  },
-});
+      resolve()
+    })
+  }
+})

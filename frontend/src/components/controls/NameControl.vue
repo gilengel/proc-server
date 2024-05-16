@@ -6,10 +6,16 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { Component } from "vue-property-decorator";
 
+import VueFlowControl from "./FlowControl";
+
+@Component
+export default class NameControl extends VueFlowControl {
+  variableName: string = "";
+}
 </script>
 
 <style lang="scss" scoped>
-
 </style>

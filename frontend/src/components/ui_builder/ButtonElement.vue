@@ -10,34 +10,51 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue';
-import { IBaseElementProps, getValueOfAttribute } from './BaseElement';
-const props = defineProps<IBaseElementProps>();
+<script lang="ts">
+import { Component } from 'vue-property-decorator'
+import BaseElement from './BaseElement.vue';
 
-let type = computed(() => getValueOfAttribute<string>('type', props));
-let label = computed(() => getValueOfAttribute<string>('label', props));
-let isHighlighted = computed(() =>
-  getValueOfAttribute<boolean>('isHighlighted', props),
-);
-let icon = computed(() => getValueOfAttribute<boolean>('icon', props));
-let hasIcon = computed(() => getValueOfAttribute<boolean>('hasIcon', props));
+@Component({
+  name: 'ButtonElement'
+})
+export default class ButtonElement extends BaseElement {
 
-let previewIcon = computed(() => {
-  let result;
-
-  if (hasIcon && icon.value) {
-    result = icon;
+  get type(): String {
+    return this.getValueOfAttribute('type')
   }
 
-  return result;
-});
+  get label(): String {
+    return this.getValueOfAttribute('label')
+  }
+
+  get isHighlighted(): boolean {
+    return this.getValueOfAttribute('isHighlighted')
+  }
+
+  get icon(){
+    return this.getValueOfAttribute('icon')
+  }
+
+  get hasIcon(){
+    return this.getValueOfAttribute('hasIcon')
+  }
+
+  get previewIcon () {
+    let icon
+
+    if (this.hasIcon && this.icon !== '') {
+      icon = this.icon
+    }
+
+    return icon
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>

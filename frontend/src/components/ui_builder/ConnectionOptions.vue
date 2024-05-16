@@ -75,15 +75,15 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
-import HeadingElement from './TextElement.vue';
-import draggable from 'vuedraggable';
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import HeadingElement from "./TextElement.vue";
+import draggable from "vuedraggable";
 
-import { StringTransform } from '../../models/String';
-import BaseElement from './BaseElement.vue';
-import { ElementConnection } from 'src/models/Grid';
-import { Action } from 'vuex-class';
+import { StringTransform } from "../../models/String";
+import BaseElement from "./BaseElement.vue";
+import { ElementConnection } from "src/models/Grid";
+import { Action } from "vuex-class";
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
   return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
@@ -96,30 +96,22 @@ interface ListItem {
 }
 
 @Component({
-  name: 'ConnectionOptions',
+  name: "ConnectionOptions",
 
   components: {
     draggable,
   },
 })
 export default class ConnectionOptions extends BaseElement {
-  @Action('addConnectionTransformation')
-  addConnectionTransformation!: (param: {
-    connection: ElementConnection;
-    transformation: StringTransform;
-  }) => void;
 
-  @Action('setConnectionTransformations')
-  setConnectionTransformations!: (param: {
-    connection: ElementConnection;
-    transformations: Array<StringTransform>;
-  }) => void;
+  @Action("addConnectionTransformation")
+  addConnectionTransformation!: (param: { connection: ElementConnection, transformation: StringTransform }) => void
 
-  @Action('removeConnectionTransformation')
-  removeConnectionTransformation!: (param: {
-    connection: ElementConnection;
-    index: number;
-  }) => void;
+  @Action("setConnectionTransformations")
+  setConnectionTransformations!: (param: { connection: ElementConnection, transformations: Array<StringTransform> }) => void
+
+  @Action("removeConnectionTransformation")
+  removeConnectionTransformation!: (param: { connection: ElementConnection, index: number }) => void
 
   drag = false;
 
@@ -142,14 +134,11 @@ export default class ConnectionOptions extends BaseElement {
 
   set list(a: Array<ListItem>) {
     const transformations = a.map((transform) => {
-      return transform.name;
+      return transform.name
     });
 
     const connection = this.model as ElementConnection;
-    this.setConnectionTransformations({
-      connection: connection,
-      transformations: transformations,
-    });
+    this.setConnectionTransformations({ connection: connection, transformations: transformations})
   }
 
   get filterOptions() {
@@ -173,24 +162,18 @@ export default class ConnectionOptions extends BaseElement {
   get dragOptions() {
     return {
       animation: 200,
-      group: 'description',
+      group: "description",
       disabled: false,
-      ghostClass: 'ghost',
+      ghostClass: "ghost",
     };
   }
 
   addFilter() {
-    this.addConnectionTransformation({
-      connection: this.model,
-      transformation: this.newFilter,
-    });
+    this.addConnectionTransformation({ connection: this.model, transformation: this.newFilter })
   }
 
   deleteFilter(index: number) {
-    this.removeConnectionTransformation({
-      connection: this.model,
-      index: index,
-    });
+    this.removeConnectionTransformation({ connection: this.model, index: index})
   }
 
   sort() {

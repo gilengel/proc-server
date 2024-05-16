@@ -1,22 +1,15 @@
-const esModules = ['quasar', 'quasar/lang', 'lodash-es'].join('|');
+const esModules = ['quasar/lang', 'lodash-es'].join('|');
 
 /* eslint-env node */
 module.exports = {
   globals: {
     __DEV__: true,
-    // TODO: Remove if resolved natively
-    // See https://github.com/vuejs/vue-jest/issues/175
+    // TODO: Remove if resolved natively https://github.com/vuejs/vue-jest/issues/175
     'vue-jest': {
       pug: { doctype: 'html' },
     },
-    // Remove if using `const enums`
-    // See https://huafu.github.io/ts-jest/user/config/isolatedModules#example
-    'ts-jest': {
-      isolatedModules: true,
-    },
   },
-  // Jest assumes we are testing in node environment, specify jsdom environment instead
-  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/test/jest/jest.setup.ts'],
   // noStackTrace: true,
   // bail: true,
   // cache: false,
@@ -44,7 +37,7 @@ module.exports = {
     // Matches tests in any subfolder of 'src' or into 'test/jest/__tests__'
     // Matches all files with extension 'js', 'jsx', 'ts' and 'tsx'
     '<rootDir>/test/jest/__tests__/**/*.(spec|test).+(ts|js)?(x)',
-    '<rootDir>/src/**/*.jest.(spec|test).+(ts|js)?(x)',
+    '<rootDir>/src/**/*.(spec|test).+(ts|js)?(x)',
   ],
   // Extension-less imports of components are resolved to .ts files by TS,
   //  grating correct type-checking in test files.
@@ -55,7 +48,7 @@ module.exports = {
   // See https://github.com/vuejs/vue-jest/issues/188#issuecomment-620750728
   moduleFileExtensions: ['vue', 'js', 'jsx', 'json', 'ts', 'tsx'],
   moduleNameMapper: {
-    '^quasar$': 'quasar/dist/quasar.esm.prod.js',
+    '^quasar$': 'quasar/dist/quasar.common.js',
     '^~/(.*)$': '<rootDir>/$1',
     '^src/(.*)$': '<rootDir>/src/$1',
     '^app/(.*)$': '<rootDir>/$1',

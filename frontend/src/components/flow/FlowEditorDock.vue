@@ -1,12 +1,14 @@
 <template>
   <div class="flow-dock">
     <q-toolbar>
-      <q-toolbar-title>{{ title }}</q-toolbar-title>
+      <q-toolbar-title>{{title}}</q-toolbar-title>
       <div class="q-gutter-sm"></div>
     </q-toolbar>
     <q-list padding>
-      <template v-for="category in nodes" v-bind:key="category.label">
-        <q-item-label header>{{ category.label }}</q-item-label>
+      <template v-for="category in nodes">
+        <q-item-label header v-bind:key="category.label">{{
+          category.label
+        }}</q-item-label>
 
         <q-item
           v-for="component in category.components"
@@ -24,14 +26,36 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { PropType } from 'vue';
-import { MetaFlowCategory } from './components/Index';
+<script lang="ts">
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
-defineProps({
-  title: String,
-  nodes: Array as PropType<Array<MetaFlowCategory>>,
-});
+import { MetaFlowCategory } from 'src/components/flow/components/Index'
+
+@Component
+export default class MapEditorComponent extends Vue {
+
+  @Prop({
+    validator: (x) => typeof x === "string" && x.length > 0,
+
+    default: "Notes"
+  })
+  title?: string;
+
+  @Prop({
+    validator: (x) => x && Array.isArray(x) && x.length > 0
+  })
+  nodes!: Array<MetaFlowCategory>
+
+  dragstart (id: string, ev: DragEvent) {
+    if (!ev.dataTransfer) return
+
+    ev.dataTransfer.setData('componentId', id)
+  }
+}
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+  .flow-dock {
+    height: 100%;
+  }
+</style>

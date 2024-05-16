@@ -1,80 +1,87 @@
 <template>
   <div class="linked-control column q-gutter-md">
     <div class="col">
-      <q-btn
-        flat
-        icon="las la-plus-circle"
-        label="Add Input"
-        @click="addVariable"
-      />
+      <q-btn flat icon="las la-plus-circle" label="Add Input" @click="addVariable" />
       <q-input v-model="variableName" label="Name" stack-label dense />
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-variableName: string = '';
+<script lang="ts">
+import { Component } from "vue-property-decorator";
 
-function addVariable() {
-  const inputsCount = this.node.inputs.size;
-  const id = `variable${inputsCount}`;
-  const a = {
-    type: 'variable',
-    id: id,
-    label: id,
-    mandatory: true,
+import VueFlowControl from "./FlowControl";
+import { buildParameterPin, Direction } from "../flow/models/Component";
+import TypeControlVue from "components/controls/TypeControl.vue";
+import { Output } from "app/node_modules/rete/types";
 
-    control: {
-      identifier: id,
-      component: TypeControlVue,
-    },
-  };
-  buildParameterPin(this.$props.emitter, this.node, a, Direction.In);
+@Component
+export default class OutputControl extends VueFlowControl {
+  variableName: string = "";
 
-  this.node.outputs.forEach((output: Output) => {
-    if (output.hasConnection()) {
-      for (let connection of output.connections) {
-        const inputNode = connection.input.node;
-        const outputNode = connection.output.node;
+  addVariable() {
+    const inputsCount = this.node.inputs.size;
+    const id = `variable${inputsCount}`;
+    const a = {
+      type: `variable`,
+      id: id,
+      label: id,
+      mandatory: true,
 
-        outputNode?.outputs.clear();
+      control: {
+        identifier: id,
+        component: TypeControlVue,
+      },
+    };
+    buildParameterPin(this.$props.emitter, this.node, a, Direction.In);
 
-        if (!inputNode || !outputNode) {
-          continue;
-        }
+    this.node.outputs.forEach((output: Output) => {
+      if (output.hasConnection()) {
+        for (let connection of output.connections) {
+          const inputNode = connection.input.node;
+          const outputNode = connection.output.node;
 
-        if (connection.input.node?.name === 'SplitObject') {
-          const data = this.node.data as Record<string, unknown>;
-          //const result = [];
+          outputNode?.outputs.clear();
 
-          console.log(data);
+          if (!inputNode || !outputNode) {
+            continue;
+          }
 
-          for (const key in data) {
-            //const inputsCount = inputNode.outputs.size + 1;
-            //const id = `variable${inputsCount}`;
-            const a = {
-              type: 'variable',
-              id: Math.floor(Math.random() * 10000), //key,
-              label: data[key].identifier,
-              mandatory: true,
-            };
+          if (connection.input.node?.name === "SplitObject") {
+            const data = this.node.data as Record<string, any>;
+            const result = new Array();
 
-            console.log(a);
+            console.log(data)
 
-            buildParameterPin(
-              outputNode.vueContext.$props.emitter,
-              inputNode,
-              a,
-              Direction.Out,
-            );
+            for (const key in data) {
+              const inputsCount = inputNode.outputs.size + 1;
+              const id = `variable${inputsCount}`;
+              const a = {
+                type: `variable`,
+                id: Math.floor(Math.random() * 10000), //key,
+                label: data[key].identifier,
+                mandatory: true,
+              };
+
+              console.log(a)
+
+              buildParameterPin(
+                outputNode.vueContext.$props.emitter,
+                inputNode,
+                a,
+                Direction.Out
+              );
+              
+            }
           }
         }
       }
-    }
-  });
+    });
 
-  this.node.update();
+    this.node.update();
+  }
 }
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+</style>

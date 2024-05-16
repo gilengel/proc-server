@@ -1,4 +1,3 @@
-/*
 import Vue, { VueConstructor } from 'vue'
 import { NodeEditor, Control as ReteControl } from 'rete/types'
 import Rete, { Node as ReteNode } from 'rete'
@@ -44,4 +43,3 @@ export function createControl (
 ): ReteControl {
   return new FlowControl(component, emitter, key, value, isValid, node)
 }
-*/

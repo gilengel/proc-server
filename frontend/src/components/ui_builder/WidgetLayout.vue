@@ -1,145 +1,137 @@
-<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <template>
-  <div class="row">
-    <div class="col-2">
-      <ElementList
-        :startDragging="(rowDraggingDisabled = true)"
-        :stopDragging="(rowDraggingDisabled = false)"
-      />
+    <div class="row">
+          <div class="col-2">
+            <ElementList @startDragging="widgetDraggingStarted" @stopDragging="widgetDraggingStopped" />
+                        <OutputOptions
+            :uuid="selectedElement.uuid"
+            :model="selectedElement"
 
-      <OutputOptions :uuid="selectedElement?.uuid" :model="selectedElement" />
-    </div>
-    <div class="col-8">
-      <Sortable
-        :list="grid.rows"
-        :itemKey="(element) => element.id"
-        handle=".drag-handle"
-        class="dragArea list-group"
-      >
-        <template #item="{ element, index }">
-          <LayoutRow
-            dataKey="itemId"
-            dataValue="Row"
-            :model="element"
-            :rowIndex="index"
-            :key="index"
-          />
-        </template>
-      </Sortable>
+            />
+          </div>
+          <div class="col-8">
 
-      <q-btn
-        color="white"
-        text-color="black"
-        label="Add Row"
-        style="margin-left: 5em"
-        @click="
-          gridModuleStore.addRow({ columns: [{ width: 12, element: null }] })
-        "
-      />
-    </div>
-    <div class="col-2 options-container" ref="options_container">
-      <!--
-      <ButtonOptions
-        :uuid="selectedElement?.uuid"
-        :model="selectedElement"
-        v-if="selectedElement && selectedElement.type === 'Button'"
-      />
+            <draggable
+              handle=".drag-handle"
+              class="dragArea list-group"
+              v-bind="dragOptions"
+              @start="drag = true"
+              @end="drag = false"
+            >
+              <transition-group
+                type="transition"
+                :name="!drag ? 'flip-list' : null"
+              >
+                <LayoutRow
+                  dataKey="itemId"
+                  dataValue="Row"
+                  :linkModeActive="linkModeActive"
+                  :deleteRow="deleteRow"
+                  :model="row"
+                  :rowIndex="row_index"
+                  :key="row_index"
+                  v-for="(row, row_index) in grid.rows"
+                />
+              </transition-group>
+            </draggable>
+          </div>
+          <div class="col-2 options-container" ref="options_container">
+            <ButtonOptions
+              :uuid="selectedElement.uuid"
+              :model="selectedElement"
+              v-if="selectedElement && selectedElement.type === 'Button'"
+            />
 
-      <TextOptions
-        :uuid="selectedElement.uuid"
-        :model="selectedElement"
-        v-else-if="selectedElement && selectedElement.type === 'Text'"
-      />
+            <TextOptions
+              :uuid="selectedElement.uuid"
+              :model="selectedElement"
+              v-else-if="selectedElement && selectedElement.type === 'Text'"
+            />
 
-      <HeadingOptions
-        :uuid="selectedElement.uuid"
-        :model="selectedElement"
-        v-else-if="selectedElement && selectedElement.type === 'Heading'"
-      />
+            <HeadingOptions
+            :uuid="selectedElement.uuid"
+            :model="selectedElement"
+            v-else-if="selectedElement && selectedElement.type === 'Heading'"
+            />
 
-      <ConnectionOptions
-        :uuid="selectedElement?.uuid"
-        :model="selectedElement"
-        v-else-if="selectedElement?.uuid"
-      />
+            <ConnectionOptions
+            :uuid="selectedElement.uuid"
+            :model="selectedElement"
+            v-else-if="selectedElement.uuid"
+            />
 
-      <OutputOptions
-        :uuid="selectedElement?.uuid"
-        :model="selectedElement"
-        v-else
-      />
-    --></div>
-  </div>
+            <OutputOptions
+            :uuid="selectedElement.uuid"
+            :model="selectedElement"
+            v-else
+            />
+
+          </div>
+        </div>
+        </div>
 </template>
 
-<script setup lang="ts">
-import { useGridModuleStore } from '../../stores/gridModule';
+<script lang='ts'>
+import { Vue, Component } from "vue-property-decorator";
+import LayoutRow from "components/ui_builder/LayoutRow.vue";
+import ButtonOptions from "components/ui_builder/ButtonOptions.vue";
+import OutputOptions from "components/ui_builder/OutputOptions.vue";
+import TextOptions from "components/ui_builder/TextOptions.vue";
+import HeadingOptions from "components/ui_builder/HeadingOptions.vue";
+import ConnectionOptions from "components/ui_builder/ConnectionOptions.vue";
+import ToggleButton from "components/ToggleButton.vue";
+import ElementList from "components/ui_builder/ElementList.vue";
+import { Action, Getter } from "vuex-class";
 
-import { Sortable } from 'sortablejs-vue3';
+import {
+  Grid,
+  Element,
+  ElementType,
+  Row,
+  ElementConnection
+} from "src/models/Grid"
 
-import LayoutRow from 'components/ui_builder/LayoutRow.vue';
-//import ButtonOptions from 'components/ui_builder/ButtonOptions.vue';
-//import OutputOptions from 'components/ui_builder/OutputOptions.vue';
-//import TextOptions from 'components/ui_builder/TextOptions.vue';
-//import HeadingOptions from 'components/ui_builder/HeadingOptions.vue';
-//import ConnectionOptions from 'components/ui_builder/ConnectionOptions.vue';
-import ElementList from 'components/ui_builder/ElementList.vue';
+import draggable from "vuedraggable";
 
-import { Element, Grid } from '../../models/Grid';
-
-//import draggable from 'vuedraggable';
-
-import { Ref, onMounted, ref } from 'vue';
-
-export interface WidgetLayoutProps {
-  grid: Grid;
-}
-
-defineProps<WidgetLayoutProps>();
-
-const gridModuleStore = useGridModuleStore();
-
-const selectedElement: Ref<Element | null> = ref(null);
-
-const rowDraggingDisabled: Ref<boolean> = ref(false);
-
-//const drag: Ref<boolean> = ref(false);
-
-//const dragOptions = {
-//  animation: 200,
-//  group: 'description',
-//  disabled: rowDraggingDisabled.value,
-//  ghostClass: 'ghost',
-//};
-
-/*
-@Getter('selectedModels')
+@Component({
+  components: {
+    draggable,
+    LayoutRow,
+    ButtonOptions,
+    TextOptions,
+    HeadingOptions,
+    ToggleButton,
+    ConnectionOptions,
+    ElementList,
+    OutputOptions,
+  },
+})
+export default class WidgetLayout extends Vue {
+  @Getter("selectedModels")
   getSelectedElements!: () => Array<any>;
 
-  @Getter('grid')
+  @Getter("grid")
   grid!: () => Grid;
 
-  @Getter('connections')
+  @Getter("connections")
   connections!: () => Array<ElementConnection>;
 
-  @Action('addRow')
+  @Action("addRow")
   addRow!: (row: Row) => void;
 
-  @Action('deleteRow')
+  @Action("deleteRow")
   deleteRow!: (rowIndex: number) => void;
 
-  @Action('removeAllSelectedElementsAndModels')
+  @Action("removeAllSelectedElementsAndModels")
   clearSelectedElements!: () => void;
 
-  @Action('addSelectedElementAndModel')
+  @Action("addSelectedElementAndModel")
   addSelectedElement!: (param: {
     element: string;
     model: any;
     clearPreviousSelected: boolean;
   }) => void;
 
-
-  model = 'one';
+  model = "one";
 
   linkModeActive: boolean = false;
 
@@ -160,25 +152,25 @@ const rowDraggingDisabled: Ref<boolean> = ref(false);
 
   pageElements = [
     {
-      id: 'row',
-      label: 'Row',
-      icon: 'las la-table',
+      id: "row",
+      label: "Row",
+      icon: "las la-table",
       type: ElementType.Row,
       defaultData: {},
     },
 
     {
-      id: 'text',
-      label: 'Text',
-      icon: 'las la-keyboard',
+      id: "text",
+      label: "Text",
+      icon: "las la-keyboard",
       type: ElementType.Text,
       defaultData: {},
     },
 
     {
-      id: 'button',
-      label: 'Button',
-      icon: 'las la-paper-plane',
+      id: "button",
+      label: "Button",
+      icon: "las la-paper-plane",
       type: ElementType.Button,
       defaultData: {},
     },
@@ -190,9 +182,9 @@ const rowDraggingDisabled: Ref<boolean> = ref(false);
   get dragOptions() {
     return {
       animation: 200,
-      group: 'description',
+      group: "description",
       disabled: this.rowDraggingDisabled,
-      ghostClass: 'ghost',
+      ghostClass: "ghost",
     };
   }
 
@@ -212,21 +204,21 @@ const rowDraggingDisabled: Ref<boolean> = ref(false);
   };
   */
 
-onMounted(() => {
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Delete') {
-      (this.getSelectedElements as unknown as Set<Element>).forEach(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        (element: Element) => {
-          //element.column.element = null;
-        },
-      );
-    }
-  });
-});
+  mounted() {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Delete") {
+        ((this.getSelectedElements as unknown) as Set<Element>).forEach(
+          (element: Element) => {
+            //element.column.element = null;
+          }
+        );
+      }
+    });
+  }
+}
 </script>
 
-<style scoped lang="scss">
+<style lang='scss'>
 $size: 24px;
 .ghost {
   //border: solid 2px salmon;

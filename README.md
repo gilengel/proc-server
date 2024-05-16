@@ -45,6 +45,8 @@ It currently contains only one service with rudimentary frontend serving as a ba
 
 # Impressions
 
+Following are screenshots of the editors to create the input / output pages for a data processing.
+
 The logic editor to link elements together. Linked elements react on changes on each other.
 In the following example the "Text" block represents a text input field that shows the value
 from the "Input" block to the user. If the user changes the value within the "Text" block the updated value is then available to the "Output" block.

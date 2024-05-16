@@ -1,7 +1,12 @@
 /dist
+/src-bex/www
 /src-capacitor
 /src-cordova
 /.quasar
 /node_modules
-.eslintrc.js
+../node_modules
 /src-ssr
+.eslintrc.js
+babel.config.js
+quasar.conf.js
+/src-electron

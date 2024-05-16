@@ -4,21 +4,23 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { IBaseElementProps } from './BaseElement';
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator'
+import BaseElement from './BaseElement.vue';
 
-export interface IHeadingElementProps extends IBaseElementProps {
-  editable: boolean;
+@Component({
+  name: 'TextElement'
+})
+export default class TextElement extends BaseElement {
+  @Prop({default: false}) editable!: boolean;
 }
-
-defineProps<IHeadingElementProps>();
 </script>
 
 <style lang="scss" scoped>
 h1 {
-  color: white;
-  font-size: 2em;
-  padding: 0;
-  margin: 0;
+    color: white;
+    font-size: 2em;
+    padding: 0;
+    margin: 0;
 }
 </style>

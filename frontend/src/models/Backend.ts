@@ -1,14 +1,14 @@
-import { ServerSingleResponse } from './ServerResponse';
-import axios from 'axios';
+import { ServerSingleResponse, ServerMultipleResponse } from './ServerResponse';
+import axios from "axios";
 
-export const BACKEND_URL = 'http://page-backend-service';
+const BACKEND_URL = "http://localhost:8000";
 
-export const LAYOUTS_URL = 'layout';
-export const PAGES_URL = 'i_pages/';
-export const PAGE_CONNECTIONS_URL = 'page_connection';
-export const TEMP_FLOW_URL = 'temp_flow';
+export const LAYOUTS_URL = "layout";
+export const PAGES_URL = "pages";
+export const PAGE_CONNECTIONS_URL = "page_connection";
+export const TEMP_FLOW_URL = "temp_flow";
 
-export async function GetOne<Type>(url: string): Promise<Type> {
+export function GetOne<Type>(url: String): Promise<Type> {
   return new Promise((resolve, reject) => {
     axios
       .request<Type>({
@@ -23,14 +23,15 @@ export async function GetOne<Type>(url: string): Promise<Type> {
   })
 }
 
-export async function GetMultiple<Type>(url: string): Promise<Array<Type>> {
+export function GetMultiple<Type>(url: String): Promise<Array<Type>> {
   return new Promise((resolve, reject) => {
     axios
-      .request({
+      .request<Array<Type>>({
         url: `${BACKEND_URL}/${url}`,
       })
-      .then((response) => {
-        resolve(response.data)
+      .then(function (response) {
+        console.log(response.data)
+        resolve(response.data.content)
       })
       .catch(function (error) {
         reject(error)
@@ -38,7 +39,7 @@ export async function GetMultiple<Type>(url: string): Promise<Array<Type>> {
   })
 }
 
-export async function PostOne<Type, ReturnType>(url: string, model: Type): Promise<ReturnType> {
+export function PostOne<Type, ReturnType>(url: String, model: Type): Promise<ReturnType> {
   return new Promise((resolve, reject) => {
     axios
       .post(`${BACKEND_URL}/${url}`, model)
@@ -51,7 +52,7 @@ export async function PostOne<Type, ReturnType>(url: string, model: Type): Promi
   })
 }
 
-export async function PostMultiple<Type>(url: string, model: Type): Promise<Array<Type>> {
+export function PostMultiple<Type>(url: String, model: Type): Promise<Array<Type>> {
   return new Promise((resolve, reject) => {
     axios
       .post(`${BACKEND_URL}/${url}`, model)
@@ -64,7 +65,7 @@ export async function PostMultiple<Type>(url: string, model: Type): Promise<Arra
   })
 }
 
-export async function UpdateOne<Type>(url: string, model: Type): Promise<ServerSingleResponse<Type>> {
+export function UpdateOne<Type>(url: String, model: Type): Promise<ServerSingleResponse<Type>> {
   return new Promise((resolve, reject) => {
     axios
       .put(`${BACKEND_URL}/${url}`, model)
@@ -77,15 +78,15 @@ export async function UpdateOne<Type>(url: string, model: Type): Promise<ServerS
   })
 }
 
-export async function DeleteOne<Type>(url: string, id: string): Promise<Type> {
+export function DeleteOne<Type>(url: string, id: number): Promise<Type> {
   return new Promise((resolve, reject) => {
     axios
-      .delete<Type>(`${BACKEND_URL}/${url}/${id}`)
-      .then((response) => {
-        const { data }  = response
-        resolve(data)
+      .delete(`${BACKEND_URL}/${url}/${id}`)
+      .then(function (response) {
+        console.log(response)
+        resolve(response)
       })
-      .catch((error) => {
+      .catch(function (error) {
         reject(error)
       });
   })
