@@ -18,7 +18,7 @@ jobs:
           - 5432
 
     services:
-      postgis:
+      postgres:
         image: postgres:latest
         env:
           POSTGRES_DB: ${{ matrix.db-name }}

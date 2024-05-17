@@ -135,9 +135,13 @@ onMounted(() => {
 
 function dragMouseDown(event: MouseEvent, index: number) {
   event.preventDefault();
-  // get the mouse cursor position at startup:
+
+  // get the mouse cursor position at startup
   positions.clientX = event.clientX;
   positions.clientY = event.clientY;
+
+  // register handler on document level to capture mouse events that
+  // do not occure on the vue element
   document.onmousemove = elementDrag;
   document.onmouseup = closeDragElement;
 
@@ -223,14 +227,17 @@ function elementDrag(event: MouseEvent) {
 
     const newColumnSizes = restrictNewColumnSizes(flexSize);
 
-    gridModuleStore.updateColumnWidth({
-      column: props.model.columns[selectedSplitterIndex.value],
-      newWidth: newColumnSizes.left,
-    });
-    gridModuleStore.updateColumnWidth({
-      column: props.model.columns[selectedSplitterIndex.value + 1],
-      newWidth: newColumnSizes.right,
-    });
+    const leftColumn = props.model.columns[selectedSplitterIndex.value];
+    if (leftColumn.width === newColumnSizes.left) {
+      return;
+    }
+
+    const rightColumn = props.model.columns[selectedSplitterIndex.value + 1];
+
+    gridModuleStore.updateColumnsWidth(
+      { column: leftColumn, width: newColumnSizes.left },
+      { column: rightColumn, width: newColumnSizes.right },
+    );
   }
 }
 

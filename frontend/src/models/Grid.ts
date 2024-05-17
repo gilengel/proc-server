@@ -53,16 +53,19 @@ export interface ElementAttribute {
 }
 
 export interface Column {
+  id: string;
   width: number;
   element: Element | null;
   row?: Row;
 }
 
 export interface Row {
+  id: string;
   columns: Array<Column>;
 }
 
 export interface Grid {
+  id: string;
   rows: Array<Row>;
 }
 
