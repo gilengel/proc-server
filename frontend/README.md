@@ -1,26 +1,56 @@
-# Quasar App (frontend)
+# Frontend
 
-A Quasar Framework app
+## UI Builder
 
-## Install the dependencies
-```bash
-yarn
+The overall idea of the UI Builder component is to use build in TypeScript "magic" to automatically import the correct files at the correct positions and wire everything together.
+This is only possible by using an experimental feature of vue called `<Suspense>` to allow async functions to be called inside a setup script. But let us start at the beginning.
+
+## Models
+
+UIs use a grid structure at there core.
+
+```ts
+export interface Grid {
+  id: string;
+  rows: Array<Row>;
+}
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
+A grid is represented by rows:
+
+```ts
+export interface Row {
+  id: string;
+  columns: Array<Column>;
+}
 ```
 
-### Lint the files
-```bash
-yarn run lint
+and columns:
+
+```ts
+export interface Column {
+  id: string;
+  width: number;
+  element: Element | null;
+  row?: Row;
+}
 ```
 
-### Build the app for production
-```bash
-quasar build
+where each row can contain up to `12` columns.
+
+Each column can contain one `Element` which is the one the user will see and interact with
+
+```ts
+export interface Element {
+  uuid: string;
+  type: ElementType;
+  attributes: Array<ElementAttribute>;
+  column?: Column;
+  classList: Array<string>;
+
+  inputs?: Array<ElementPin>;
+  outputs?: Array<ElementPin>;
+}
 ```
 
-### Customize the configuration
-See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
+Elements can

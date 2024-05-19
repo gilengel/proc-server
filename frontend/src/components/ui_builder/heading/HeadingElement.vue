@@ -1,17 +1,22 @@
 <template>
   <div class="el-text">
-    <h1>Heading</h1>
+    <component :is="type">Heading</component>
   </div>
 </template>
 
 <script setup lang="ts">
-import { IBaseElementProps } from './BaseElement';
+import { computed } from 'vue';
+import { IBaseElementProps, getValueOfAttribute } from '../BaseElement';
 
 export interface IHeadingElementProps extends IBaseElementProps {
   editable: boolean;
 }
 
-defineProps<IHeadingElementProps>();
+const props = defineProps<IHeadingElementProps>();
+
+const type = computed(() => {
+  return getValueOfAttribute('type', props.model);
+});
 </script>
 
 <style lang="scss" scoped>

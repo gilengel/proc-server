@@ -10,9 +10,9 @@ import { StringTransform } from './String';
 export enum ElementType {
   Button = 'Button',
   Text = 'Text',
-  Row = 'Row',
   Heading = 'Heading',
   Map = 'Map',
+  Image = 'Image',
 }
 
 const elementTypeKeys = Object.keys(ElementType);
@@ -54,14 +54,31 @@ export enum ElementAttributeType {
   Number = 'Number',
   String = 'String',
   Boolean = 'Boolean',
-  Coolection = 'Collection',
+  Collection = 'Collection',
 }
 
+export type SimpleAttribute = {
+  name: string;
+  type: ElementAttributeType;
+  value: string | number | boolean;
+};
+
+export type CollectionAttribute = {
+  name: string;
+  type: ElementAttributeType;
+  options: string[];
+  value: string;
+};
+
+/*
 export interface ElementAttribute {
   name: string;
   type: ElementAttributeType;
   value: unknown;
 }
+*/
+
+export type ElementAttribute = SimpleAttribute | CollectionAttribute;
 
 export interface Column {
   id: string;

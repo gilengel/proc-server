@@ -1,4 +1,4 @@
-import { Column, ElementType, Grid, Row } from './../models/Grid';
+import { Column, Element, ElementType, Grid, Row } from './../models/Grid';
 import { defineStore } from 'pinia';
 import { GroupedUndoRedoAction, useUndoRedoStore } from './undoredo';
 import { ref } from 'vue';
@@ -10,6 +10,7 @@ import { MoveRow } from './actions/moveRow';
 import { SplitColumn } from './actions/splitColumn';
 import { UpdateColumnWidth } from './actions/updateColumn';
 import { SetElement } from './actions/setElement';
+import { UpdateElementAttribute } from './actions/updateElementAttribute';
 
 const DefaultGrid: Grid = {
   id: uuid.v4(),
@@ -75,6 +76,16 @@ export const useGridModuleStore = defineStore('gridModule', () => {
     _undoRedoStore.execute(new SetElement(column, type));
   }
 
+  function updateElementAttribute(
+    element: Element,
+    attribute: string,
+    value: string | number | boolean,
+  ) {
+    _undoRedoStore.execute(
+      new UpdateElementAttribute(element, attribute, value),
+    );
+  }
+
   function updateColumnsWidth(
     left: { column: Column; width: number },
     right: { column: Column; width: number },
@@ -96,5 +107,6 @@ export const useGridModuleStore = defineStore('gridModule', () => {
     splitColumn,
     setColumnElement,
     updateColumnsWidth,
+    updateElementAttribute,
   };
 });

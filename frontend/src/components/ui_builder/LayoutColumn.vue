@@ -32,8 +32,11 @@
       />
     </div>
 
-    {{ model.element?.type }}
-    {{ model.element?.uuid }}
+    <component
+      :is="elementComponent"
+      v-bind="{ uuid: '', editable: true, model: model.element }"
+    />
+
     <SortableVue
       :list="emptyList"
       :itemKey="(e: WorkaroundElement) => e.id"
@@ -54,10 +57,12 @@
 <script setup lang="ts">
 import Sortable from 'sortablejs';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
-import { Column, ElementType, ElementTypes } from '../../models/Grid';
+import { Column, Element, ElementType, ElementTypes } from '../../models/Grid';
 import { useGridModuleStore } from '../../stores/gridModule';
 import { colValidator } from './common';
 import { ComputedRef, PropType, computed, ref } from 'vue';
+
+import { getModule } from './index';
 
 // Workaround as Sortable.SortableEvent type does not correctly contains the original event
 // which is necessary to get the transferred data (as defined by setData)
@@ -71,6 +76,15 @@ const gridModuleStore = useGridModuleStore();
 const dropOptions = ref({
   animation: 150,
   group: { name: 'shared', pull: 'false', put: true },
+});
+
+const elementComponent = computed(() => {
+  if (!props.model.element) {
+    return undefined;
+  }
+
+  const module = getModule(props.model.element.type);
+  return module.Element;
 });
 
 const props = defineProps({
@@ -128,6 +142,10 @@ const props = defineProps({
   splitDisabled: Boolean,
 });
 
+const emit = defineEmits<{
+  selectElement: [element: Element];
+}>();
+
 // This is a workaround element type for the sortable container that, for this element,
 // does not display anything as we don't want to display a list of element but always
 // one element. This element is displayed on another position to avoid visual glitches.
@@ -161,6 +179,7 @@ function elementAdded(event: AddEvent) {
     ElementType[typeKey as keyof typeof ElementType];
 
   gridModuleStore.setColumnElement(props.model, typeEnum);
+  emit('selectElement', props.model.element as Element);
 }
 
 function onEnd(event: Sortable.SortableEvent) {

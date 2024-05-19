@@ -18,6 +18,7 @@
         <template #item="{ element, index }">
           <transition appear name="list">
             <LayoutRow
+              @selectElement="(e: Element) => onSelectedElementChanged(e)"
               dataKey="itemId"
               dataValue="Row"
               :model="element"
@@ -39,7 +40,9 @@
         "
       />
     </div>
-    <div class="col-2 options-container" ref="options_container"></div>
+    <div class="col-2 options-container" ref="options_container">
+      <component :is="element?.component" v-bind="element?.properties" />
+    </div>
   </div>
 </template>
 
@@ -52,10 +55,11 @@ import { Sortable } from 'sortablejs-vue3';
 import LayoutRow from 'components/ui_builder/LayoutRow.vue';
 import ElementList from 'components/ui_builder/ElementList.vue';
 
-import { Grid, Row } from '../../models/Grid';
+import { Grid, Row, Element } from '../../models/Grid';
 
-import { Ref, ref } from 'vue';
+import { Ref, computed, ref } from 'vue';
 import type { SortableEvent } from 'sortablejs';
+import { getModule } from './index';
 
 export interface WidgetLayoutProps {
   grid: Grid;
@@ -63,15 +67,34 @@ export interface WidgetLayoutProps {
 
 defineProps<WidgetLayoutProps>();
 
+const selectedElement: Ref<Element | undefined> = ref(undefined);
+
 const gridModuleStore = useGridModuleStore();
 
 const rowDraggingDisabled: Ref<boolean> = ref(false);
+
+function onSelectedElementChanged(element: Element) {
+  selectedElement.value = element;
+}
 
 function onUpdate(event: SortableEvent): void {
   if (!event.oldIndex || !event.newIndex) return;
 
   gridModuleStore.moveRow(event.oldIndex, event.newIndex);
 }
+
+const element = computed(() => {
+  if (!selectedElement.value) {
+    return undefined;
+  }
+
+  const module = getModule(selectedElement.value.type);
+
+  return {
+    properties: module.createDefaultProps(selectedElement.value),
+    component: module.Options,
+  };
+});
 </script>
 
 <style scoped lang="scss">

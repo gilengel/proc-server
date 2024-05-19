@@ -3,15 +3,16 @@ import { Element, ElementAttribute } from 'src/models/Grid';
 export interface IBaseElementProps {
   uuid: string;
 
+  editable: boolean;
   model: Element;
 
-  updateElementAttribute: (param: {
+  updateElementAttribute?: (param: {
     element: Element;
     name: string;
     value: unknown;
   }) => void;
 
-  setConnectionValue: (param: {
+  setConnectionValue?: (param: {
     element: Element;
     name: string;
     value: unknown;
@@ -24,9 +25,9 @@ export interface IEditableBaseElementProps extends IBaseElementProps {
 
 export function getValueOfAttribute<T>(
   name: string,
-  props: IBaseElementProps,
+  model: Element,
 ): T | undefined {
-  const attribute = props.model.attributes.find(
+  const attribute = model.attributes.find(
     (attribute) => attribute.name === name,
   ) as ElementAttribute;
 
@@ -42,6 +43,10 @@ export function setValueOfAttribute(
   value: unknown,
   props: IBaseElementProps,
 ) {
+  if (!props.updateElementAttribute) {
+    return;
+  }
+
   props.updateElementAttribute({
     element: props.model,
     name: name,

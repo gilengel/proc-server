@@ -2,7 +2,38 @@ import { Column, ElementType, Element } from 'src/models/Grid';
 import { UndoRedoAction } from '../undoredo';
 
 import * as uuid from 'uuid';
+import * as Text from 'src/components/ui_builder/text';
+import * as Heading from 'src/components/ui_builder/heading';
+import * as Image from 'src/components/ui_builder/image';
 
+function createDefaultElement(type: ElementType, column: Column) {
+  const element: Element = {
+    uuid: uuid.v4(),
+    type,
+    attributes: [],
+    column,
+    classList: [],
+  };
+
+  switch (type) {
+    case ElementType.Text: {
+      Text.createDefaultAttributes(element);
+      return element;
+    }
+    case ElementType.Heading: {
+      Heading.createDefaultAttributes(element);
+      return element;
+    }
+    case ElementType.Image: {
+      Image.createDefaultAttributes(element);
+      return element;
+    }
+    default: {
+    }
+  }
+
+  return element;
+}
 /**
  * Sets the element type of a column. If there was an element before it is cached
  * inside to allow the action to be unduable.
@@ -36,13 +67,7 @@ export class SetElement implements UndoRedoAction {
       return;
     }
 
-    this.newElement = {
-      uuid: uuid.v4(),
-      type: this.elementType,
-      attributes: [],
-      column: this.column,
-      classList: [],
-    };
+    this.newElement = createDefaultElement(this.elementType, this.column);
 
     this.column.element = this.newElement;
   }

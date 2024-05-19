@@ -21,6 +21,7 @@
     <div class="row" ref="container">
       <LayoutColumn
         dataKey="itemId"
+        @selectElement="(e) => $emit('selectElement', e)"
         :columnIndex="col_index"
         :rowIndex="rowIndex"
         :model="column"
@@ -52,6 +53,7 @@ import LayoutColumn from './LayoutColumn.vue';
 
 import { Ref, onMounted, ref } from 'vue';
 import { colValidator } from './common';
+import { Element } from '../../models/Grid';
 
 const container: Ref<HTMLElement | null> = ref(null);
 
@@ -81,6 +83,10 @@ const props = defineProps({
     required: true,
   },
 });
+
+defineEmits<{
+  selectElement: [element: Element];
+}>();
 
 // Individual splitter positions
 const splitterPositions = new Array<number>();
