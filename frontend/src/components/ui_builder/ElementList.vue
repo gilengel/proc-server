@@ -6,15 +6,20 @@
       </template>
     </q-input>
 
-    <Sortable
+    <SortableVue
       :list="list"
+      :options="dragOptions"
       :itemKey="(element) => element.id"
       :move="onMove"
-      @choose="(event) => console.log(event)"
-      @end="(event) => console.log(event)"
     >
       <template #item="{ element }">
-        <q-item clickable v-ripple class="list-group-item" :key="element.id">
+        <q-item
+          clickable
+          v-ripple
+          class="list-group-item"
+          :key="element.id"
+          :data-element="element.name.toLowerCase()"
+        >
           <q-item-section>
             <i
               :class="
@@ -27,76 +32,55 @@
           </q-item-section>
         </q-item>
       </template>
-    </Sortable>
+    </SortableVue>
   </div>
 </template>
 
+<script lang="ts">
+export interface WidgetElement {
+  name: string;
+  order: number;
+  fixed: boolean;
+}
+</script>
 <script setup lang="ts">
-import { Sortable } from 'sortablejs-vue3';
-import { computed } from 'vue';
+import Sortable from 'sortablejs';
+import { Sortable as SortableVue } from 'sortablejs-vue3';
+import { ElementType } from 'src/models/Grid';
+import { ComputedRef, computed, ref } from 'vue';
 
 const text = '';
-const elements = ['Heading', 'Text', 'Button', 'Map'];
 
-const list = computed(() =>
-  elements.map((transform, index) => {
-    return { name: transform, order: index, fixed: false };
-  }),
-);
+const list: ComputedRef<WidgetElement[]> = computed(() => {
+  const keys = Object.keys(ElementType);
+  return keys.map((name, index) => {
+    return { name, order: index, fixed: false };
+  });
+});
 
-//const dragOptions = {
-//  animation: 200,
-//  group: 'description',
-//  disabled: false,
-//  ghostClass: 'ghost',
-//};
+const dragOptions = ref({
+  animation: 150,
+  group: { name: 'shared', pull: 'clone', put: false },
+  sort: false,
 
-/*
-  get list(): Array<ListItem> {
-    return this.elements.map((transform, index) => {
-      return { name: transform, order: index, fixed: false };
-    });
-  }
+  setData: (dataTransfer: DataTransfer, e: HTMLElement) => {
+    const elementType = e.getAttribute('data-element');
+    if (!elementType) {
+      console.error(
+        "custom attribute 'data-element' is missing but required for drag and drop of elements to work",
+      );
+    }
 
-  set list(a: Array<ListItem>) {
-    const list = a.map((transform) => {
-      return transform.name;
-    });
+    dataTransfer.setData('data-element', elementType as string);
+  },
+});
 
-    this.elements = list;
-  }
-
-
-  get dragOptions() {
-    return {
-      animation: 200,
-      group: "description",
-      disabled: false,
-      ghostClass: "ghost",
-    };
-  }
-  */
-
-/*
-const emit = defineEmits(['startDragging', 'stopDragging']);
-
-
-function onStart() {
-  emit('startDragging');
-}
-
-function onEnd() {
-  emit('stopDragging');
-}
-*/
-function onMove(evt: { related: { classList: DOMTokenList } }): boolean {
+function onMove(evt: Sortable.MoveEvent): boolean {
   const targetClassList = evt.related.classList;
 
   if (targetClassList.contains('layout-row')) {
     //return false;
   }
-
-  console.log(evt.related);
 
   return true;
   // return false; — for cancel

@@ -6,8 +6,6 @@
         :startDragging="(rowDraggingDisabled = true)"
         :stopDragging="(rowDraggingDisabled = false)"
       />
-
-      <OutputOptions :uuid="selectedElement?.uuid" :model="selectedElement" />
     </div>
     <div class="col-8">
       <Sortable
@@ -18,13 +16,15 @@
         @update="onUpdate($event)"
       >
         <template #item="{ element, index }">
-          <LayoutRow
-            dataKey="itemId"
-            dataValue="Row"
-            :model="element"
-            :rowIndex="index"
-            :key="index"
-          />
+          <transition appear name="list">
+            <LayoutRow
+              dataKey="itemId"
+              dataValue="Row"
+              :model="element"
+              :rowIndex="index"
+              :key="index"
+            />
+          </transition>
         </template>
       </Sortable>
 
@@ -52,7 +52,7 @@ import { Sortable } from 'sortablejs-vue3';
 import LayoutRow from 'components/ui_builder/LayoutRow.vue';
 import ElementList from 'components/ui_builder/ElementList.vue';
 
-import { Element, Grid, Row } from '../../models/Grid';
+import { Grid, Row } from '../../models/Grid';
 
 import { Ref, ref } from 'vue';
 import type { SortableEvent } from 'sortablejs';
@@ -64,8 +64,6 @@ export interface WidgetLayoutProps {
 defineProps<WidgetLayoutProps>();
 
 const gridModuleStore = useGridModuleStore();
-
-const selectedElement: Ref<Element | null> = ref(null);
 
 const rowDraggingDisabled: Ref<boolean> = ref(false);
 

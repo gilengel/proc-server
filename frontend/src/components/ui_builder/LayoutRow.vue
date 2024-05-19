@@ -1,6 +1,6 @@
 <template>
-  <div class="layout-row" v-bind:class="{ active: !linkModeActive }">
-    <div class="actions" v-if="!linkModeActive">
+  <div class="layout-row">
+    <div class="actions">
       <q-btn
         class="drag-handle"
         dark
@@ -21,7 +21,6 @@
     <div class="row" ref="container">
       <LayoutColumn
         dataKey="itemId"
-        :linkModeActive="linkModeActive"
         :columnIndex="col_index"
         :rowIndex="rowIndex"
         :model="column"
@@ -76,8 +75,6 @@ const props = defineProps({
     required: true,
     validator: (x: number) => x >= 0,
   },
-
-  linkModeActive: Boolean,
 
   model: {
     type: Object as () => Row,
@@ -282,7 +279,7 @@ function closeDragElement() {
   }
 }
 
-.active:hover {
+.layout-row:hover {
   > .actions {
     background: $primary;
     visibility: visible;

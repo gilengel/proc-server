@@ -1,5 +1,12 @@
 import { StringTransform } from './String';
 
+/**
+ * List of all available elements that can be used to create a page.
+ *
+ * If you need to add a new element just add it to this list and it will
+ * automatically appear in the ui as the ui iterates over all the values
+ * in this list on start.
+ */
 export enum ElementType {
   Button = 'Button',
   Text = 'Text',
@@ -7,6 +14,10 @@ export enum ElementType {
   Heading = 'Heading',
   Map = 'Map',
 }
+
+const elementTypeKeys = Object.keys(ElementType);
+
+export const ElementTypes = elementTypeKeys as ElementType[];
 
 export interface Element {
   uuid: string;
