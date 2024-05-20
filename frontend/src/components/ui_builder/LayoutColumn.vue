@@ -35,6 +35,7 @@
     <component
       :is="elementComponent"
       v-bind="{ uuid: '', editable: true, model: model.element }"
+      @click="() => $emit('selectElement', model.element as Element)"
     />
 
     <SortableVue
