@@ -59,7 +59,7 @@ import { Grid, Row, Element } from '../../models/Grid';
 
 import { Ref, computed, ref } from 'vue';
 import type { SortableEvent } from 'sortablejs';
-import { getModule } from './index';
+import { ModuleLoader } from './elementLoader';
 
 export interface WidgetLayoutProps {
   grid: Grid;
@@ -83,12 +83,14 @@ function onUpdate(event: SortableEvent): void {
   gridModuleStore.moveRow(event.oldIndex, event.newIndex);
 }
 
+const moduleLoader = await ModuleLoader.getInstance();
+
 const element = computed(() => {
   if (!selectedElement.value) {
     return undefined;
   }
 
-  const module = getModule(selectedElement.value.type);
+  const module = moduleLoader.getModule(selectedElement.value.type);
 
   return {
     properties: module.createDefaultProps(selectedElement.value),

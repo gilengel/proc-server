@@ -26,7 +26,9 @@
     </q-header>
 
     <q-page-container>
-      <WidgetLayout :grid />
+      <Suspense>
+        <WidgetLayout :grid />
+      </Suspense>
     </q-page-container>
   </q-layout>
 </template>

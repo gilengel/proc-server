@@ -2,11 +2,9 @@ import { Column, ElementType, Element } from 'src/models/Grid';
 import { UndoRedoAction } from '../undoredo';
 
 import * as uuid from 'uuid';
-import * as Text from 'src/components/ui_builder/text';
-import * as Heading from 'src/components/ui_builder/heading';
-import * as Image from 'src/components/ui_builder/image';
+import { ModuleLoader } from 'src/components/ui_builder/elementLoader';
 
-function createDefaultElement(type: ElementType, column: Column) {
+async function createDefaultElement(type: ElementType, column: Column) {
   const element: Element = {
     uuid: uuid.v4(),
     type,
@@ -15,22 +13,8 @@ function createDefaultElement(type: ElementType, column: Column) {
     classList: [],
   };
 
-  switch (type) {
-    case ElementType.Text: {
-      Text.createDefaultAttributes(element);
-      return element;
-    }
-    case ElementType.Heading: {
-      Heading.createDefaultAttributes(element);
-      return element;
-    }
-    case ElementType.Image: {
-      Image.createDefaultAttributes(element);
-      return element;
-    }
-    default: {
-    }
-  }
+  const module = (await ModuleLoader.getInstance()).getModule(type);
+  module.createDefaultAttributes(element);
 
   return element;
 }
@@ -67,8 +51,10 @@ export class SetElement implements UndoRedoAction {
       return;
     }
 
-    this.newElement = createDefaultElement(this.elementType, this.column);
+    createDefaultElement(this.elementType, this.column).then((e) => {
+      this.newElement = e;
 
-    this.column.element = this.newElement;
+      this.column.element = this.newElement;
+    });
   }
 }

@@ -62,8 +62,7 @@ import { Column, Element, ElementType, ElementTypes } from '../../models/Grid';
 import { useGridModuleStore } from '../../stores/gridModule';
 import { colValidator } from './common';
 import { ComputedRef, PropType, computed, ref } from 'vue';
-
-import { getModule } from './index';
+import { ModuleLoader } from './elementLoader';
 
 // Workaround as Sortable.SortableEvent type does not correctly contains the original event
 // which is necessary to get the transferred data (as defined by setData)
@@ -79,12 +78,14 @@ const dropOptions = ref({
   group: { name: 'shared', pull: 'false', put: true },
 });
 
+const moduleLoader = await ModuleLoader.getInstance();
+
 const elementComponent = computed(() => {
   if (!props.model.element) {
     return undefined;
   }
 
-  const module = getModule(props.model.element.type);
+  const module = moduleLoader.getModule(props.model.element.type);
   return module.Element;
 });
 
