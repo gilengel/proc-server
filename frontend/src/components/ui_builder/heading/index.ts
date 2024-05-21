@@ -1,5 +1,5 @@
 export { default as Element } from './HeadingElement.vue';
-export { default as Options } from './HeadingOptions.vue';
+export { default as Options } from '../AttributeOptions.vue';
 
 import { ElementAttributeType, Element as Model } from '../../../models/Grid';
 

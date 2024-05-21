@@ -8,33 +8,18 @@
 import { camelCaseToWords } from 'src/textUtil';
 import { computed } from 'vue';
 import { IOptionProps } from '.';
-import { getValueOfAttribute } from '../BaseElement';
-import { useGridModuleStore } from 'src/stores/gridModule';
+import { useChangleableComputedAttributeModel } from 'src/composables/useChangleableComputedAttributeModel';
 
 const props = defineProps<IOptionProps>();
-
-const gridModuleStore = useGridModuleStore();
 
 const label = computed(() => {
   return camelCaseToWords(props.label);
 });
 
-const model = computed({
-  get() {
-    return getValueOfAttribute<string>(
-      props.attributeKey,
-      props.model,
-    ) as string;
-  },
-
-  set(newValue: string) {
-    gridModuleStore.updateElementAttribute(
-      props.model,
-      props.attributeKey,
-      newValue,
-    );
-  },
-});
+const model = useChangleableComputedAttributeModel<string>(
+  props.attributeKey,
+  props.model,
+);
 </script>
 
 <style scoped></style>

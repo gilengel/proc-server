@@ -1,11 +1,11 @@
 <template>
   <div class="column option-column">
-    <h1 class="text-subtitle1">Text</h1>
-
+    <h1 class="text-subtitle1">Button</h1>
     <div v-for="attribute in model.attributes" :key="attribute.name">
       <component
         :is="optionElement(attribute)"
         v-bind="optionProps(attribute)"
+        @onModelChanged="onModelChanged"
       ></component>
     </div>
   </div>
@@ -18,8 +18,9 @@ import {
   ElementAttributeType,
 } from 'src/models/Grid';
 
-import * as Option from '../attributes';
-import { IBaseElementProps } from '../BaseElement';
+import * as Option from './attributes';
+import { IBaseElementProps } from './BaseElement';
+import { getCustomAttributeOptionElement } from 'src/boot/ui-builder';
 
 const props = defineProps<IBaseElementProps>();
 
@@ -59,7 +60,14 @@ function optionProps(attribute: ElementAttribute) {
   return undefined;
 }
 
+function onModelChanged(model: unknown) {
+  console.log(model);
+}
 function optionElement(attribute: ElementAttribute) {
+  if (attribute.component) {
+    return getCustomAttributeOptionElement(attribute.component);
+  }
+
   switch (attribute.type) {
     case ElementAttributeType.String: {
       return Option.Text;
@@ -76,4 +84,8 @@ function optionElement(attribute: ElementAttribute) {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.column {
+  gap: 1em;
+}
+</style>

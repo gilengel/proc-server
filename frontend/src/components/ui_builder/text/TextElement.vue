@@ -7,8 +7,6 @@
       :type
       :readonly="!editable"
       v-model="text"
-      @mouseover="hover = true"
-      @mouseleave="hover = false"
     />
   </div>
 </template>
@@ -17,16 +15,13 @@
 import { computed, ref } from 'vue';
 
 import { IBaseElementProps, getValueOfAttribute } from '../BaseElement';
+import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
 
 const props = defineProps<IBaseElementProps>();
 
-const placeholder = computed(() => {
-  return getValueOfAttribute('placeholder', props.model);
-});
+const placeholder = useComputedAttributeModel('placeholder', props.model);
 
-const withLabel = computed(() => {
-  return getValueOfAttribute('withLabel', props.model);
-});
+const withLabel = useComputedAttributeModel('withLabel', props.model);
 
 const label = computed(() => {
   if (!withLabel.value) {
@@ -36,25 +31,21 @@ const label = computed(() => {
   return getValueOfAttribute<string>('label', props.model);
 });
 
-const type = computed(() => {
-  type InputType =
-    | 'text'
-    | 'password'
-    | 'textarea'
-    | 'email'
-    | 'search'
-    | 'tel'
-    | 'file'
-    | 'number'
-    | 'url'
-    | 'time'
-    | 'date'
-    | 'datetime-local'
-    | undefined;
-  return getValueOfAttribute<InputType>('type', props.model);
-});
-
-const hover = ref(false);
+type InputType =
+  | 'text'
+  | 'password'
+  | 'textarea'
+  | 'email'
+  | 'search'
+  | 'tel'
+  | 'file'
+  | 'number'
+  | 'url'
+  | 'time'
+  | 'date'
+  | 'datetime-local'
+  | undefined;
+const type = useComputedAttributeModel<InputType>('type', props.model);
 
 const text = ref('');
 </script>

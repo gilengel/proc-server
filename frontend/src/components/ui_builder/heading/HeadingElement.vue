@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { IBaseElementProps, getValueOfAttribute } from '../BaseElement';
+import { IBaseElementProps } from '../BaseElement';
+import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
 
 export interface IHeadingElementProps extends IBaseElementProps {
   editable: boolean;
@@ -14,9 +14,7 @@ export interface IHeadingElementProps extends IBaseElementProps {
 
 const props = defineProps<IHeadingElementProps>();
 
-const type = computed(() => {
-  return getValueOfAttribute('type', props.model);
-});
+const type = useComputedAttributeModel('type', props.model);
 </script>
 
 <style lang="scss" scoped>

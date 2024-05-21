@@ -1,4 +1,5 @@
 import { StringTransform } from './String';
+import { CustomAttributeOptionElements } from 'src/boot/ui-builder';
 
 /**
  * List of all available elements that can be used to create a page.
@@ -61,6 +62,7 @@ export type SimpleAttribute = {
   name: string;
   type: ElementAttributeType;
   value: string | number | boolean;
+  component?: CustomAttributeOptionElements;
 };
 
 export type CollectionAttribute = {
@@ -68,6 +70,7 @@ export type CollectionAttribute = {
   type: ElementAttributeType;
   options: string[];
   value: string;
+  component?: CustomAttributeOptionElements;
 };
 
 /*

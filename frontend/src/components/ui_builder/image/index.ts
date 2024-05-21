@@ -1,5 +1,5 @@
 export { default as Element } from './ImageElement.vue';
-export { default as Options } from './ImageOptions.vue';
+export { default as Options } from '../AttributeOptions.vue';
 
 import { ElementAttributeType, Element as Model } from '../../../models/Grid';
 

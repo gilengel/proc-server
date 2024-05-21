@@ -6,33 +6,21 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getValueOfAttribute } from '../BaseElement';
-import { useGridModuleStore } from 'src/stores/gridModule';
 
 import { camelCaseToWords } from 'src/textUtil';
 import { IOptionProps } from '.';
+import { useChangleableComputedAttributeModel } from 'src/composables/useChangleableComputedAttributeModel';
 
 const props = defineProps<IOptionProps>();
-
-const gridModuleStore = useGridModuleStore();
 
 const label = computed(() => {
   return camelCaseToWords(props.label);
 });
 
-const model = computed({
-  get() {
-    return getValueOfAttribute<boolean>('withLabel', props.model) as boolean;
-  },
-
-  set(newValue: boolean) {
-    gridModuleStore.updateElementAttribute(
-      props.model,
-      props.attributeKey,
-      newValue,
-    );
-  },
-});
+const model = useChangleableComputedAttributeModel<boolean>(
+  props.attributeKey,
+  props.model,
+);
 </script>
 
 <style scoped></style>

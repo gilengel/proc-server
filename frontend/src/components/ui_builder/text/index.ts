@@ -1,5 +1,5 @@
 export { default as Element } from './TextElement.vue';
-export { default as Options } from './TextOptions.vue';
+export { default as Options } from '../AttributeOptions.vue';
 
 import { ElementAttributeType, Element as Model } from '../../../models/Grid';
 
