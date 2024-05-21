@@ -47,18 +47,16 @@
 </template>
 
 <script setup lang="ts">
-import * as uuid from 'uuid';
-import { useGridModuleStore } from '../../stores/gridModule';
-
-import { Sortable } from 'sortablejs-vue3';
-
-import LayoutRow from 'components/ui_builder/LayoutRow.vue';
-import ElementList from 'components/ui_builder/ElementList.vue';
-
-import { Grid, Row, Element } from '../../models/Grid';
-
 import { Ref, computed, ref } from 'vue';
+import * as uuid from 'uuid';
+import { Sortable } from 'sortablejs-vue3';
 import type { SortableEvent } from 'sortablejs';
+
+import { useGridModuleStore } from 'src/stores/gridModule';
+import { Grid, Element, Row } from 'src/models/Grid';
+
+import LayoutRow from 'src/components/ui_builder/LayoutRow.vue';
+import ElementList from 'src/components/ui_builder/ElementList.vue';
 import { ModuleLoader } from './elementLoader';
 
 export interface WidgetLayoutProps {
@@ -102,11 +100,9 @@ const element = computed(() => {
 <style scoped lang="scss">
 $size: 24px;
 .ghost {
-  //border: solid 2px salmon;
   border-radius: 4px;
 
   color: $primary;
-  //height: $size;
 
   overflow: collapse;
 }
@@ -118,7 +114,6 @@ line {
 
 .linkage-triangle-preview {
   position: absolute;
-  //fill: $accent;
   fill: $accent;
   stroke: $accent;
   stroke-width: 6px;

@@ -6,7 +6,7 @@ import { useGridModuleStore } from 'src/stores/gridModule';
 
 const gridModuleStore = useGridModuleStore();
 
-export function useChangleableComputedAttributeModel<
+export function useChangeableComputedAttributeModel<
   T extends string | number | boolean,
 >(key: string, element: Element) {
   return computed({

@@ -9,7 +9,7 @@ import { computed } from 'vue';
 
 import { camelCaseToWords } from 'src/textUtil';
 import { IOptionProps } from '.';
-import { useChangleableComputedAttributeModel } from 'src/composables/useChangleableComputedAttributeModel';
+import { useChangeableComputedAttributeModel } from 'src/composables/useChangeableComputedAttributeModel';
 
 interface ICollectionOptionProps extends IOptionProps {
   options: string[];
@@ -21,10 +21,8 @@ const label = computed(() => {
 
 const props = defineProps<ICollectionOptionProps>();
 
-const model = useChangleableComputedAttributeModel(
+const model = useChangeableComputedAttributeModel(
   props.attributeKey,
   props.model,
 );
 </script>
-
-<style scoped></style>

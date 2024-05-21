@@ -1,6 +1,6 @@
 import { IBaseElementProps } from './BaseElement';
 
-import { Element as Model } from '../../models/Grid';
+import { Element as Model } from 'src/models/Grid';
 import { Component } from 'vue';
 
 export type El = {

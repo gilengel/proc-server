@@ -1,16 +1,9 @@
 <template>
   <div class="q-pa-md">
-    <q-input dark outlined bottom-slots v-model="text" dense>
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-
     <SortableVue
       :list="list"
       :options="dragOptions"
       :itemKey="(element) => element.id"
-      :move="onMove"
     >
       <template #item="{ element }">
         <q-item
@@ -44,12 +37,9 @@ export interface WidgetElement {
 }
 </script>
 <script setup lang="ts">
-import Sortable from 'sortablejs';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
 import { ElementType } from 'src/models/Grid';
 import { ComputedRef, computed, ref } from 'vue';
-
-const text = '';
 
 const list: ComputedRef<WidgetElement[]> = computed(() => {
   const keys = Object.keys(ElementType);
@@ -74,17 +64,4 @@ const dragOptions = ref({
     dataTransfer.setData('data-element', elementType as string);
   },
 });
-
-function onMove(evt: Sortable.MoveEvent): boolean {
-  const targetClassList = evt.related.classList;
-
-  if (targetClassList.contains('layout-row')) {
-    //return false;
-  }
-
-  return true;
-  // return false; — for cancel
-}
 </script>
-
-<style lang="scss" scoped></style>

@@ -32,17 +32,20 @@
       />
     </div>
 
-    <component
-      :is="elementComponent"
-      v-bind="{ uuid: '', editable: true, model: model.element }"
-      @click="() => $emit('selectElement', model.element as Element)"
-    />
+    <div class="element-container">
+      <component
+        :is="elementComponent"
+        v-bind="{ uuid: '', editable: true, model: model.element }"
+        @click="() => $emit('selectElement', model.element as Element)"
+      />
+    </div>
 
     <SortableVue
       :list="emptyList"
       :itemKey="(e: WorkaroundElement) => e.id"
       :options="dropOptions"
       tag="div"
+      class="drop-container"
       @end="onEnd($event)"
       @add="elementAdded($event as AddEvent)"
     >
@@ -60,9 +63,9 @@ import Sortable from 'sortablejs';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
 import { Column, Element, ElementType, ElementTypes } from '../../models/Grid';
 import { useGridModuleStore } from '../../stores/gridModule';
-import { colValidator } from './common';
 import { ComputedRef, PropType, computed, ref } from 'vue';
 import { ModuleLoader } from './elementLoader';
+import { columnValueValidator } from 'src/composables/useColumValidator';
 
 // Workaround as Sortable.SortableEvent type does not correctly contains the original event
 // which is necessary to get the transferred data (as defined by setData)
@@ -105,7 +108,7 @@ const props = defineProps({
     type: Number,
     default: 2,
     required: true,
-    validator: colValidator,
+    validator: columnValueValidator,
   },
 
   /**
@@ -205,9 +208,22 @@ function onEnd(event: Sortable.SortableEvent) {
   align-content: stretch;
   justify-content: center;
 
-  > div {
+  > .drop-container {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
     padding: 1em;
+    z-index: -1;
+  }
+
+  > .element-container {
+    flex-grow: 2;
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
   }
 
   > .actions {

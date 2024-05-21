@@ -1,5 +1,10 @@
 # Frontend
 
+## Nomenclature
+
+- Element: (Interactable) Widget that is displayed to the user. This can be a heading, text, button, image etc
+- Attribute: The parts that specify the behaviour and apperance of an `Element`.
+
 ## UI Builder
 
 The overall idea of the UI Builder component is to use build in TypeScript "magic" to automatically import the correct files at the correct positions and wire everything together.

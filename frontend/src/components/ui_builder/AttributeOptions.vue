@@ -26,13 +26,7 @@ const props = defineProps<IBaseElementProps>();
 
 function optionProps(attribute: ElementAttribute) {
   switch (attribute.type) {
-    case ElementAttributeType.String: {
-      return {
-        model: props.model,
-        label: attribute.name,
-        attributeKey: attribute.name,
-      };
-    }
+    case ElementAttributeType.String:
     case ElementAttributeType.Boolean: {
       return {
         model: props.model,

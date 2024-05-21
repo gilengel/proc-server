@@ -1,5 +1,5 @@
 import { boot } from 'quasar/wrappers';
-import IconList from 'src/components/ui_builder/button/IconList.vue';
+import IconListOption from 'src/components/ui_builder/attributes/IconListOption.vue';
 
 export enum CustomAttributeOptionElements {
   IconList = 'IconList',
@@ -10,7 +10,7 @@ export function getCustomAttributeOptionElement(
 ) {
   switch (element) {
     case CustomAttributeOptionElements.IconList: {
-      return IconList;
+      return IconListOption;
     }
   }
 

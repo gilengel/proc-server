@@ -21,15 +21,15 @@
 </template>
 
 <script setup lang="ts">
-import { useChangleableComputedAttributeModel } from 'src/composables/useChangleableComputedAttributeModel';
-import { IOptionProps } from '../attributes';
-import icons from './icons.json';
+import { useChangeableComputedAttributeModel } from 'src/composables/useChangeableComputedAttributeModel';
+import { IOptionProps } from '.';
+import icons from '../button/icons.json';
 
 export type Icon = { name: string; icon: string };
 
 const props = defineProps<IOptionProps>();
 
-const model = useChangleableComputedAttributeModel<string>(
+const model = useChangeableComputedAttributeModel<string>(
   props.attributeKey,
   props.model,
 );

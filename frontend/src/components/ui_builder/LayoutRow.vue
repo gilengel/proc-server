@@ -44,16 +44,14 @@
 </template>
 
 <script setup lang="ts">
-import { useGridModuleStore } from '../../stores/gridModule';
-import { Row } from '../../models/Grid';
-
-const gridModuleStore = useGridModuleStore();
+import { Ref, ref } from 'vue';
 
 import LayoutColumn from './LayoutColumn.vue';
+import { Row, Element } from 'src/models/Grid';
+import { useGridModuleStore } from 'src/stores/gridModule';
+import { columnValueValidator } from 'src/composables/useColumValidator';
 
-import { Ref, onMounted, ref } from 'vue';
-import { colValidator } from './common';
-import { Element } from '../../models/Grid';
+const gridModuleStore = useGridModuleStore();
 
 const container: Ref<HTMLElement | null> = ref(null);
 
@@ -62,14 +60,14 @@ const props = defineProps({
     type: Number,
     default: 2,
     required: false,
-    validator: colValidator,
+    validator: columnValueValidator,
   },
 
   maxColSize: {
     type: Number,
     default: 11,
     required: false,
-    validator: colValidator,
+    validator: columnValueValidator,
   },
 
   rowIndex: {
@@ -88,9 +86,6 @@ defineEmits<{
   selectElement: [element: Element];
 }>();
 
-// Individual splitter positions
-const splitterPositions = new Array<number>();
-
 const flexColumns = 12;
 
 const selectedSplitter: Ref<HTMLElement | undefined> = ref(undefined);
@@ -105,7 +100,7 @@ const positions = {
   movementY: 0,
 };
 
-function previosColSize(index: number): number {
+function previousColSize(index: number): number {
   let result = 0;
   for (let i = 0; i < index; i++) {
     result += props.model.columns[i].width;
@@ -120,21 +115,10 @@ function colClass(i: number): string {
 }
 
 function splitterStyleFn(i: number): string {
-  const left = (previosColSize(i + 1) / flexColumns) * 100;
+  const left = (previousColSize(i + 1) / flexColumns) * 100;
 
   return `left: ${left}%`;
 }
-
-onMounted(() => {
-  for (let column of props.model.columns) {
-    column;
-  }
-
-  const numColumns = props.model.columns.length;
-  for (let i = 0; i < numColumns - 1; i++) {
-    splitterPositions.push(((i + 1) / numColumns) * 100);
-  }
-});
 
 function dragMouseDown(event: MouseEvent, index: number) {
   event.preventDefault();
@@ -144,7 +128,7 @@ function dragMouseDown(event: MouseEvent, index: number) {
   positions.clientY = event.clientY;
 
   // register handler on document level to capture mouse events that
-  // do not occure on the vue element
+  // do not occur on the vue element
   document.onmousemove = elementDrag;
   document.onmouseup = closeDragElement;
 
@@ -223,7 +207,7 @@ function elementDrag(event: MouseEvent) {
   const positionLeft = positions.clientX - container.value.offsetLeft;
 
   if (selectedSplitter.value) {
-    const previousColSizes = previosColSize(selectedSplitterIndex.value);
+    const previousColSizes = previousColSize(selectedSplitterIndex.value);
     const flexSize =
       Math.ceil((positionLeft / containerWidth()) * flexColumns) -
       previousColSizes;
@@ -249,7 +233,7 @@ function closeDragElement() {
   document.onmousemove = null;
 
   const previousColSizes =
-    previosColSize(selectedSplitterIndex.value + 1) / flexColumns;
+    previousColSize(selectedSplitterIndex.value + 1) / flexColumns;
   const el = selectedSplitter;
 
   if (!el.value) {
@@ -305,7 +289,6 @@ function closeDragElement() {
     width: 16px;
     height: 100%;
 
-    //background: rgba(salmon, 0.4);
     cursor: ew-resize;
     transform: translateX(-50%);
   }
