@@ -26,33 +26,28 @@
     </q-header>
 
     <q-page-container>
+      <FlowEditor />
+      <!--
       <Suspense>
         <WidgetLayout :grid />
       </Suspense>
+    -->
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { useGridModuleStore } from '../stores/gridModule';
+//import { useGridModuleStore } from '../stores/gridModule';
 import { useUndoRedoStore } from '../stores/undoredo';
 
-const gridModuleStore = useGridModuleStore();
+import FlowEditor from 'src/components/flow/FlowEditor.vue';
+
+//const gridModuleStore = useGridModuleStore();
 const undoRedoStore = useUndoRedoStore();
 
-const grid: Grid = gridModuleStore.grid as Grid;
+//const grid: Grid = gridModuleStore.grid as Grid;
 
-import { Grid } from 'src/models/Grid';
-//import FlowGraph from '../components/flow/FlowGraph.vue';
-import WidgetLayout from '../components/ui_builder/WidgetLayout.vue';
+//import { Grid } from 'src/models/Grid';
 
-//import FlowEditor from '../components/flow/FlowGraph.vue';
-
-//import { getRegisteredComponentCategories } from 'src/components/flow/components/Index';
-//import FlowEditor from '../components/flow/FlowEditor.vue';
-//import { ref } from 'vue';
-
-//const nodes = ref(getRegisteredComponentCategories());
-//console.log(nodes);
-//import PageList from '../components/Pagelist.vue';
+//import WidgetLayout from '../components/ui_builder/WidgetLayout.vue';
 </script>
