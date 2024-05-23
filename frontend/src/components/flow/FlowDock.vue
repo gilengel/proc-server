@@ -28,14 +28,11 @@
   </div>
 </template>
 
+<!-- PROPS -->
 <script
-  setup
   lang="ts"
   generic="ElementType extends string, ElementAttributeType extends string"
 >
-import { MetaFlowCategory } from '.';
-import { addObjectToDataTransfer } from 'src/composables/useDrag';
-
 export type FlowDockProps<
   ElementType extends string,
   ElementAttributeType extends string,
@@ -44,6 +41,15 @@ export type FlowDockProps<
 
   nodes: MetaFlowCategory<ElementType, ElementAttributeType>[];
 };
+</script>
+
+<script
+  setup
+  lang="ts"
+  generic="ElementType extends string, ElementAttributeType extends string"
+>
+import { MetaFlowCategory } from '.';
+import { addObjectToDataTransfer } from 'src/composables/useDrag';
 
 defineProps<FlowDockProps<ElementType, ElementAttributeType>>();
 </script>

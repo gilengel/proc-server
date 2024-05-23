@@ -21,3 +21,7 @@ export type MetaFlowElement<
   readonly defaultData?: Record<string, unknown>;
   readonly defaultElement: FlowElement<ElementType, ElementAttributeType>;
 };
+
+export type FlowEditorElement = {
+  readonly uuid: string;
+};

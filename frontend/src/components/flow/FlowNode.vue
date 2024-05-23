@@ -1,6 +1,8 @@
 <template>
   <div class="node">
-    <h1 class="title q-pa-sm">{{ data.label }}</h1>
+    <h1 class="title q-pa-sm">
+      <b>{{ data.label }}</b> {{ variableName }}
+    </h1>
 
     <div class="row">
       <div class="col col-4 in">
@@ -75,12 +77,17 @@ export type FlowNodeData = {
   outputs: { key: string; input: FlowNodeOutput }[];
   controls: { key: string; control: unknown }[];
   id: string;
+
+  data: unknown;
 };
 </script>
 
 <script setup lang="ts">
 import { Ref } from 'rete-vue-plugin';
 import { Control } from 'rete/_types/presets/classic';
+import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
+
+import { Element } from 'src/models/Grid';
 
 import { ComputedRef, computed } from 'vue';
 
@@ -93,6 +100,11 @@ export type FlowNodeProps = {
 };
 
 const props = defineProps<FlowNodeProps>();
+
+const variableName = useComputedAttributeModel(
+  'variable',
+  props.data.data as Element,
+);
 
 // TODO: proper typing without first cast to unknown
 const inputs: ComputedRef<[string, FlowNodeInput][]> = computed(() => {

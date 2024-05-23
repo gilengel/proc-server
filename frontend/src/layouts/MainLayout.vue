@@ -29,17 +29,19 @@
         <div>{{ tab === 'layout' }} based on Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
-
     <q-page-container>
       <Suspense>
         <WidgetLayout :grid v-show="tab === 'layout'" />
       </Suspense>
 
+      <!-- TODO remove the "e as Element" cast and use proper types -->
       <FlowEditor
         v-show="tab == 'logic'"
         :elements
+        :sockets="basicSockets"
         :categories="[basicCategory]"
         :grid="{ enabled: true, size: 20 }"
+        :createDataForNewElement="(e) => e as Element"
       />
     </q-page-container>
   </q-layout>
@@ -53,8 +55,8 @@ export enum FormInputOutput {
 </script>
 <script setup lang="ts">
 import * as uuid from 'uuid';
-import { computed, ref } from 'vue';
-import { MetaFlowCategory } from 'src/components/flow';
+import { ComputedRef, computed, ref } from 'vue';
+import { MetaFlowCategory, MetaFlowElement } from 'src/components/flow';
 
 import FlowEditor from 'src/components/flow/FlowEditor.vue';
 import WidgetLayout from 'src/components/ui_builder/WidgetLayout.vue';
@@ -68,6 +70,7 @@ import {
   ElementType,
   ElementAttributeType,
 } from 'src/models/Grid';
+import { ElementPin } from 'src/components/flow/model';
 
 const gridModuleStore = useGridModuleStore();
 const undoRedoStore = useUndoRedoStore();
@@ -76,7 +79,7 @@ const tab = ref('logic');
 
 const grid: Grid = gridModuleStore.grid as Grid;
 
-const elements = computed(() => {
+const elements: ComputedRef<Element[]> = computed(() => {
   const els: Element[] = [];
   for (const row of grid.rows) {
     for (const column of row.columns) {
@@ -93,66 +96,65 @@ const elements = computed(() => {
 
 type FormType = ElementType | FormInputOutput;
 
+function createDefaultElement<T extends string>(
+  type: T,
+  label: string,
+  icon: string,
+  inputs: ElementPin<ElementAttributeType>[] = [],
+  outputs: ElementPin<ElementAttributeType>[] = [],
+): MetaFlowElement<T, ElementAttributeType> {
+  return {
+    type,
+    label,
+    icon,
+    defaultElement: {
+      type,
+      uuid: uuid.v4(),
+      inputs,
+      outputs,
+    },
+  };
+}
+
+function createDefaultPin<T extends string>(
+  type: T,
+  identifier: string,
+): ElementPin<T> {
+  return {
+    type,
+    identifier,
+  };
+}
+
+const basicSockets = Object.keys(ElementAttributeType);
+
 const basicCategory: MetaFlowCategory<FormType, ElementAttributeType> = {
   label: 'Basic',
   icon: '',
 
   elements: [
-    {
-      type: FormInputOutput.Input,
-      label: 'Input',
-      icon: 'las la-download',
-      defaultElement: {
-        type: FormInputOutput.Input,
-        uuid: uuid.v4(),
-        outputs: [
-          {
-            type: ElementAttributeType.String,
-            identifier: 'Text',
-            children: [],
-          },
-        ],
-      },
-    },
-    {
-      type: FormInputOutput.Output,
-      label: 'Output',
-      icon: 'las la-upload',
-      defaultElement: {
-        type: FormInputOutput.Output,
-        uuid: uuid.v4(),
-        inputs: [
-          {
-            type: ElementAttributeType.String,
-            identifier: 'Text',
-            children: [],
-          },
-        ],
-      },
-    },
-    {
-      type: ElementType.Text,
-      label: 'Text',
-      icon: 'las la-comment-dots',
-      defaultElement: {
-        type: ElementType.Text,
-        uuid: uuid.v4(),
-        inputs: [
-          {
-            type: ElementAttributeType.String,
-            identifier: 'Text',
-            children: [],
-          },
-        ],
-        outputs: [
-          {
-            type: ElementAttributeType.String,
-            identifier: 'Text',
-            children: [],
-          },
-        ],
-      },
-    },
+    createDefaultElement(
+      FormInputOutput.Input,
+      'Input',
+      'las la-download',
+      [],
+      [createDefaultPin(ElementAttributeType.String, 'Text')],
+    ),
+
+    createDefaultElement(
+      FormInputOutput.Output,
+      'Output',
+      'las la-upload',
+      [createDefaultPin(ElementAttributeType.String, 'Text')],
+      [],
+    ),
+    createDefaultElement(
+      ElementType.Text,
+      'Text',
+      'las la-comment-dots',
+      [createDefaultPin(ElementAttributeType.String, 'Text')],
+      [createDefaultPin(ElementAttributeType.String, 'Text')],
+    ),
   ],
 };
 </script>

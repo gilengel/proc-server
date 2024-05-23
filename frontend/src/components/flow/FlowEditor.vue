@@ -1,5 +1,5 @@
 <template>
-  <q-splitter v-model="leftWidth" unit="px" style="height: 100%">
+  <q-splitter v-model="dockWidth" unit="px" style="height: 100%">
     <template v-slot:before
       ><FlowDock title="Nodes" :nodes="categories"
     /></template>
@@ -10,7 +10,14 @@
 <script
   setup
   lang="ts"
-  generic="ElementType extends string, ElementAttributeType extends string"
+  generic="
+    GenericElement extends FlowElement<
+      GenericElementType,
+      GenericElementAttributeType
+    >,
+    GenericElementType extends string,
+    GenericElementAttributeType extends string
+  "
 >
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { ClassicPreset, NodeEditor } from 'rete';
@@ -20,37 +27,68 @@ import { AreaExtra, Schemes, createEditor } from './editor';
 import { MetaFlowCategory } from './index';
 
 import FlowDock from './FlowDock.vue';
-import { Element } from 'src/models/Grid';
 import { useDrop } from 'src/composables/useDrop';
-import { FlowElement } from './model';
+import { ElementPin, FlowElement } from './model';
+
+class DataNode<T> extends ClassicPreset.Node {
+  constructor(
+    private data: T,
+    label: string,
+  ) {
+    super(label);
+  }
+}
+
+type FlowEditorGridProps = {
+  enabled: boolean;
+  size: number;
+};
+
+type FlowEditorProps<
+  GenericElement extends FlowElement<
+    GenericElementType,
+    GenericElementAttributeType
+  >,
+  GenericElementType extends string,
+  GenericElementAttributeType extends string,
+> = {
+  elements: GenericElement[];
+
+  sockets: GenericElementAttributeType[];
+
+  categories: MetaFlowCategory<
+    GenericElementType,
+    GenericElementAttributeType
+  >[];
+
+  grid?: FlowEditorGridProps;
+
+  createDataForNewElement: (element: unknown) => object;
+};
 
 const editor = ref(null);
 
-type IFlowEditorGridProps = {
-  enabled: boolean;
-  size: 20;
-};
-type IFlowEditorProps<
-  ElementType extends string,
-  ElementAttributeType extends string,
-> = {
-  elements: Element[];
-
-  categories: MetaFlowCategory<ElementType, ElementAttributeType>[];
-
-  grid?: IFlowEditorGridProps;
-};
-
 const props =
-  defineProps<IFlowEditorProps<ElementType, ElementAttributeType>>();
+  defineProps<
+    FlowEditorProps<
+      GenericElement,
+      GenericElementType,
+      GenericElementAttributeType
+    >
+  >();
 
 let e: NodeEditor<Schemes> | undefined = undefined;
 let area: AreaPlugin<Schemes, AreaExtra> | undefined = undefined;
 
-const leftWidth = ref(400);
+const dockWidth = ref(400);
 
+// All elements that can be created by the user. The elements are defined via the categories prop
+// and are extracted from there
 const creatableElements = computed(() => {
-  const elements: FlowElement<ElementType, ElementAttributeType>[] = [];
+  const elements: FlowElement<
+    GenericElementType,
+    GenericElementAttributeType
+  >[] = [];
   for (const category of props.categories) {
     const defaultElements = category.elements.map((e) => e.defaultElement);
     elements.push(...defaultElements); // concat does not work as elements is empty
@@ -59,6 +97,11 @@ const creatableElements = computed(() => {
   return elements;
 });
 
+const usableSockets = props.sockets.map(
+  (socket) => new ClassicPreset.Socket(socket),
+);
+
+// Init the rete editor on mount
 onMounted(async () => {
   const reteEditor = await createEditor(editor.value!);
   e = reteEditor.editor;
@@ -66,8 +109,10 @@ onMounted(async () => {
 });
 
 type ComponentType = {
-  componentId: ElementType;
+  componentId: GenericElementType;
 };
+
+// Callback that is called once a element is dropped on the editor (from the dock)
 useDrop(editor, (e: object) => {
   const object = e as ComponentType;
 
@@ -81,20 +126,25 @@ useDrop(editor, (e: object) => {
     return;
   }
 
-  addElementNode(element).then(() => {});
+  addElementNode(element, props.createDataForNewElement(element)).then(
+    () => {},
+  );
 });
 
 // Add all elements that are not already in the editor if the elements
 // property is changed
 watch(
   () => props.elements,
-  (first) => {
-    let difference = first.filter(
-      (x) => e?.getNodes().find((e) => e.id === x.uuid) === undefined,
+  (newElements) => {
+    let difference = newElements.filter(
+      (newElement) =>
+        e?.getNodes().find((e) => e.id === newElement.uuid) === undefined,
     );
 
-    for (let a of difference) {
-      addElementNode(a).then(() => {});
+    for (let element of difference) {
+      addElementNode(element, props.createDataForNewElement(element)).then(
+        () => {},
+      );
     }
   },
   {
@@ -106,7 +156,7 @@ watch(
 // property is changed
 watch(
   () => props.grid,
-  (prop: IFlowEditorGridProps | undefined) => {
+  (prop: FlowEditorGridProps | undefined) => {
     if (!area) {
       return;
     }
@@ -122,29 +172,47 @@ onUnmounted(() => {
 });
 
 async function addElementNode<
-  ElementType extends string,
-  ElementAttributeType extends string,
->(element: FlowElement<ElementType, ElementAttributeType>) {
-  const textSocket = new ClassicPreset.Socket('text');
-
-  const b = new ClassicPreset.Node(element.type);
+  GenericElementType extends string,
+  GenericElementAttributeType extends string,
+>(
+  element: FlowElement<GenericElementType, GenericElementAttributeType>,
+  data: unknown,
+) {
+  const b = new DataNode(data, element.type);
   b.id = element.uuid; // the cleaner way would be to use a custom preset - but this works also :)
+
+  const addPin = (
+    pin: ElementPin<GenericElementAttributeType>,
+    callback: (socket: ClassicPreset.Socket) => void,
+  ) => {
+    const socket = usableSockets.find((socket) => socket.name === pin.type);
+    if (!socket) {
+      console.error(
+        `Socket of type "${pin.type}" does not exist on the FlowEditor instance. Was it added in the socket property?`,
+      );
+      return;
+    }
+
+    callback(socket);
+  };
 
   if (element.inputs) {
     for (const input of element.inputs) {
-      const textSocket = new ClassicPreset.Socket(input.type);
-
-      b.addInput(input.type, new ClassicPreset.Input(textSocket));
+      addPin(input, (socket) =>
+        b.addInput(input.type, new ClassicPreset.Input(socket)),
+      );
     }
-  }
 
-  if (element.outputs) {
-    for (const output of element.outputs) {
-      b.addOutput(output.type, new ClassicPreset.Output(textSocket));
+    if (element.outputs) {
+      for (const output of element.outputs) {
+        addPin(output, (socket) =>
+          b.addOutput(output.type, new ClassicPreset.Output(socket)),
+        );
+      }
     }
-  }
 
-  await e!.addNode(b);
+    await e!.addNode(b);
+  }
 }
 </script>
 
@@ -158,3 +226,4 @@ div {
   user-select: none; /* Standard syntax */
 }
 </style>
+FlowEditorElement,

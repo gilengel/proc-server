@@ -59,3 +59,20 @@ export interface Element {
 ```
 
 Elements can
+
+# Flow Editor
+
+```mermaid
+classDiagram
+    class FlowEditorProps~ElementType, ElementAttributeType~  {
+      enabled: boolean,
+      size: number
+    }
+
+    class FlowEditorGridProps {
+      enabled: boolean,
+      size: number
+    }
+
+    FlowEditorGridProps  --* "0..1" FlowEditorProps
+```

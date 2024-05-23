@@ -21,7 +21,7 @@ export type ElementPin<T> = {
   type: T;
   identifier: string;
   connection?: FlowElementConnection;
-  children: ElementPin<T>[];
+  children?: ElementPin<T>[];
 };
 
 /**
