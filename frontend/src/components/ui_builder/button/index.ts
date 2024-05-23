@@ -1,7 +1,12 @@
 export { default as Element } from './ButtonElement.vue';
 export { default as Options } from '../AttributeOptions.vue';
 
-import { ElementAttributeType, Element as Model } from '../../../models/Grid';
+import {
+  ElementAttribute,
+  ElementAttributeType,
+  ElementType,
+  Element as Model,
+} from '../../../models/Grid';
 
 import * as uuid from 'uuid';
 import { IBaseElementProps } from '../BaseElement';
@@ -15,32 +20,47 @@ export function createDefaultProps(model: Model): IBaseElementProps {
   };
 }
 
-export function createDefaultAttributes(element: Model) {
-  element.attributes.push({
+export function createDefaultAttributes(): ElementAttribute[] {
+  const attributes: ElementAttribute[] = [];
+  attributes.push({
     name: 'type',
     type: ElementAttributeType.String,
     value: 'button',
   });
-  element.attributes.push({
+  attributes.push({
     name: 'icon',
     type: ElementAttributeType.String,
     value: 'lab la-behance-square',
 
     component: CustomAttributeOptionElements.IconList,
   });
-  element.attributes.push({
+  attributes.push({
     name: 'hasIcon',
     type: ElementAttributeType.Boolean,
     value: true,
   });
-  element.attributes.push({
+  attributes.push({
     name: 'isHighlighted',
     type: ElementAttributeType.Boolean,
     value: true,
   });
-  element.attributes.push({
+  attributes.push({
     name: 'label',
     type: ElementAttributeType.String,
     value: 'Button',
   });
+
+  return attributes;
+}
+
+export function createDefaultElement() {
+  const element: Model = {
+    uuid: uuid.v4(),
+    type: ElementType.Button,
+    attributes: createDefaultAttributes(),
+    //column,
+    classList: [],
+  };
+
+  return element;
 }

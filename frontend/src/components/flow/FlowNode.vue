@@ -18,7 +18,6 @@
               payload: input.socket,
             }"
             :emit="emit"
-            data-testid="input-socket"
           />
           {{ input.socket.name }}
         </div>
@@ -29,10 +28,8 @@
           class="output-socket"
           v-for="[key, output] in outputs"
           :key="key + seed"
-          :data-testid="'output-' + key"
         >
           <Ref
-            class="output-socket"
             :data="{
               type: 'socket',
               side: 'output',
@@ -41,7 +38,6 @@
               payload: output.socket,
             }"
             :emit="emit"
-            data-testid="output-socket"
           />
           {{ output.socket.name }}
         </div>
@@ -83,14 +79,10 @@ export type FlowNodeData = {
 </script>
 
 <script setup lang="ts">
-//import { Control } from 'rete/_types/presets/classic';
-
-//import { ClassicPreset } from 'rete';
 import { Ref } from 'rete-vue-plugin';
 import { Control } from 'rete/_types/presets/classic';
 
 import { ComputedRef, computed } from 'vue';
-//import { computed } from 'vue';
 
 export type FlowNodeProps = {
   data: FlowNodeData;
@@ -111,7 +103,7 @@ const inputs: ComputedRef<[string, FlowNodeInput][]> = computed(() => {
 });
 
 const outputs: ComputedRef<[string, FlowNodeOutput][]> = computed(() => {
-  return Object.entries(props.data.inputs) as [string, unknown][] as [
+  return Object.entries(props.data.outputs) as [string, unknown][] as [
     string,
     FlowNodeOutput,
   ][];
@@ -166,116 +158,4 @@ $socket-margin: 10px;
   flex-direction: column;
   align-items: flex-end;
 }
-
-/*
-.output-container {
-  justify-content: space-between;
-}
-
-.selected::before {
-  display: block;
-  content: ' ';
-  position: absolute;
-  z-index: -1;
-  border: solid 2px orange;
-  border-radius: 2px;
-
-  left: -2px;
-  right: -2px;
-  top: -2px;
-  bottom: -2px;
-}
-
-.node {
-  background: $node-color;
-  cursor: pointer;
-  height: auto;
-  box-sizing: content-box;
-
-  min-width: 200px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  -ms-user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  -khtml-user-select: none;
-  user-select: none;
-
-  .row {
-    background-color: red;
-  }
-
-
-  .content {
-    display: flex;
-    flex-grow: 2;
-    padding-top: 20px;
-    padding-bottom: 8px;
-    //
-
-    .node-column {
-      align-items: center;
-      align-content: space-between;
-
-      .control {
-        padding-left: 8px;
-        padding-right: 8px;
-      }
-    }
-  }
-}
-
-.input-container,
-.output-container {
-  padding-right: 6px;
-  display: flex;
-  align-items: center;
-
-  color: white;
-}
-
-.node:hover {
-  background: $node-color;
-}
-.node:hover.active {
-  background: $color-active;
-  border: 1px solid #ffd252;
-}
-
-.title {
-  color: white;
-
-  justify-content: space-between;
-  align-items: center;
-
-  text-transform: capitalize;
-}
-
-.column:not(:last-child) {
-  padding-right: 20px;
-}
-
-.inputs,
-.outputs {
-  text-align: left;
-}
-
-.outputs {
-  align-items: flex-end;
-  text-align: right;
-}
-
-.socket {
-  width: $socket-size !important;
-  height: $socket-size !important;
-}
-
-.socket::after {
-  visibility: hidden;
-}
-*/
 </style>

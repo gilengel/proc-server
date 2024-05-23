@@ -7,8 +7,6 @@ export interface ISocketProps {
   data: {
     name: string;
   };
-
-  used: boolean;
 }
 
 defineProps<ISocketProps>();

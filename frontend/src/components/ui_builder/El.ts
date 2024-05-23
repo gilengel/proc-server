@@ -1,11 +1,12 @@
 import { IBaseElementProps } from './BaseElement';
 
-import { Element as Model } from 'src/models/Grid';
+import { ElementAttribute, Element as Model } from 'src/models/Grid';
 import { Component } from 'vue';
 
 export type El = {
   createDefaultProps(model: Model): IBaseElementProps;
-  createDefaultAttributes(element: Model): void;
+  createDefaultAttributes(): ElementAttribute[];
+  createDefaultElement(): Model;
 
   Element: Component;
   Options: Component;

@@ -1,4 +1,3 @@
-import { StringTransform } from './String';
 import { CustomAttributeOptionElements } from 'src/boot/ui-builder';
 
 /**
@@ -20,35 +19,16 @@ const elementTypeKeys = Object.keys(ElementType);
 
 export const ElementTypes = elementTypeKeys as ElementType[];
 
-export interface Element {
+export type Element = {
   uuid: string;
   type: ElementType;
   attributes: Array<ElementAttribute>;
-  column?: Column;
   classList: Array<string>;
-
-  inputs?: Array<ElementPin>;
-  outputs?: Array<ElementPin>;
-}
-
-export interface ElementPin {
-  type: ElementAttributeType;
-  identifier: string;
-  connection?: ElementConnection;
-  children: Array<ElementPin | ElementPin>;
-}
+};
 
 export interface Point {
   x: number;
   y: number;
-}
-export interface ElementConnection {
-  uuid: string;
-  input: string;
-  output: string;
-
-  value?: unknown;
-  transform: Array<StringTransform>;
 }
 
 export enum ElementAttributeType {

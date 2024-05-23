@@ -1,10 +1,16 @@
 export { default as Element } from './TextElement.vue';
 export { default as Options } from '../AttributeOptions.vue';
 
-import { ElementAttributeType, Element as Model } from '../../../models/Grid';
+import {
+  ElementAttribute,
+  ElementAttributeType,
+  ElementType,
+  Element as Model,
+} from '../../../models/Grid';
 
 import * as uuid from 'uuid';
 import { IBaseElementProps } from '../BaseElement';
+import { FlowElement } from 'src/components/flow/model';
 
 export function createDefaultProps(model: Model): IBaseElementProps {
   return {
@@ -14,24 +20,26 @@ export function createDefaultProps(model: Model): IBaseElementProps {
   };
 }
 
-export function createDefaultAttributes(element: Model) {
-  element.attributes.push({
+export function createDefaultAttributes() {
+  const attributes: ElementAttribute[] = [];
+
+  attributes.push({
     name: 'variable',
     type: ElementAttributeType.String,
     value: 'Some_text',
   });
-  element.attributes.push({
+  attributes.push({
     name: 'placeholder',
     type: ElementAttributeType.String,
     value: 'Some_text',
   });
 
-  element.attributes.push({
+  attributes.push({
     name: 'label',
     type: ElementAttributeType.String,
     value: 'Some text',
   });
-  element.attributes.push({
+  attributes.push({
     name: 'type',
     type: ElementAttributeType.Collection,
     value: 'text',
@@ -50,9 +58,30 @@ export function createDefaultAttributes(element: Model) {
       'datetime-local',
     ],
   });
-  element.attributes.push({
+  attributes.push({
     name: 'withLabel',
     type: ElementAttributeType.Boolean,
     value: true,
   });
+
+  return attributes;
+}
+
+export function createDefaultElement() {
+  const element: Model | FlowElement<ElementType, ElementAttributeType> = {
+    uuid: uuid.v4(),
+    type: ElementType.Text,
+    attributes: createDefaultAttributes(),
+    classList: [],
+    inputs: [
+      {
+        type: ElementAttributeType.String,
+        identifier: 'Muu',
+        children: [],
+      },
+    ],
+    outputs: [],
+  };
+
+  return element;
 }

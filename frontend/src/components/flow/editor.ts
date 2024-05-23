@@ -10,16 +10,16 @@ import FlowNode from './FlowNode.vue';
 import FlowSocket from './FlowSocket.vue';
 import FlowConnection from './FlowConnection.vue';
 
-type Schemes = GetSchemes<
+export type Schemes = GetSchemes<
   ClassicPreset.Node,
   ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
 >;
-type AreaExtra = VueArea2D<Schemes>;
+export type AreaExtra = VueArea2D<Schemes>;
 
-export async function createEditor(container: HTMLElement) {
-  const socket = new ClassicPreset.Socket('socket');
-  const textSocket = new ClassicPreset.Socket('text');
-
+export async function createEditor(container: HTMLElement): Promise<{
+  editor: NodeEditor<Schemes>;
+  area: AreaPlugin<Schemes, AreaExtra>;
+}> {
   const editor = new NodeEditor<Schemes>();
   const area = new AreaPlugin<Schemes, AreaExtra>(container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
@@ -33,10 +33,6 @@ export async function createEditor(container: HTMLElement) {
     Presets.classic.setup({
       customize: {
         node() {
-          //console.log(context.payload, CustomNode);
-          //if (context.payload.label === 'Custom') {
-          //  return CustomNode;
-          //}
           return FlowNode;
         },
         socket() {
@@ -56,23 +52,7 @@ export async function createEditor(container: HTMLElement) {
   area.use(render);
 
   AreaExtensions.simpleNodesOrder(area);
-
-  const a = new ClassicPreset.Node('Custom');
-  a.addOutput('a', new ClassicPreset.Output(textSocket));
-  a.addInput('a', new ClassicPreset.Input(socket));
-  await editor.addNode(a);
-
-  const b = new ClassicPreset.Node('Custom');
-  b.addOutput('a', new ClassicPreset.Output(textSocket));
-  b.addInput('a', new ClassicPreset.Input(textSocket));
-  b.addInput('b', new ClassicPreset.Input(textSocket));
-  await editor.addNode(b);
-
-  await area.translate(b.id, { x: 320, y: 0 });
-
-  await editor.addConnection(new ClassicPreset.Connection(a, 'a', b, 'a'));
-
   AreaExtensions.zoomAt(area, editor.getNodes());
 
-  return () => area.destroy();
+  return { editor, area };
 }
