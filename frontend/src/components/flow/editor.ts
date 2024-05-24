@@ -1,5 +1,6 @@
-import { NodeEditor, GetSchemes, ClassicPreset } from 'rete';
+import { NodeEditor } from 'rete';
 import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
+import { DataflowEngine, DataflowEngineScheme } from 'rete-engine';
 import {
   ConnectionPlugin,
   Presets as ConnectionPresets,
@@ -10,20 +11,20 @@ import FlowNode from './FlowNode.vue';
 import FlowSocket from './FlowSocket.vue';
 import FlowConnection from './FlowConnection.vue';
 
-export type Schemes = GetSchemes<
-  ClassicPreset.Node,
-  ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
->;
-export type AreaExtra = VueArea2D<Schemes>;
+export type AreaExtra<T extends DataflowEngineScheme> = VueArea2D<T>;
 
-export async function createEditor(container: HTMLElement): Promise<{
-  editor: NodeEditor<Schemes>;
-  area: AreaPlugin<Schemes, AreaExtra>;
+export async function createEditor<T extends DataflowEngineScheme>(
+  container: HTMLElement,
+): Promise<{
+  editor: NodeEditor<T>;
+  area: AreaPlugin<T, AreaExtra<T>>;
+  engine: DataflowEngine<T>;
 }> {
-  const editor = new NodeEditor<Schemes>();
-  const area = new AreaPlugin<Schemes, AreaExtra>(container);
-  const connection = new ConnectionPlugin<Schemes, AreaExtra>();
-  const render = new VuePlugin<Schemes, AreaExtra>();
+  const editor = new NodeEditor<T>();
+  const area = new AreaPlugin<T, AreaExtra<T>>(container);
+  const connection = new ConnectionPlugin<T, AreaExtra<T>>();
+  const render = new VuePlugin<T, AreaExtra<T>>();
+  const engine = new DataflowEngine<T>();
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
     accumulating: AreaExtensions.accumulateOnCtrl(),
@@ -48,11 +49,12 @@ export async function createEditor(container: HTMLElement): Promise<{
   connection.addPreset(ConnectionPresets.classic.setup());
 
   editor.use(area);
+  editor.use(engine);
   area.use(connection);
   area.use(render);
 
   AreaExtensions.simpleNodesOrder(area);
   AreaExtensions.zoomAt(area, editor.getNodes());
 
-  return { editor, area };
+  return { editor, area, engine };
 }

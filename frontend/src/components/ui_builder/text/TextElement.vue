@@ -1,18 +1,19 @@
 <template>
   <div class="el-text">
+    {{ value }}
     <q-input
       dark
       :label
       :placeholder
       :type
       :readonly="!editable"
-      v-model="text"
+      v-model="value"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 import { IBaseElementProps, getValueOfAttribute } from '../BaseElement';
 import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
@@ -31,6 +32,8 @@ const label = computed(() => {
   return getValueOfAttribute<string>('label', props.model);
 });
 
+const value = useComputedAttributeModel<string>('value', props.model);
+
 type InputType =
   | 'text'
   | 'password'
@@ -46,8 +49,6 @@ type InputType =
   | 'datetime-local'
   | undefined;
 const type = useComputedAttributeModel<InputType>('type', props.model);
-
-const text = ref('');
 </script>
 
 <style scoped lang="scss">

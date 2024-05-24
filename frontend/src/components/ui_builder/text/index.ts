@@ -28,6 +28,11 @@ export function createDefaultAttributes() {
     value: 'Some_text',
   });
   attributes.push({
+    name: 'value',
+    type: ElementAttributeType.String,
+    value: 'Some_text',
+  });
+  attributes.push({
     name: 'placeholder',
     type: ElementAttributeType.String,
     value: 'Some_text',

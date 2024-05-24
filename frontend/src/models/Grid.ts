@@ -30,6 +30,28 @@ export class Element extends FlowElement<ElementType, ElementAttributeType> {
     super(type, inputs, outputs);
     this.id = uuid.v4();
   }
+
+  data(
+    inputs: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> | Record<string, unknown> {
+    for (const key of Object.keys(inputs)) {
+      const attribute = this.attributes.find(
+        (attribute) => attribute.name === key,
+      );
+
+      attribute!.value = inputs[key] as string | number;
+    }
+
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(this.outputs)) {
+      result[key] = this.attributes.find(
+        (attribute) => attribute.name === key,
+      )?.value;
+    }
+
+    console.log(result);
+    return result;
+  }
 }
 
 export interface Point {

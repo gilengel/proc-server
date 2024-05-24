@@ -7,7 +7,7 @@ import { AvailableSockets } from '../ui_builder/elementLoader';
  * @template ElementAttributeType Enum of allowed attributes that can be passed from
  *                                one element pin to another
  */
-export class FlowElement<
+export abstract class FlowElement<
   ElementType extends string,
   ElementAttributeType extends string,
 > extends ClassicPreset.Node {
@@ -38,23 +38,23 @@ export class FlowElement<
     if (inputs) {
       for (const input of inputs) {
         addPin(input, (socket) =>
-          this.addInput(input.type, new ClassicPreset.Input(socket)),
+          this.addInput(input.identifier, new ClassicPreset.Input(socket)),
         );
       }
 
       if (outputs) {
         for (const output of outputs) {
           addPin(output, (socket) =>
-            this.addOutput(output.type, new ClassicPreset.Output(socket)),
+            this.addOutput(output.identifier, new ClassicPreset.Output(socket)),
           );
         }
       }
     }
   }
-  //type: ElementType;
-  //uuid: string;
-  //inputs?: ElementPin<ElementAttributeType>[];
-  //outputs?: ElementPin<ElementAttributeType>[];
+
+  abstract data(
+    inputs: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> | Record<string, unknown>;
 }
 
 /**

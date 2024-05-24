@@ -66,7 +66,7 @@ import {
   ElementType,
   ElementAttributeType,
 } from 'src/models/Grid';
-import { ElementPin, FlowElement } from 'src/components/flow/model';
+import { ElementPin } from 'src/components/flow/model';
 
 const gridModuleStore = useGridModuleStore();
 const undoRedoStore = useUndoRedoStore();
@@ -92,18 +92,18 @@ const elements: ComputedRef<Element[]> = computed(() => {
 
 type FormType = ElementType | FormInputOutput;
 
-function createDefaultElement<T extends string>(
-  type: T,
+function createDefaultElement(
+  type: ElementType,
   label: string,
   icon: string,
   inputs: ElementPin<ElementAttributeType>[] = [],
   outputs: ElementPin<ElementAttributeType>[] = [],
-): MetaFlowElement<T, ElementAttributeType> {
+): MetaFlowElement<ElementType, ElementAttributeType> {
   return {
     type,
     label,
     icon,
-    defaultElement: new FlowElement(type, inputs, outputs),
+    defaultElement: new Element(type, [], inputs, outputs),
   };
 }
 
@@ -122,6 +122,7 @@ const basicCategory: MetaFlowCategory<FormType, ElementAttributeType> = {
   icon: '',
 
   elements: [
+    /*
     createDefaultElement(
       FormInputOutput.Input,
       'Input',
@@ -137,6 +138,7 @@ const basicCategory: MetaFlowCategory<FormType, ElementAttributeType> = {
       [createDefaultPin(ElementAttributeType.String, 'Text')],
       [],
     ),
+    */
     createDefaultElement(
       ElementType.Text,
       'Text',

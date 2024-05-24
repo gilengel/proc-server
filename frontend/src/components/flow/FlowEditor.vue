@@ -20,15 +20,24 @@
   "
 >
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { NodeEditor } from 'rete';
+import { ClassicPreset, GetSchemes, NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
 
-import { AreaExtra, Schemes, createEditor } from './editor';
+import { AreaExtra, createEditor } from './editor';
 import { MetaFlowCategory } from './index';
 
 import FlowDock from './FlowDock.vue';
 import { useDrop } from 'src/composables/useDrop';
 import { FlowElement } from './model';
+import { DataflowEngine } from 'rete-engine';
+
+export type Schemes<
+  GenericElementType extends string,
+  GenericElementAttributeType extends string,
+> = GetSchemes<
+  FlowElement<GenericElementType, GenericElementAttributeType>,
+  ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
+>;
 
 type FlowEditorGridProps = {
   enabled: boolean;
@@ -64,8 +73,18 @@ const props =
     >
   >();
 
-let e: NodeEditor<Schemes> | undefined = undefined;
-let area: AreaPlugin<Schemes, AreaExtra> | undefined = undefined;
+let e:
+  | NodeEditor<Schemes<GenericElementType, GenericElementAttributeType>>
+  | undefined = undefined;
+let area:
+  | AreaPlugin<
+      Schemes<GenericElementType, GenericElementAttributeType>,
+      AreaExtra<Schemes<GenericElementType, GenericElementAttributeType>>
+    >
+  | undefined = undefined;
+let engine: DataflowEngine<
+  Schemes<GenericElementType, GenericElementAttributeType>
+>;
 
 const dockWidth = ref(400);
 
@@ -86,9 +105,22 @@ const creatableElements = computed(() => {
 
 // Init the rete editor on mount
 onMounted(async () => {
-  const reteEditor = await createEditor(editor.value!);
+  const reteEditor = await createEditor<
+    Schemes<GenericElementType, GenericElementAttributeType>
+  >(editor.value!);
   e = reteEditor.editor;
   area = reteEditor.area;
+  engine = reteEditor.engine;
+
+  e.addPipe((context) => {
+    if (context.type === 'connectioncreated') {
+      engine.reset();
+      engine.fetch(context.data.source);
+      engine.fetch(context.data.target);
+    }
+
+    return context;
+  });
 });
 
 type ComponentType = {
@@ -109,10 +141,7 @@ useDrop(editor, (e: object) => {
     return;
   }
 
-  // TODO reenable data
-  addElementNode(element /*props.createDataForNewElement(element)*/).then(
-    () => {},
-  );
+  addElementNode(element).then(() => {});
 });
 
 // Add all elements that are not already in the editor if the elements
@@ -126,10 +155,7 @@ watch(
     );
 
     for (let element of difference) {
-      // TODO reenable data
-      addElementNode(element /*props.createDataForNewElement(element) */).then(
-        () => {},
-      );
+      addElementNode(element).then(() => {});
     }
   },
   {
@@ -146,9 +172,15 @@ watch(
       return;
     }
 
-    AreaExtensions.snapGrid(area as AreaPlugin<Schemes, AreaExtra>, {
-      size: prop && prop.enabled ? prop.size : 1,
-    });
+    AreaExtensions.snapGrid(
+      area as AreaPlugin<
+        Schemes<GenericElementType, GenericElementAttributeType>,
+        AreaExtra<Schemes<GenericElementType, GenericElementAttributeType>>
+      >,
+      {
+        size: prop && prop.enabled ? prop.size : 1,
+      },
+    );
   },
 );
 
