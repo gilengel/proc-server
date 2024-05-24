@@ -19,25 +19,25 @@ const DefaultGrid: Grid = {
     {
       id: uuid.v4(),
       columns: [
-        { width: 4, element: null, id: uuid.v4() },
-        { width: 8, element: null, id: uuid.v4() },
+        { width: 4, id: uuid.v4() },
+        { width: 8, id: uuid.v4() },
       ],
     },
 
     {
       id: uuid.v4(),
       columns: [
-        { width: 4, element: null, id: uuid.v4() },
-        { width: 4, element: null, id: uuid.v4() },
-        { width: 4, element: null, id: uuid.v4() },
+        { width: 4, id: uuid.v4() },
+        { width: 4, id: uuid.v4() },
+        { width: 4, id: uuid.v4() },
       ],
     },
 
     {
       id: uuid.v4(),
       columns: [
-        { width: 6, element: null, id: uuid.v4() },
-        { width: 6, element: null, id: uuid.v4() },
+        { width: 6, id: uuid.v4() },
+        { width: 6, id: uuid.v4() },
       ],
     },
   ],

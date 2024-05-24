@@ -34,14 +34,11 @@
         <WidgetLayout :grid v-show="tab === 'layout'" />
       </Suspense>
 
-      <!-- TODO remove the "e as Element" cast and use proper types -->
       <FlowEditor
         v-show="tab == 'logic'"
         :elements
-        :sockets="basicSockets"
         :categories="[basicCategory]"
         :grid="{ enabled: true, size: 20 }"
-        :createDataForNewElement="(e) => e as Element"
       />
     </q-page-container>
   </q-layout>
@@ -54,7 +51,6 @@ export enum FormInputOutput {
 }
 </script>
 <script setup lang="ts">
-import * as uuid from 'uuid';
 import { ComputedRef, computed, ref } from 'vue';
 import { MetaFlowCategory, MetaFlowElement } from 'src/components/flow';
 
@@ -70,7 +66,7 @@ import {
   ElementType,
   ElementAttributeType,
 } from 'src/models/Grid';
-import { ElementPin } from 'src/components/flow/model';
+import { ElementPin, FlowElement } from 'src/components/flow/model';
 
 const gridModuleStore = useGridModuleStore();
 const undoRedoStore = useUndoRedoStore();
@@ -107,12 +103,7 @@ function createDefaultElement<T extends string>(
     type,
     label,
     icon,
-    defaultElement: {
-      type,
-      uuid: uuid.v4(),
-      inputs,
-      outputs,
-    },
+    defaultElement: new FlowElement(type, inputs, outputs),
   };
 }
 
@@ -125,8 +116,6 @@ function createDefaultPin<T extends string>(
     identifier,
   };
 }
-
-const basicSockets = Object.keys(ElementAttributeType);
 
 const basicCategory: MetaFlowCategory<FormType, ElementAttributeType> = {
   label: 'Basic',

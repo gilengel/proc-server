@@ -35,7 +35,7 @@
         @click="
           gridModuleStore.addRow({
             id: uuid.v4(),
-            columns: [{ width: 12, element: null, id: uuid.v4() }],
+            columns: [{ width: 12, id: uuid.v4() }],
           })
         "
       />

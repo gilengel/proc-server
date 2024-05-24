@@ -10,7 +10,6 @@ import {
 
 import * as uuid from 'uuid';
 import { IBaseElementProps } from '../BaseElement';
-import { FlowElement } from 'src/components/flow/model';
 
 export function createDefaultProps(model: Model): IBaseElementProps {
   return {
@@ -68,20 +67,20 @@ export function createDefaultAttributes() {
 }
 
 export function createDefaultElement() {
-  const element: Model | FlowElement<ElementType, ElementAttributeType> = {
-    uuid: uuid.v4(),
-    type: ElementType.Text,
-    attributes: createDefaultAttributes(),
-    classList: [],
-    inputs: [
+  return new Model(
+    ElementType.Text,
+    createDefaultAttributes(),
+    [
       {
         type: ElementAttributeType.String,
-        identifier: 'Muu',
-        children: [],
+        identifier: 'value',
       },
     ],
-    outputs: [],
-  };
-
-  return element;
+    [
+      {
+        type: ElementAttributeType.String,
+        identifier: 'value',
+      },
+    ],
+  );
 }

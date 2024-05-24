@@ -1,5 +1,6 @@
 import { CustomAttributeOptionElements } from 'src/boot/ui-builder';
-
+import { ElementPin, FlowElement } from 'src/components/flow/model';
+import * as uuid from 'uuid';
 /**
  * List of all available elements that can be used to create a page.
  *
@@ -19,12 +20,17 @@ const elementTypeKeys = Object.keys(ElementType);
 
 export const ElementTypes = elementTypeKeys as ElementType[];
 
-export type Element = {
-  uuid: string;
-  type: ElementType;
-  attributes: Array<ElementAttribute>;
-  classList: Array<string>;
-};
+export class Element extends FlowElement<ElementType, ElementAttributeType> {
+  constructor(
+    public type: ElementType,
+    public attributes: ElementAttribute[],
+    inputs?: ElementPin<ElementAttributeType>[],
+    outputs?: ElementPin<ElementAttributeType>[],
+  ) {
+    super(type, inputs, outputs);
+    this.id = uuid.v4();
+  }
+}
 
 export interface Point {
   x: number;
@@ -53,20 +59,12 @@ export type CollectionAttribute = {
   component?: CustomAttributeOptionElements;
 };
 
-/*
-export interface ElementAttribute {
-  name: string;
-  type: ElementAttributeType;
-  value: unknown;
-}
-*/
-
 export type ElementAttribute = SimpleAttribute | CollectionAttribute;
 
 export interface Column {
   id: string;
   width: number;
-  element: Element | null;
+  element?: Element;
   row?: Row;
 }
 

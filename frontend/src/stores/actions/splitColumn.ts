@@ -26,7 +26,6 @@ export class SplitColumn implements UndoRedoAction {
     this.addedColumn = {
       id: uuid.v4(),
       width: rightSize,
-      element: null,
     };
 
     this.row.columns.splice(this.columnIndex, 0, this.addedColumn);

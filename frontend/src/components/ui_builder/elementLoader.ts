@@ -1,6 +1,7 @@
-import { ElementType } from 'src/models/Grid';
+import { ElementAttributeType, ElementType } from 'src/models/Grid';
 
 import { El } from './El';
+import { ClassicPreset } from 'rete';
 
 /**
  * Singleton that loads for each key in the ElementType enum the corresponding
@@ -75,3 +76,7 @@ export class ModuleLoader {
     return ModuleLoader.modules[index];
   }
 }
+
+export const AvailableSockets = Object.keys(ElementAttributeType).map(
+  (type) => new ClassicPreset.Socket(type),
+);

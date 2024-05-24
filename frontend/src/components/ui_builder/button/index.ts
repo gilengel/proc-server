@@ -54,13 +54,5 @@ export function createDefaultAttributes(): ElementAttribute[] {
 }
 
 export function createDefaultElement() {
-  const element: Model = {
-    uuid: uuid.v4(),
-    type: ElementType.Button,
-    attributes: createDefaultAttributes(),
-    //column,
-    classList: [],
-  };
-
-  return element;
+  return new Model(ElementType.Button, createDefaultAttributes());
 }

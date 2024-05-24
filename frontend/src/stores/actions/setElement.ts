@@ -19,7 +19,7 @@ export class SetElement implements UndoRedoAction {
 
   undo(): void {
     if (!this.oldElement) {
-      this.column.element = null;
+      this.column.element = undefined;
       return;
     }
 

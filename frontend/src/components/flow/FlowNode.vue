@@ -70,6 +70,7 @@ export type FlowNodeInput =
 
 export type FlowNodeOutput = FlowConnector;
 
+/*
 export type FlowNodeData = {
   label: string;
 
@@ -80,6 +81,7 @@ export type FlowNodeData = {
 
   data: unknown;
 };
+*/
 </script>
 
 <script setup lang="ts">
@@ -92,7 +94,7 @@ import { Element } from 'src/models/Grid';
 import { ComputedRef, computed } from 'vue';
 
 export type FlowNodeProps = {
-  data: FlowNodeData;
+  data: Element;
 
   emit: () => void;
 
@@ -101,10 +103,7 @@ export type FlowNodeProps = {
 
 const props = defineProps<FlowNodeProps>();
 
-const variableName = useComputedAttributeModel(
-  'variable',
-  props.data.data as Element,
-);
+const variableName = useComputedAttributeModel('variable', props.data);
 
 // TODO: proper typing without first cast to unknown
 const inputs: ComputedRef<[string, FlowNodeInput][]> = computed(() => {

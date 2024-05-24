@@ -20,7 +20,7 @@
   "
 >
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { ClassicPreset, NodeEditor } from 'rete';
+import { NodeEditor } from 'rete';
 import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
 
 import { AreaExtra, Schemes, createEditor } from './editor';
@@ -28,16 +28,7 @@ import { MetaFlowCategory } from './index';
 
 import FlowDock from './FlowDock.vue';
 import { useDrop } from 'src/composables/useDrop';
-import { ElementPin, FlowElement } from './model';
-
-class DataNode<T> extends ClassicPreset.Node {
-  constructor(
-    private data: T,
-    label: string,
-  ) {
-    super(label);
-  }
-}
+import { FlowElement } from './model';
 
 type FlowEditorGridProps = {
   enabled: boolean;
@@ -54,16 +45,12 @@ type FlowEditorProps<
 > = {
   elements: GenericElement[];
 
-  sockets: GenericElementAttributeType[];
-
   categories: MetaFlowCategory<
     GenericElementType,
     GenericElementAttributeType
   >[];
 
   grid?: FlowEditorGridProps;
-
-  createDataForNewElement: (element: unknown) => object;
 };
 
 const editor = ref(null);
@@ -97,10 +84,6 @@ const creatableElements = computed(() => {
   return elements;
 });
 
-const usableSockets = props.sockets.map(
-  (socket) => new ClassicPreset.Socket(socket),
-);
-
 // Init the rete editor on mount
 onMounted(async () => {
   const reteEditor = await createEditor(editor.value!);
@@ -126,7 +109,8 @@ useDrop(editor, (e: object) => {
     return;
   }
 
-  addElementNode(element, props.createDataForNewElement(element)).then(
+  // TODO reenable data
+  addElementNode(element /*props.createDataForNewElement(element)*/).then(
     () => {},
   );
 });
@@ -138,11 +122,12 @@ watch(
   (newElements) => {
     let difference = newElements.filter(
       (newElement) =>
-        e?.getNodes().find((e) => e.id === newElement.uuid) === undefined,
+        e?.getNodes().find((e) => e.id === newElement.id) === undefined,
     );
 
     for (let element of difference) {
-      addElementNode(element, props.createDataForNewElement(element)).then(
+      // TODO reenable data
+      addElementNode(element /*props.createDataForNewElement(element) */).then(
         () => {},
       );
     }
@@ -171,48 +156,10 @@ onUnmounted(() => {
   area!.destroy();
 });
 
-async function addElementNode<
-  GenericElementType extends string,
-  GenericElementAttributeType extends string,
->(
+async function addElementNode(
   element: FlowElement<GenericElementType, GenericElementAttributeType>,
-  data: unknown,
 ) {
-  const b = new DataNode(data, element.type);
-  b.id = element.uuid; // the cleaner way would be to use a custom preset - but this works also :)
-
-  const addPin = (
-    pin: ElementPin<GenericElementAttributeType>,
-    callback: (socket: ClassicPreset.Socket) => void,
-  ) => {
-    const socket = usableSockets.find((socket) => socket.name === pin.type);
-    if (!socket) {
-      console.error(
-        `Socket of type "${pin.type}" does not exist on the FlowEditor instance. Was it added in the socket property?`,
-      );
-      return;
-    }
-
-    callback(socket);
-  };
-
-  if (element.inputs) {
-    for (const input of element.inputs) {
-      addPin(input, (socket) =>
-        b.addInput(input.type, new ClassicPreset.Input(socket)),
-      );
-    }
-
-    if (element.outputs) {
-      for (const output of element.outputs) {
-        addPin(output, (socket) =>
-          b.addOutput(output.type, new ClassicPreset.Output(socket)),
-        );
-      }
-    }
-
-    await e!.addNode(b);
-  }
+  await e!.addNode(element);
 }
 </script>
 
