@@ -11,7 +11,7 @@
           v-for="[key, input] in inputs"
           :key="key + seed"
         >
-          <Ref
+          <ReteRef
             :data="{
               type: 'socket',
               side: 'input',
@@ -31,7 +31,7 @@
           v-for="[key, output] in outputs"
           :key="key + seed"
         >
-          <Ref
+          <ReteRef
             :data="{
               type: 'socket',
               side: 'output',
@@ -72,7 +72,7 @@ export type FlowNodeOutput = FlowConnector;
 </script>
 
 <script setup lang="ts">
-import { Ref } from 'rete-vue-plugin';
+import { Ref as ReteRef } from 'rete-vue-plugin';
 import { Control } from 'rete/_types/presets/classic';
 import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
 

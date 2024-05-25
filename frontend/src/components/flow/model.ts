@@ -55,6 +55,10 @@ export abstract class FlowElement<
   abstract data(
     inputs: Record<string, unknown>,
   ): Promise<Record<string, unknown>> | Record<string, unknown>;
+
+  // TODO set this dynamically based on the correct side once the node is rendered by rete
+  public width: number = 300;
+  public height: number = 200;
 }
 
 /**

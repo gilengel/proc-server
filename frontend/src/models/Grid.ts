@@ -39,7 +39,6 @@ export class Element extends FlowElement<ElementType, ElementAttributeType> {
         (attribute) => attribute.name === key,
       );
 
-      console.log('UPDATE');
       attribute!.value = inputs[key][0] as string | number;
     }
 

@@ -25,6 +25,7 @@
     "line-awesome": "^1.3.0",
     "pinia": "^2.1.7",
     "quasar": "^2.16.4",
+    "rete-auto-arrange-plugin": "^2.0.1",
     "rete-dock-plugin": "^2.0.1",
     "rete-engine": "^2.0.1",
     "sortablejs": "^1.15.2",

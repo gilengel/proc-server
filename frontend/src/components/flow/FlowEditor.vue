@@ -1,10 +1,18 @@
 <template>
-  <q-splitter v-model="dockWidth" unit="px" style="height: 100%">
-    <template v-slot:before
-      ><FlowDock title="Nodes" :nodes="categories"
-    /></template>
-    <template v-slot:after><div ref="editor"></div></template>
-  </q-splitter>
+  <div style="display: flex; flex-direction: column">
+    <q-toolbar class="text-primary">
+      <q-btn flat round dense icon="las la-sitemap" @click="rearrangeNodes">
+        <q-tooltip>Auto arrange nodes</q-tooltip>
+      </q-btn>
+    </q-toolbar>
+
+    <q-splitter v-model="dockWidth" unit="px" style="height: 100%">
+      <template v-slot:before
+        ><FlowDock title="Nodes" :nodes="categories"
+      /></template>
+      <template v-slot:after><div ref="editor"></div></template>
+    </q-splitter>
+  </div>
 </template>
 
 <script
@@ -20,24 +28,15 @@
   "
 >
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { ClassicPreset, GetSchemes, NodeEditor } from 'rete';
-import { AreaExtensions, AreaPlugin } from 'rete-area-plugin';
 
-import { AreaExtra, createEditor } from './editor';
+import { AreaExtensions } from 'rete-area-plugin';
+
+import { ReteEditor, createEditor } from './editor';
 import { MetaFlowCategory } from './index';
 
 import FlowDock from './FlowDock.vue';
 import { useDrop } from 'src/composables/useDrop';
 import { FlowElement } from './model';
-import { DataflowEngine } from 'rete-engine';
-
-export type Schemes<
-  GenericElementType extends string,
-  GenericElementAttributeType extends string,
-> = GetSchemes<
-  FlowElement<GenericElementType, GenericElementAttributeType>,
-  ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
->;
 
 type FlowEditorGridProps = {
   enabled: boolean;
@@ -73,28 +72,19 @@ const props =
     >
   >();
 
-let e:
-  | NodeEditor<Schemes<GenericElementType, GenericElementAttributeType>>
+let reteEditor:
+  | ReteEditor<FlowElement<GenericElementType, GenericElementAttributeType>>
   | undefined = undefined;
-let area:
-  | AreaPlugin<
-      Schemes<GenericElementType, GenericElementAttributeType>,
-      AreaExtra<Schemes<GenericElementType, GenericElementAttributeType>>
-    >
-  | undefined = undefined;
-let engine: DataflowEngine<
-  Schemes<GenericElementType, GenericElementAttributeType>
->;
 
 defineExpose({
   process: (element: GenericElement) => {
-    engine.reset();
+    reteEditor!.engine.reset();
 
-    e
+    reteEditor!.editor
       ?.getConnections()
       .filter((connection) => connection.source == element.id)
       .map((connection) => connection.target)
-      .forEach((nodeId) => engine.fetch(nodeId));
+      .forEach((nodeId) => reteEditor!.engine.fetch(nodeId));
   },
 });
 
@@ -117,18 +107,15 @@ const creatableElements = computed(() => {
 
 // Init the rete editor on mount
 onMounted(async () => {
-  const reteEditor = await createEditor<
-    Schemes<GenericElementType, GenericElementAttributeType>
+  reteEditor = await createEditor<
+    FlowElement<GenericElementType, GenericElementAttributeType>
   >(editor.value!);
-  e = reteEditor.editor;
-  area = reteEditor.area;
-  engine = reteEditor.engine;
 
-  e.addPipe((context) => {
+  reteEditor.editor.addPipe((context) => {
     if (context.type === 'connectioncreated') {
-      engine.reset();
-      engine.fetch(context.data.source);
-      engine.fetch(context.data.target);
+      reteEditor!.engine.reset();
+      reteEditor!.engine.fetch(context.data.source);
+      reteEditor!.engine.fetch(context.data.target);
     }
 
     return context;
@@ -163,7 +150,9 @@ watch(
   (newElements) => {
     let difference = newElements.filter(
       (newElement) =>
-        e?.getNodes().find((e) => e.id === newElement.id) === undefined,
+        reteEditor!.editor
+          ?.getNodes()
+          .find((node) => node.id === newElement.id) === undefined,
     );
 
     for (let element of difference) {
@@ -180,30 +169,28 @@ watch(
 watch(
   () => props.grid,
   (prop: FlowEditorGridProps | undefined) => {
-    if (!area) {
+    if (!reteEditor) {
       return;
     }
 
-    AreaExtensions.snapGrid(
-      area as AreaPlugin<
-        Schemes<GenericElementType, GenericElementAttributeType>,
-        AreaExtra<Schemes<GenericElementType, GenericElementAttributeType>>
-      >,
-      {
-        size: prop && prop.enabled ? prop.size : 1,
-      },
-    );
+    AreaExtensions.snapGrid(reteEditor.area, {
+      size: prop && prop.enabled ? prop.size : 1,
+    });
   },
 );
 
 onUnmounted(() => {
-  area!.destroy();
+  reteEditor!.area.destroy();
 });
 
 async function addElementNode(
   element: FlowElement<GenericElementType, GenericElementAttributeType>,
 ) {
-  await e!.addNode(element);
+  await reteEditor?.editor.addNode(element);
+}
+
+async function rearrangeNodes() {
+  await reteEditor?.arrange.layout();
 }
 </script>
 
