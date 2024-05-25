@@ -21,7 +21,8 @@
     <div class="row" ref="container">
       <LayoutColumn
         dataKey="itemId"
-        @selectElement="(e) => $emit('selectElement', e)"
+        @selectElement="(element) => $emit('selectElement', element)"
+        @onElementChanged="(element) => $emit('onElementChanged', element)"
         :columnIndex="col_index"
         :rowIndex="rowIndex"
         :model="column"
@@ -84,6 +85,8 @@ const props = defineProps({
 
 defineEmits<{
   selectElement: [element: Element];
+
+  onElementChanged: [element: Element];
 }>();
 
 const flexColumns = 12;

@@ -11,7 +11,6 @@ export interface UpdateNewPage {
 
 export interface Page extends NewPage {
   page_pk: number;
-  //data: Record<string, unknown>
 }
 
 export interface NewPageConnection {

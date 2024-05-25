@@ -32,14 +32,15 @@ export class Element extends FlowElement<ElementType, ElementAttributeType> {
   }
 
   data(
-    inputs: Record<string, unknown>,
+    inputs: Record<string, unknown[]>,
   ): Promise<Record<string, unknown>> | Record<string, unknown> {
     for (const key of Object.keys(inputs)) {
       const attribute = this.attributes.find(
         (attribute) => attribute.name === key,
       );
 
-      attribute!.value = inputs[key] as string | number;
+      console.log('UPDATE');
+      attribute!.value = inputs[key][0] as string | number;
     }
 
     const result: Record<string, unknown> = {};
@@ -49,7 +50,6 @@ export class Element extends FlowElement<ElementType, ElementAttributeType> {
       )?.value;
     }
 
-    console.log(result);
     return result;
   }
 }

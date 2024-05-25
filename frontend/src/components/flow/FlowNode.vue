@@ -69,19 +69,6 @@ export type FlowNodeInput =
     };
 
 export type FlowNodeOutput = FlowConnector;
-
-/*
-export type FlowNodeData = {
-  label: string;
-
-  inputs: { key: string; input: FlowNodeInput }[];
-  outputs: { key: string; input: FlowNodeOutput }[];
-  controls: { key: string; control: unknown }[];
-  id: string;
-
-  data: unknown;
-};
-*/
 </script>
 
 <script setup lang="ts">

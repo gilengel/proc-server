@@ -86,6 +86,18 @@ let engine: DataflowEngine<
   Schemes<GenericElementType, GenericElementAttributeType>
 >;
 
+defineExpose({
+  process: (element: GenericElement) => {
+    engine.reset();
+
+    e
+      ?.getConnections()
+      .filter((connection) => connection.source == element.id)
+      .map((connection) => connection.target)
+      .forEach((nodeId) => engine.fetch(nodeId));
+  },
+});
+
 const dockWidth = ref(400);
 
 // All elements that can be created by the user. The elements are defined via the categories prop

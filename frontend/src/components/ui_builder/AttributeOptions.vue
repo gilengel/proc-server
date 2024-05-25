@@ -5,7 +5,6 @@
       <component
         :is="optionElement(attribute)"
         v-bind="optionProps(attribute)"
-        @onModelChanged="onModelChanged"
       ></component>
     </div>
   </div>
@@ -54,9 +53,6 @@ function optionProps(attribute: ElementAttribute) {
   return undefined;
 }
 
-function onModelChanged(model: unknown) {
-  console.log(model);
-}
 function optionElement(attribute: ElementAttribute) {
   if (attribute.component) {
     return getCustomAttributeOptionElement(attribute.component);

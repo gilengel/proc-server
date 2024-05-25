@@ -18,7 +18,10 @@
         <template #item="{ element, index }">
           <transition appear name="list">
             <LayoutRow
-              @selectElement="(e: Element) => onSelectedElementChanged(e)"
+              @selectElement="(element) => onSelectedElementChanged(element)"
+              @onElementChanged="
+                (element) => $emit('onElementChanged', element)
+              "
               dataKey="itemId"
               dataValue="Row"
               :model="element"
@@ -64,6 +67,10 @@ export interface WidgetLayoutProps {
 }
 
 defineProps<WidgetLayoutProps>();
+
+defineEmits<{
+  onElementChanged: [element: Element];
+}>();
 
 const selectedElement: Ref<Element | undefined> = ref(undefined);
 

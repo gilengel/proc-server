@@ -1,6 +1,5 @@
 <template>
   <div class="el-text">
-    {{ value }}
     <q-input
       dark
       :label
@@ -8,6 +7,7 @@
       :type
       :readonly="!editable"
       v-model="value"
+      @update:model-value="emit('onElementChanged', model)"
     />
   </div>
 </template>
@@ -17,6 +17,8 @@ import { computed } from 'vue';
 
 import { IBaseElementProps, getValueOfAttribute } from '../BaseElement';
 import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
+import { useChangeableComputedAttributeModel } from 'src/composables/useChangeableComputedAttributeModel';
+import { Element } from 'src/models/Grid';
 
 const props = defineProps<IBaseElementProps>();
 
@@ -32,7 +34,11 @@ const label = computed(() => {
   return getValueOfAttribute<string>('label', props.model);
 });
 
-const value = useComputedAttributeModel<string>('value', props.model);
+const value = useChangeableComputedAttributeModel<string>('value', props.model);
+
+const emit = defineEmits<{
+  onElementChanged: [element: Element];
+}>();
 
 type InputType =
   | 'text'

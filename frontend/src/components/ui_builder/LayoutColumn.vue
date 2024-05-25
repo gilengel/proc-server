@@ -36,6 +36,9 @@
       <component
         :is="elementComponent"
         v-bind="{ uuid: '', editable: true, model: model.element }"
+        @onElementChanged="
+          (element: Element) => $emit('onElementChanged', element)
+        "
         @click="() => $emit('selectElement', model.element as Element)"
       />
     </div>
@@ -149,6 +152,8 @@ const props = defineProps({
 
 const emit = defineEmits<{
   selectElement: [element: Element];
+
+  onElementChanged: [element: Element];
 }>();
 
 // This is a workaround element type for the sortable container that, for this element,

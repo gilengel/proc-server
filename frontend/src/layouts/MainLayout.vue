@@ -31,10 +31,15 @@
     </q-header>
     <q-page-container>
       <Suspense>
-        <WidgetLayout :grid v-show="tab === 'layout'" />
+        <WidgetLayout
+          :grid
+          v-show="tab === 'layout'"
+          @onElementChanged="(element) => elementChanged(element)"
+        />
       </Suspense>
 
       <FlowEditor
+        ref="flowEditor"
         v-show="tab == 'logic'"
         :elements
         :categories="[basicCategory]"
@@ -51,7 +56,7 @@ export enum FormInputOutput {
 }
 </script>
 <script setup lang="ts">
-import { ComputedRef, computed, ref } from 'vue';
+import { ComputedRef, Ref, computed, ref } from 'vue';
 import { MetaFlowCategory, MetaFlowElement } from 'src/components/flow';
 
 import FlowEditor from 'src/components/flow/FlowEditor.vue';
@@ -67,13 +72,23 @@ import {
   ElementAttributeType,
 } from 'src/models/Grid';
 import { ElementPin } from 'src/components/flow/model';
+import { ComponentExposed } from 'vue-component-type-helpers';
 
 const gridModuleStore = useGridModuleStore();
 const undoRedoStore = useUndoRedoStore();
 
 const tab = ref('logic');
 
+const flowEditor: Ref<
+  | ComponentExposed<typeof FlowEditor<Element, FormType, ElementAttributeType>>
+  | undefined
+> = ref(undefined);
+
 const grid: Grid = gridModuleStore.grid as Grid;
+
+function elementChanged(element: Element) {
+  flowEditor.value?.process(element);
+}
 
 const elements: ComputedRef<Element[]> = computed(() => {
   const els: Element[] = [];
