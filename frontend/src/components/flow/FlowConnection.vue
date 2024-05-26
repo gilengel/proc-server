@@ -25,9 +25,15 @@ svg {
   height: 9999px;
   path {
     fill: none;
-    stroke-width: 5px;
-    stroke: white;
+    stroke-width: 4px;
+    stroke: lighten($dark-page, 20%);
     pointer-events: auto;
+  }
+
+  .marker {
+    color: lighten($dark-page, 20%);
+
+    fill: lighten($dark-page, 20%) !important;
   }
 }
 </style>
