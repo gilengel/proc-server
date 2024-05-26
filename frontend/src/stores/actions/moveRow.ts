@@ -1,11 +1,13 @@
 import { Grid } from 'src/models/Grid';
 import { UndoRedoAction } from '../undoredo';
 
-export class MoveRow implements UndoRedoAction {
+export class MoveRow<T extends string, S extends string>
+  implements UndoRedoAction
+{
   constructor(
     private oldRowIndex: number,
     private newRowIndex: number,
-    private grid: Grid,
+    private grid: Grid<T, S>,
   ) {}
   undo(): void {
     const tempRow = this.grid.rows[this.oldRowIndex];

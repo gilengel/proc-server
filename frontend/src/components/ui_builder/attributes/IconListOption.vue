@@ -20,16 +20,16 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import { useChangeableComputedAttributeModel } from 'src/composables/useChangeableComputedAttributeModel';
 import { IOptionProps } from '.';
 import icons from '../button/icons.json';
 
 export type Icon = { name: string; icon: string };
 
-const props = defineProps<IOptionProps>();
+const props = defineProps<IOptionProps<T, S>>();
 
-const model = useChangeableComputedAttributeModel<string>(
+const model = useChangeableComputedAttributeModel<T, S, string>(
   props.attributeKey,
   props.model,
 );

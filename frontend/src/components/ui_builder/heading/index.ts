@@ -6,7 +6,9 @@ import { ElementAttributeType, Element as Model } from '../../../models/Grid';
 import * as uuid from 'uuid';
 import { IBaseElementProps } from '../BaseElement';
 
-export function createDefaultProps(model: Model): IBaseElementProps {
+export function createDefaultProps<T extends string, S extends string>(
+  model: Model<T, S>,
+): IBaseElementProps<T, S> {
   return {
     uuid: uuid.v4(),
     editable: true,
@@ -14,7 +16,9 @@ export function createDefaultProps(model: Model): IBaseElementProps {
   };
 }
 
-export function createDefaultAttributes(element: Model) {
+export function createDefaultAttributes<T extends string, S extends string>(
+  element: Model<T, S>,
+) {
   element.attributes.push({
     name: 'variable',
     type: ElementAttributeType.String,

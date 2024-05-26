@@ -10,7 +10,7 @@
     <div class="col-8">
       <Sortable
         :list="grid.rows"
-        :itemKey="(e: Row) => e.id"
+        :itemKey="(e: Row<T, S>) => e.id"
         handle=".drag-handle"
         class="dragArea list-group"
         @update="onUpdate($event)"
@@ -18,9 +18,11 @@
         <template #item="{ element, index }">
           <transition appear name="list">
             <LayoutRow
-              @selectElement="(element) => onSelectedElementChanged(element)"
+              @selectElement="
+                (element) => onSelectedElementChanged(element as Element<T, S>)
+              "
               @onElementChanged="
-                (element) => $emit('onElementChanged', element)
+                (element) => $emit('onElementChanged', element as Element<T, S>)
               "
               dataKey="itemId"
               dataValue="Row"
@@ -49,7 +51,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import { Ref, computed, ref } from 'vue';
 import * as uuid from 'uuid';
 import { Sortable } from 'sortablejs-vue3';
@@ -60,25 +62,25 @@ import { Grid, Element, Row } from 'src/models/Grid';
 
 import LayoutRow from 'src/components/ui_builder/LayoutRow.vue';
 import ElementList from 'src/components/ui_builder/ElementList.vue';
-import { ModuleLoader } from './elementLoader';
+import { getModule } from './elementLoader';
 
-export interface WidgetLayoutProps {
-  grid: Grid;
+export interface WidgetLayoutProps<T extends string, S extends string> {
+  grid: Grid<T, S>;
 }
 
-defineProps<WidgetLayoutProps>();
+defineProps<WidgetLayoutProps<T, S>>();
 
 defineEmits<{
-  onElementChanged: [element: Element];
+  onElementChanged: [element: Element<T, S>];
 }>();
 
-const selectedElement: Ref<Element | undefined> = ref(undefined);
+const selectedElement: Ref<Element<T, S> | undefined> = ref(undefined);
 
 const gridModuleStore = useGridModuleStore();
 
 const rowDraggingDisabled: Ref<boolean> = ref(false);
 
-function onSelectedElementChanged(element: Element) {
+function onSelectedElementChanged(element: Element<T, S>) {
   selectedElement.value = element;
 }
 
@@ -88,18 +90,16 @@ function onUpdate(event: SortableEvent): void {
   gridModuleStore.moveRow(event.oldIndex, event.newIndex);
 }
 
-const moduleLoader = await ModuleLoader.getInstance();
-
 const element = computed(() => {
   if (!selectedElement.value) {
     return undefined;
   }
 
-  const module = moduleLoader.getModule(selectedElement.value.type);
+  const module = getModule(selectedElement.value.type);
 
   return {
-    properties: module.createDefaultProps(selectedElement.value),
-    component: module.Options,
+    properties: module!.createDefaultProps(selectedElement.value),
+    component: module!.Options,
   };
 });
 </script>

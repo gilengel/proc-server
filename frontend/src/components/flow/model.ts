@@ -38,7 +38,10 @@ export abstract class FlowElement<
     if (inputs) {
       for (const input of inputs) {
         addPin(input, (socket) =>
-          this.addInput(input.identifier, new ClassicPreset.Input(socket)),
+          this.addInput(
+            input.identifier,
+            new ClassicPreset.Input(socket, undefined, true),
+          ),
         );
       }
 
@@ -64,7 +67,7 @@ export abstract class FlowElement<
 /**
  * Either input or output.
  */
-export type ElementPin<T> = {
+export type ElementPin<T extends string> = {
   type: T;
   identifier: string;
   connection?: FlowElementConnection;
@@ -81,3 +84,9 @@ export type FlowElementConnection = {
 
   value?: unknown;
 };
+
+export enum FlowDirection {
+  In,
+  Out,
+  InOut,
+}

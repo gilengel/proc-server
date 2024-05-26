@@ -4,11 +4,13 @@ import { UndoRedoAction } from '../undoredo';
 /**
  * Deletes a row to he grid. This is a undo/redoable action
  */
-export class DeleteRow implements UndoRedoAction {
+export class DeleteRow<T extends string, S extends string>
+  implements UndoRedoAction
+{
   private rowIndex: number;
   constructor(
-    private row: Row,
-    private grid: Grid,
+    private row: Row<T, S>,
+    private grid: Grid<T, S>,
   ) {
     this.rowIndex = this.grid.rows.indexOf(this.row);
   }

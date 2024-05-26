@@ -2,6 +2,7 @@
   <div class="el-text">
     <q-input
       dark
+      disable
       :label
       :placeholder
       :type
@@ -12,7 +13,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import { computed } from 'vue';
 
 import { IBaseElementProps, getValueOfAttribute } from '../BaseElement';
@@ -20,7 +21,7 @@ import { useComputedAttributeModel } from 'src/composables/useComputedAttributeM
 import { useChangeableComputedAttributeModel } from 'src/composables/useChangeableComputedAttributeModel';
 import { Element } from 'src/models/Grid';
 
-const props = defineProps<IBaseElementProps>();
+const props = defineProps<IBaseElementProps<T, S>>();
 
 const placeholder = useComputedAttributeModel('placeholder', props.model);
 
@@ -31,13 +32,16 @@ const label = computed(() => {
     return undefined;
   }
 
-  return getValueOfAttribute<string>('label', props.model);
+  return getValueOfAttribute<T, S, string>('label', props.model);
 });
 
-const value = useChangeableComputedAttributeModel<string>('value', props.model);
+const value = useChangeableComputedAttributeModel<T, S, string>(
+  'value',
+  props.model,
+);
 
 const emit = defineEmits<{
-  onElementChanged: [element: Element];
+  onElementChanged: [element: Element<T, S>];
 }>();
 
 type InputType =
@@ -54,7 +58,7 @@ type InputType =
   | 'date'
   | 'datetime-local'
   | undefined;
-const type = useComputedAttributeModel<InputType>('type', props.model);
+const type = useComputedAttributeModel<T, S, InputType>('type', props.model);
 </script>
 
 <style scoped lang="scss">

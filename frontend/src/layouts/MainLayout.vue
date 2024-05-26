@@ -49,15 +49,10 @@
   </q-layout>
 </template>
 
-<script lang="ts">
-export enum FormInputOutput {
-  Input = 'Input',
-  Output = 'Output',
-}
-</script>
+<script lang="ts"></script>
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, ref } from 'vue';
-import { MetaFlowCategory, MetaFlowElement } from 'src/components/flow';
+import { MetaFlowCategory, MetaFlowCategoryElement } from 'src/components/flow';
 
 import FlowEditor from 'src/components/flow/FlowEditor.vue';
 import WidgetLayout from 'src/components/ui_builder/WidgetLayout.vue';
@@ -68,10 +63,12 @@ import { useUndoRedoStore } from 'src/stores/undoredo';
 import {
   Grid,
   Element,
-  ElementType,
   ElementAttributeType,
+  FormType,
+  FormInputOutput,
+  ElementAttribute,
 } from 'src/models/Grid';
-import { ElementPin } from 'src/components/flow/model';
+import { ElementPin, FlowDirection } from 'src/components/flow/model';
 import { ComponentExposed } from 'vue-component-type-helpers';
 
 const gridModuleStore = useGridModuleStore();
@@ -79,19 +76,23 @@ const undoRedoStore = useUndoRedoStore();
 
 const tab = ref('logic');
 
+type FormElement = Element<FormType, ElementAttributeType>;
+
 const flowEditor: Ref<
-  | ComponentExposed<typeof FlowEditor<Element, FormType, ElementAttributeType>>
+  | ComponentExposed<
+      typeof FlowEditor<FormElement, FormType, ElementAttributeType>
+    >
   | undefined
 > = ref(undefined);
 
-const grid: Grid = gridModuleStore.grid as Grid;
+const grid: Grid<FormType, ElementAttributeType> = gridModuleStore.grid;
 
-function elementChanged(element: Element) {
+function elementChanged(element: FormElement) {
   flowEditor.value?.process(element);
 }
 
-const elements: ComputedRef<Element[]> = computed(() => {
-  const els: Element[] = [];
+const elements: ComputedRef<FormElement[]> = computed(() => {
+  const els: FormElement[] = [];
   for (const row of grid.rows) {
     for (const column of row.columns) {
       if (!column.element) {
@@ -105,23 +106,6 @@ const elements: ComputedRef<Element[]> = computed(() => {
   return els;
 });
 
-type FormType = ElementType | FormInputOutput;
-
-function createDefaultElement(
-  type: ElementType,
-  label: string,
-  icon: string,
-  inputs: ElementPin<ElementAttributeType>[] = [],
-  outputs: ElementPin<ElementAttributeType>[] = [],
-): MetaFlowElement<ElementType, ElementAttributeType> {
-  return {
-    type,
-    label,
-    icon,
-    defaultElement: new Element(type, [], inputs, outputs),
-  };
-}
-
 function createDefaultPin<T extends string>(
   type: T,
   identifier: string,
@@ -132,35 +116,79 @@ function createDefaultPin<T extends string>(
   };
 }
 
+function createElement<
+  ElementType extends string,
+  ElementAttributeType extends string,
+>(
+  type: ElementType,
+  label: string,
+  icon: string,
+  attributes: ElementAttribute[],
+  //inputs: ElementPin<ElementAttributeType>[],
+  //outputs: ElementPin<ElementAttributeType>[],
+): MetaFlowCategoryElement<ElementType, ElementAttributeType> {
+  const inputs = attributes
+    .filter(
+      (attribute) =>
+        attribute.direction !== undefined &&
+        attribute.direction != FlowDirection.Out,
+    )
+    .map((attribute) => createDefaultPin(attribute.type, attribute.name));
+
+  const outputs = attributes
+    .filter(
+      (attribute) =>
+        attribute.direction !== undefined &&
+        attribute.direction != FlowDirection.In,
+    )
+    .map((attribute) => createDefaultPin(attribute.type, attribute.name));
+  return {
+    label,
+    icon,
+    type,
+
+    create: () => {
+      return new Element(type, attributes, inputs, outputs);
+    },
+  };
+}
+
 const basicCategory: MetaFlowCategory<FormType, ElementAttributeType> = {
   label: 'Basic',
   icon: '',
 
   elements: [
-    /*
-    createDefaultElement(
-      FormInputOutput.Input,
-      'Input',
-      'las la-download',
-      [],
-      [createDefaultPin(ElementAttributeType.String, 'Text')],
-    ),
+    createElement(FormInputOutput.Input, 'Input', 'las la-download', [
+      {
+        type: ElementAttributeType.String,
+        name: 'variable',
+        value: 'muu',
+      },
+      {
+        type: ElementAttributeType.String,
+        name: 'value',
+        value: '',
+        direction: FlowDirection.Out,
+      },
+    ]),
 
-    createDefaultElement(
-      FormInputOutput.Output,
-      'Output',
-      'las la-upload',
-      [createDefaultPin(ElementAttributeType.String, 'Text')],
-      [],
-    ),
-    */
-    createDefaultElement(
-      ElementType.Text,
-      'Text',
-      'las la-comment-dots',
-      [createDefaultPin(ElementAttributeType.String, 'Text')],
-      [createDefaultPin(ElementAttributeType.String, 'Text')],
-    ),
+    createElement(FormInputOutput.Output, 'Output', 'las la-upload', [
+      {
+        type: ElementAttributeType.String,
+        name: 'value',
+        value: '',
+        direction: FlowDirection.In,
+      },
+    ]),
+
+    createElement(FormInputOutput.Object, 'Object', 'las la-database', [
+      {
+        type: ElementAttributeType.String,
+        name: 'value',
+        value: '',
+        direction: FlowDirection.InOut,
+      },
+    ]),
   ],
 };
 </script>

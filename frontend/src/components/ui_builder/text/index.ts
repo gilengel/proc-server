@@ -11,7 +11,9 @@ import {
 import * as uuid from 'uuid';
 import { IBaseElementProps } from '../BaseElement';
 
-export function createDefaultProps(model: Model): IBaseElementProps {
+export function createDefaultProps<T extends string, S extends string>(
+  model: Model<T, S>,
+): IBaseElementProps<T, S> {
   return {
     uuid: uuid.v4(),
     editable: true,

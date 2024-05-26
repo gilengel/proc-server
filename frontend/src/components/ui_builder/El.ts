@@ -3,10 +3,10 @@ import { IBaseElementProps } from './BaseElement';
 import { ElementAttribute, Element as Model } from 'src/models/Grid';
 import { Component } from 'vue';
 
-export type El = {
-  createDefaultProps(model: Model): IBaseElementProps;
+export type El<T extends string, S extends string> = {
+  createDefaultProps(model: Model<T, S>): IBaseElementProps<T, S>;
   createDefaultAttributes(): ElementAttribute[];
-  createDefaultElement(): Model;
+  createDefaultElement(): Model<T, S>;
 
   Element: Component;
   Options: Component;

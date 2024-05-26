@@ -1,14 +1,15 @@
-import { Column, Row, Grid } from 'src/models/Grid';
+import { Column, Row } from 'src/models/Grid';
 import { UndoRedoAction } from '../undoredo';
 
 import * as uuid from 'uuid';
 
-export class SplitColumn implements UndoRedoAction {
-  private addedColumn: Column | undefined;
+export class SplitColumn<T extends string, S extends string>
+  implements UndoRedoAction
+{
+  private addedColumn: Column<T, S> | undefined;
   constructor(
-    private row: Row,
+    private row: Row<T, S>,
     private columnIndex: number,
-    private grid: Grid,
   ) {}
 
   undo(): void {

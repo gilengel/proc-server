@@ -10,7 +10,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import {
   CollectionAttribute,
   ElementAttribute,
@@ -21,7 +21,7 @@ import * as Option from './attributes';
 import { IBaseElementProps } from './BaseElement';
 import { getCustomAttributeOptionElement } from 'src/boot/ui-builder';
 
-const props = defineProps<IBaseElementProps>();
+const props = defineProps<IBaseElementProps<T, S>>();
 
 function optionProps(attribute: ElementAttribute) {
   switch (attribute.type) {

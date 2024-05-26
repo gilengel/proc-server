@@ -12,7 +12,9 @@ import * as uuid from 'uuid';
 import { IBaseElementProps } from '../BaseElement';
 import { CustomAttributeOptionElements } from 'src/boot/ui-builder';
 
-export function createDefaultProps(model: Model): IBaseElementProps {
+export function createDefaultProps<T extends string, S extends string>(
+  model: Model<T, S>,
+): IBaseElementProps<T, S> {
   return {
     uuid: uuid.v4(),
     editable: true,

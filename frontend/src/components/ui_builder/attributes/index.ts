@@ -5,9 +5,9 @@ export { default as IconList } from './IconListOption.vue';
 
 import { Element } from 'src/models/Grid';
 
-export interface IOptionProps {
+export interface IOptionProps<T extends string, S extends string> {
   attributeKey: string;
 
-  model: Element;
+  model: Element<T, S>;
   label: string;
 }

@@ -1,12 +1,14 @@
 import { Column, Row, Grid } from 'src/models/Grid';
 import { UndoRedoAction } from '../undoredo';
 
-export class DeleteColumn implements UndoRedoAction {
-  private deletedColumn: Column | undefined;
+export class DeleteColumn<T extends string, S extends string>
+  implements UndoRedoAction
+{
+  private deletedColumn: Column<T, S> | undefined;
   constructor(
-    private row: Row,
+    private row: Row<T, S>,
     private columnIndex: number,
-    private grid: Grid,
+    private grid: Grid<T, S>,
   ) {}
 
   undo(): void {

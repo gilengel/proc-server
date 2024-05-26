@@ -1,15 +1,16 @@
-//import { ElementAttribute } from 'src/models/Grid';
 import { UndoRedoAction } from '../undoredo';
 import { Element } from './../../models/Grid';
 
 /**
  * Updates the column width. This is a undo/redoable action
  */
-export class UpdateElementAttribute implements UndoRedoAction {
+export class UpdateElementAttribute<T extends string, S extends string>
+  implements UndoRedoAction
+{
   private oldValue: string | number | boolean | undefined;
 
   constructor(
-    private element: Element,
+    private element: Element<T, S>,
     private attribute: string,
     private value: string | number | boolean,
   ) {}

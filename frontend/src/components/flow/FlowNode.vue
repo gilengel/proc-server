@@ -71,7 +71,7 @@ export type FlowNodeInput =
 export type FlowNodeOutput = FlowConnector;
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import { Ref as ReteRef } from 'rete-vue-plugin';
 import { Control } from 'rete/_types/presets/classic';
 import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
@@ -80,15 +80,15 @@ import { Element } from 'src/models/Grid';
 
 import { ComputedRef, computed } from 'vue';
 
-export type FlowNodeProps = {
-  data: Element;
+export type FlowNodeProps<T extends string, S extends string> = {
+  data: Element<T, S>;
 
   emit: () => void;
 
   seed?: number;
 };
 
-const props = defineProps<FlowNodeProps>();
+const props = defineProps<FlowNodeProps<T, S>>();
 
 const variableName = useComputedAttributeModel('variable', props.data);
 

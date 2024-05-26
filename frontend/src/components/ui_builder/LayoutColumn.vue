@@ -37,9 +37,9 @@
         :is="elementComponent"
         v-bind="{ uuid: '', editable: true, model: model.element }"
         @onElementChanged="
-          (element: Element) => $emit('onElementChanged', element)
+          (element: Element<T, S>) => $emit('onElementChanged', element)
         "
-        @click="() => $emit('selectElement', model.element as Element)"
+        @click="() => $emit('selectElement', model.element as Element<T, S>)"
       />
     </div>
 
@@ -61,13 +61,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import Sortable from 'sortablejs';
 import { Sortable as SortableVue } from 'sortablejs-vue3';
 import { Column, Element, ElementType, ElementTypes } from '../../models/Grid';
 import { useGridModuleStore } from '../../stores/gridModule';
 import { ComputedRef, PropType, computed, ref } from 'vue';
-import { ModuleLoader } from './elementLoader';
+import { getModule } from './elementLoader';
 import { columnValueValidator } from 'src/composables/useColumValidator';
 
 // Workaround as Sortable.SortableEvent type does not correctly contains the original event
@@ -84,14 +84,15 @@ const dropOptions = ref({
   group: { name: 'shared', pull: 'false', put: true },
 });
 
-const moduleLoader = await ModuleLoader.getInstance();
-
 const elementComponent = computed(() => {
   if (!props.model.element) {
     return undefined;
   }
 
-  const module = moduleLoader.getModule(props.model.element.type);
+  const module = getModule(props.model.element.type);
+  if (!module) {
+    return;
+  }
   return module.Element;
 });
 
@@ -129,7 +130,7 @@ const props = defineProps({
    * The model that contains the associated data with the column.
    */
   model: {
-    type: Object as PropType<Column>,
+    type: Object as PropType<Column<T, S>>,
     required: true,
   },
 
@@ -151,9 +152,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  selectElement: [element: Element];
+  selectElement: [element: Element<T, S>];
 
-  onElementChanged: [element: Element];
+  onElementChanged: [element: Element<T, S>];
 }>();
 
 // This is a workaround element type for the sortable container that, for this element,
@@ -189,7 +190,7 @@ function elementAdded(event: AddEvent) {
     ElementType[typeKey as keyof typeof ElementType];
 
   gridModuleStore.setColumnElement(props.model, typeEnum);
-  emit('selectElement', props.model.element as Element);
+  emit('selectElement', props.model.element as Element<T, S>);
 }
 
 function onEnd(event: Sortable.SortableEvent) {

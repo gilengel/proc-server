@@ -4,10 +4,12 @@ import { UndoRedoAction } from '../undoredo';
 /**
  * Adds a row to he grid. This is a undo/redoable action
  */
-export class AddRow implements UndoRedoAction {
+export class AddRow<T extends string, S extends string>
+  implements UndoRedoAction
+{
   constructor(
-    private row: Row,
-    private grid: Grid,
+    private row: Row<T, S>,
+    private grid: Grid<T, S>,
   ) {}
 
   undo(): void {

@@ -44,7 +44,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import { Ref, ref } from 'vue';
 
 import LayoutColumn from './LayoutColumn.vue';
@@ -78,15 +78,15 @@ const props = defineProps({
   },
 
   model: {
-    type: Object as () => Row,
+    type: Object as () => Row<T, S>,
     required: true,
   },
 });
 
 defineEmits<{
-  selectElement: [element: Element];
+  selectElement: [element: Element<T, S>];
 
-  onElementChanged: [element: Element];
+  onElementChanged: [element: Element<T, S>];
 }>();
 
 const flexColumns = 12;

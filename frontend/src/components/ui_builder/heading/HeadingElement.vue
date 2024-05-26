@@ -4,15 +4,16 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import { IBaseElementProps } from '../BaseElement';
 import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
 
-export interface IHeadingElementProps extends IBaseElementProps {
+export interface IHeadingElementProps<T extends string, S extends string>
+  extends IBaseElementProps<T, S> {
   editable: boolean;
 }
 
-const props = defineProps<IHeadingElementProps>();
+const props = defineProps<IHeadingElementProps<T, S>>();
 
 const type = useComputedAttributeModel('type', props.model);
 </script>

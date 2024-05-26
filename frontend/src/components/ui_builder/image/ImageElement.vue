@@ -2,15 +2,16 @@
   <q-img :src alt="some image" :ratio />
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string, S extends string">
 import { IBaseElementProps } from '../BaseElement';
 import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
 
-const props = defineProps<IBaseElementProps>();
+const props = defineProps<IBaseElementProps<T, S>>();
 
-const src = useComputedAttributeModel<string>('src', props.model);
+const src = useComputedAttributeModel<T, S, string>('src', props.model);
 
-const ratio = useComputedAttributeModel<string>('aspect_ratio', props.model);
+const ratio = useComputedAttributeModel<T, S, string>(
+  'aspect_ratio',
+  props.model,
+);
 </script>
-
-<style scoped lang="scss"></style>

@@ -32,7 +32,7 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { AreaExtensions } from 'rete-area-plugin';
 
 import { ReteEditor, createEditor } from './editor';
-import { MetaFlowCategory } from './index';
+import { MetaFlowCategory, MetaFlowCategoryElement } from './index';
 
 import FlowDock from './FlowDock.vue';
 import { useDrop } from 'src/composables/useDrop';
@@ -93,13 +93,12 @@ const dockWidth = ref(400);
 // All elements that can be created by the user. The elements are defined via the categories prop
 // and are extracted from there
 const creatableElements = computed(() => {
-  const elements: FlowElement<
+  const elements: MetaFlowCategoryElement<
     GenericElementType,
     GenericElementAttributeType
   >[] = [];
   for (const category of props.categories) {
-    const defaultElements = category.elements.map((e) => e.defaultElement);
-    elements.push(...defaultElements); // concat does not work as elements is empty
+    elements.push(...category.elements); // concat does not work as elements is empty
   }
 
   return elements;
@@ -140,7 +139,7 @@ useDrop(editor, (e: object) => {
     return;
   }
 
-  addElementNode(element).then(() => {});
+  addElementNode(element.create()).then(() => {});
 });
 
 // Add all elements that are not already in the editor if the elements
@@ -156,6 +155,7 @@ watch(
     );
 
     for (let element of difference) {
+      console.log(element);
       addElementNode(element).then(() => {});
     }
   },
