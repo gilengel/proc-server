@@ -114,7 +114,7 @@ mod test {
     use std::fs;
 
     use crate::{
-        api_pages::{self, db_entity::DbPage, dto::NewDbPage, entity::Page},
+        api_pages::{db_entity::DbPage, dto::NewDbPage, entity::Page},
         create_rocket,
         test::{run_test, setup_connection},
     };
