@@ -20,6 +20,7 @@ import { IBaseElementProps, getValueOfAttribute } from '../BaseElement';
 import { useComputedAttributeModel } from 'src/composables/useComputedAttributeModel';
 import { useChangeableComputedAttributeModel } from 'src/composables/useChangeableComputedAttributeModel';
 import { Element } from 'src/models/Grid';
+import { useGridModuleStore } from 'src/stores/gridModule';
 
 const props = defineProps<IBaseElementProps<T, S>>();
 
@@ -35,9 +36,12 @@ const label = computed(() => {
   return getValueOfAttribute<T, S, string>('label', props.model);
 });
 
+const gridStore = useGridModuleStore();
+
 const value = useChangeableComputedAttributeModel<T, S, string>(
   'value',
   props.model,
+  gridStore,
 );
 
 const emit = defineEmits<{

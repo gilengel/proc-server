@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-row">
+  <div class="layout-row" data-testid="layout-row">
     <div class="actions">
       <q-btn
         class="drag-handle"
@@ -10,6 +10,7 @@
         icon="las la-arrows-alt"
       />
       <q-btn
+        data-testid="delete-row-button"
         dark
         flat
         round
@@ -34,6 +35,7 @@
       />
 
       <div
+        data-testid="row-splitter"
         class="splitter"
         :style="splitterStyleFn(i)"
         v-for="(n, i) in model.columns.length - 1"
@@ -142,7 +144,8 @@ function dragMouseDown(event: MouseEvent, index: number) {
 }
 
 function containerWidth(): number {
-  return (container.value as HTMLElement).getBoundingClientRect().width;
+  const size = (container.value as HTMLElement).getBoundingClientRect();
+  return size.width;
 }
 
 function updatePositions(event: MouseEvent) {
@@ -180,6 +183,7 @@ function restrictNewColumnSizes(newColumnSize: number): {
   }
 
   let rightColumnSize = completeColumnSize - newColumnSize;
+  console.log(rightColumnSize, props.minColSize);
   if (rightColumnSize < props.minColSize) {
     const difference = props.minColSize - rightColumnSize;
     rightColumnSize = props.minColSize;
@@ -203,11 +207,7 @@ function elementDrag(event: MouseEvent) {
 
   updatePositions(event);
 
-  if (!container.value) {
-    return;
-  }
-
-  const positionLeft = positions.clientX - container.value.offsetLeft;
+  const positionLeft = positions.clientX - container.value!.offsetLeft;
 
   if (selectedSplitter.value) {
     const previousColSizes = previousColSize(selectedSplitterIndex.value);
@@ -239,11 +239,7 @@ function closeDragElement() {
     previousColSize(selectedSplitterIndex.value + 1) / flexColumns;
   const el = selectedSplitter;
 
-  if (!el.value) {
-    return;
-  }
-
-  el.value.style.left = `${previousColSizes * containerWidth()}px`;
+  el.value!.style.left = `${previousColSizes * containerWidth()}px`;
 
   isDraggingColumnSize.value = false;
 }

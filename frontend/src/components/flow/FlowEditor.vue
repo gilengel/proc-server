@@ -155,7 +155,6 @@ watch(
     );
 
     for (let element of difference) {
-      console.log(element);
       addElementNode(element).then(() => {});
     }
   },

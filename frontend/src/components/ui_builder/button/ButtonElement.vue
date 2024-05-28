@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-testid="button-element">
     <q-btn
       text-color="white"
       :flat="!isHighlighted"

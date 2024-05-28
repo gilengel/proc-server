@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-list">
+  <div class="icon-list" data-testid="icon-list">
     <q-virtual-scroll
       style="max-height: 300px"
       :items="icons.categories"
@@ -24,14 +24,18 @@
 import { useChangeableComputedAttributeModel } from 'src/composables/useChangeableComputedAttributeModel';
 import { IOptionProps } from '.';
 import icons from '../button/icons.json';
+import { useGridModuleStore } from 'src/stores/gridModule';
 
 export type Icon = { name: string; icon: string };
 
 const props = defineProps<IOptionProps<T, S>>();
 
+const gridStore = useGridModuleStore();
+
 const model = useChangeableComputedAttributeModel<T, S, string>(
   props.attributeKey,
   props.model,
+  gridStore,
 );
 </script>
 

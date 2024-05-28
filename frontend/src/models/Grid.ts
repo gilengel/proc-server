@@ -56,8 +56,6 @@ export class Element<T extends string, S extends string> extends FlowElement<
 
           result[key] = value;
         }
-
-        console.log(result);
       }
 
       attribute!.value = inputs[key][0] as string | number;

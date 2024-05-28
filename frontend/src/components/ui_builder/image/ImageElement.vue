@@ -1,5 +1,5 @@
 <template>
-  <q-img :src alt="some image" :ratio />
+  <q-img :src alt="some image" :ratio data-testid="image-element" />
 </template>
 
 <script setup lang="ts" generic="T extends string, S extends string">

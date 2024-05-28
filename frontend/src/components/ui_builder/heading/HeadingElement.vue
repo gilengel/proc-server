@@ -1,6 +1,6 @@
 <template>
   <div class="el-text">
-    <component :is="type">Heading</component>
+    <component :is="type" data-testid="heading-element">Heading</component>
   </div>
 </template>
 

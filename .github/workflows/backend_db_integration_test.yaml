@@ -18,7 +18,7 @@ jobs:
           - 5432
 
     services:
-      postgres:
+      postgis:
         image: postgres:latest
         env:
           POSTGRES_DB: ${{ matrix.db-name }}
@@ -27,8 +27,7 @@ jobs:
         ports:
           - ${{ matrix.db-port }}:${{ matrix.db-port }}
         # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
+        options: --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -42,36 +41,10 @@ jobs:
           components: llvm-tools-preview
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
-
-      - name: Debug db user
-        run: echo "$DB_USER"
-        env:
-          DB_USER: ${{ matrix.db-user }}
-
-      - name: Debug db pw
-        run: echo "$DB_PW"
-        env:
-          DB_PW: ${{ matrix.db-password }}
-
-      - name: Debug db host
-        run: echo "$DB_HOST"
-        env:
-          DB_HOST: ${{ matrix.db-host }}
-
-      - name: Debug db port
-        run: echo "$DB_PORT"
-        env:
-          DB_PORT: ${{ matrix.db-port }}
-
-      - name: Debug database url
-        run: echo "$DATABASE_URL"
-        env:
-          DATABASE_URL: postgresql://${{ matrix.db-user }}:${{ matrix.db-password }}@${{ matrix.db-host }}:${{ matrix.db-port }}/${{ matrix.db-name }}?schema=public
-
       - name: Generate code coverage
         run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
         env:
-          DATABASE_URL: postgresql://${{ matrix.db-user }}:${{ matrix.db-password }}@${{ matrix.db-host }}:${{ matrix.db-port }}/${{ matrix.db-name }}?schema=public
+          DATABASE_URL: postgresql://${{ matrix.db-user }}:${{ matrix.db-password }}@${{ matrix.db-host }}:${{ matrix.db-port }}/${{ matrix.db-name }}
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

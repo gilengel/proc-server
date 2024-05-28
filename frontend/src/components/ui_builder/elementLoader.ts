@@ -43,6 +43,8 @@ export function getModule<T extends string, S extends string>(
   return modules[index];
 }
 
+/*
 export const AvailableSockets = Object.keys(ElementAttributeType).map(
   (type) => new ClassicPreset.Socket(type),
 );
+*/
