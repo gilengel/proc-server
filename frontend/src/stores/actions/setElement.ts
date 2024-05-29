@@ -38,11 +38,8 @@ export class SetElement<T extends string, S extends string>
     }
 
     const module = getModule(this.elementType);
-    if (!module) {
-      return;
-    }
 
-    this.newElement = module.createDefaultElement();
+    this.newElement = module!.createDefaultElement();
     this.column.element = this.newElement;
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; flex-direction: column">
+  <div style="display: flex; flex-direction: column" data-testid="flow-editor">
     <q-toolbar class="text-primary">
       <q-btn flat round dense icon="las la-sitemap" @click="rearrangeNodes">
         <q-tooltip>Auto arrange nodes</q-tooltip>

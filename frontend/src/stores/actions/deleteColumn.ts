@@ -1,4 +1,4 @@
-import { Column, Row, Grid } from 'src/models/Grid';
+import { Column, Row } from 'src/models/Grid';
 import { UndoRedoAction } from '../undoredo';
 
 export class DeleteColumn<T extends string, S extends string>
@@ -8,16 +8,11 @@ export class DeleteColumn<T extends string, S extends string>
   constructor(
     private row: Row<T, S>,
     private columnIndex: number,
-    private grid: Grid<T, S>,
   ) {}
 
   undo(): void {
-    if (!this.deletedColumn) {
-      return;
-    }
-
-    this.row.columns[this.columnIndex].width -= this.deletedColumn.width;
-    this.row.columns.splice(this.columnIndex, 0, this.deletedColumn);
+    this.row.columns[this.columnIndex].width -= this.deletedColumn!.width;
+    this.row.columns.splice(this.columnIndex, 0, this.deletedColumn!);
   }
   redo(): void {
     const colSize = this.row.columns[this.columnIndex].width;

@@ -1,5 +1,5 @@
 <template>
-  <svg data-testid="connection">
+  <svg data-testid="flow-connection">
     <path :d="path"></path>
   </svg>
 </template>

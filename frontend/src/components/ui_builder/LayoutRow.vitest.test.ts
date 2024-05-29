@@ -1,3 +1,6 @@
+import { loadAllModules } from './elementLoader';
+await loadAllModules();
+
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
@@ -5,12 +8,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { installPinia } from 'app/test/vitest/setupPinia';
 import LayoutRow from './LayoutRow.vue';
 
-import {
-  Element,
-  ElementAttributeType,
-  ElementType,
-  Row,
-} from 'src/models/Grid';
+import { ElementAttributeType, ElementType, Row } from 'src/models/Grid';
 import { ref } from 'vue';
 import { useGridModuleStore } from 'src/stores/gridModule';
 import { fireEvent } from '@testing-library/dom';

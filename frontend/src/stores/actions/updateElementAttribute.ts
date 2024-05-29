@@ -2,7 +2,7 @@ import { UndoRedoAction } from '../undoredo';
 import { Element } from './../../models/Grid';
 
 /**
- * Updates the column width. This is a undo/redoable action
+ * Updates an attribute of the element. This is an undoable/redoable action
  */
 export class UpdateElementAttribute<T extends string, S extends string>
   implements UndoRedoAction

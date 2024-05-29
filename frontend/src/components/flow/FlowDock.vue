@@ -1,5 +1,5 @@
 <template>
-  <div class="flow-dock">
+  <div class="flow-dock" data-testid="flow-dock">
     <q-toolbar>
       <q-toolbar-title>{{ title }}</q-toolbar-title>
       <div class="q-gutter-sm"></div>

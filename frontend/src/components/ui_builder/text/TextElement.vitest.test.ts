@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
 import { installPinia } from 'app/test/vitest/setupPinia';
-import HeadingElement from './HeadingElement.vue';
+import TextElement from './TextElement.vue';
 
 import { Element, ElementAttributeType, ElementType } from 'src/models/Grid';
 import { ref } from 'vue';
@@ -28,13 +28,12 @@ vi.mock('src/composables/useChangeableComputedAttributeModel.ts', async () => {
 installQuasarPlugin();
 installPinia({ stubActions: false, createSpy: vi.fn });
 
-describe('HeadingElement', () => {
+describe('TextElement', () => {
   it('should mount correctly', async () => {
     const model: Element<ElementType, ElementAttributeType> = new Element(
       ElementType.Text,
-      [],
+      createDefaultAttributes(),
     );
-    createDefaultAttributes(model);
 
     const props: IBaseElementProps<ElementType, ElementAttributeType> = {
       uuid: '',
@@ -42,10 +41,10 @@ describe('HeadingElement', () => {
       model,
     };
 
-    const wrapper = mount(HeadingElement<ElementType, ElementAttributeType>, {
+    const wrapper = mount(TextElement<ElementType, ElementAttributeType>, {
       props,
     });
-    const element = wrapper.find('[data-testid="heading-element"]');
+    const element = wrapper.find('[data-testid="text-element"]');
 
     expect(element.exists()).toBe(true);
   });

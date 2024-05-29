@@ -8,7 +8,7 @@ import { DeleteColumn } from './actions/deleteColumn';
 import { DeleteRow } from './actions/deleteRow';
 import { MoveRow } from './actions/moveRow';
 import { SplitColumn } from './actions/splitColumn';
-import { UpdateColumnWidth } from './actions/updateColumn';
+import { UpdateColumnWidth } from './actions/updateColumnWidth';
 import { SetElement } from './actions/setElement';
 import { UpdateElementAttribute } from './actions/updateElementAttribute';
 

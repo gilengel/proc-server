@@ -1,5 +1,5 @@
 <template>
-  <div class="node">
+  <div class="node" data-testid="flow-node">
     <h1 class="title q-pa-sm">
       <b>{{ data.label }}</b> {{ variableName }}
     </h1>

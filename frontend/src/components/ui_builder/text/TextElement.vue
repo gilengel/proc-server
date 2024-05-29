@@ -1,5 +1,5 @@
 <template>
-  <div class="el-text">
+  <div class="el-text" data-testid="text-element">
     <q-input
       dark
       disable

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['socket', 'dark']"></div>
+  <div :class="['socket', 'dark']" data-testid="flow-socket"></div>
 </template>
 
 <script setup lang="ts">

@@ -1,3 +1,6 @@
+import { loadAllModules } from '../elementLoader';
+await loadAllModules();
+
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
@@ -39,7 +42,9 @@ describe('ImageElement', () => {
       model,
     };
 
-    const wrapper = mount(ImageElement, { props });
+    const wrapper = mount(ImageElement<ElementType, ElementAttributeType>, {
+      props,
+    });
     const element = wrapper.find('[data-testid="image-element"]');
 
     expect(element.exists()).toBe(true);
