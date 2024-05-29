@@ -16,6 +16,41 @@
 </template>
 
 <script
+  lang="ts"
+  generic="
+    GenericElement extends FlowElement<
+      GenericElementType,
+      GenericElementAttributeType
+    >,
+    GenericElementType extends string,
+    GenericElementAttributeType extends string
+  "
+>
+type FlowEditorGridProps = {
+  enabled: boolean;
+  size: number;
+};
+
+export type FlowEditorProps<
+  GenericElement extends FlowElement<
+    GenericElementType,
+    GenericElementAttributeType
+  >,
+  GenericElementType extends string,
+  GenericElementAttributeType extends string,
+> = {
+  elements: GenericElement[];
+
+  categories: MetaFlowCategory<
+    GenericElementType,
+    GenericElementAttributeType
+  >[];
+
+  grid?: FlowEditorGridProps;
+};
+</script>
+
+<script
   setup
   lang="ts"
   generic="
@@ -37,29 +72,6 @@ import { MetaFlowCategory, MetaFlowCategoryElement } from './index';
 import FlowDock from './FlowDock.vue';
 import { useDrop } from 'src/composables/useDrop';
 import { FlowElement } from './model';
-
-type FlowEditorGridProps = {
-  enabled: boolean;
-  size: number;
-};
-
-type FlowEditorProps<
-  GenericElement extends FlowElement<
-    GenericElementType,
-    GenericElementAttributeType
-  >,
-  GenericElementType extends string,
-  GenericElementAttributeType extends string,
-> = {
-  elements: GenericElement[];
-
-  categories: MetaFlowCategory<
-    GenericElementType,
-    GenericElementAttributeType
-  >[];
-
-  grid?: FlowEditorGridProps;
-};
 
 const editor = ref(null);
 
@@ -110,6 +122,7 @@ onMounted(async () => {
     FlowElement<GenericElementType, GenericElementAttributeType>
   >(editor.value!);
 
+  /*
   reteEditor.editor.addPipe((context) => {
     if (context.type === 'connectioncreated') {
       reteEditor!.engine.reset();
@@ -119,6 +132,7 @@ onMounted(async () => {
 
     return context;
   });
+  */
 });
 
 type ComponentType = {
