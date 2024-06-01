@@ -11,6 +11,7 @@
         <q-item
           v-for="element in category.elements"
           :key="element.type"
+          :data-testid="`flow-dock-item-${element.type.toLowerCase()}`"
           draggable="true"
           v-on:dragstart="
             addObjectToDataTransfer($event, {

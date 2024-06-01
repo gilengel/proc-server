@@ -1,8 +1,24 @@
 <template>
   <div style="display: flex; flex-direction: column" data-testid="flow-editor">
     <q-toolbar class="text-primary">
-      <q-btn flat round dense icon="las la-sitemap" @click="rearrangeNodes">
+      <q-btn
+        flat
+        round
+        dense
+        icon="las la-sitemap"
+        @click="rearrangeNodes"
+        data-testid="flow-editor-rearrange-button"
+      >
         <q-tooltip>Auto arrange nodes</q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        round
+        dense
+        icon="las la-th"
+        data-testid="flow-editor-toggle-grid-button"
+      >
+        <q-tooltip>Enable / Disable Grid</q-tooltip>
       </q-btn>
     </q-toolbar>
 
@@ -10,7 +26,9 @@
       <template v-slot:before
         ><FlowDock title="Nodes" :nodes="categories"
       /></template>
-      <template v-slot:after><div ref="editor"></div></template>
+      <template v-slot:after
+        ><div ref="editor" data-testid="flow-rete-editor"></div
+      ></template>
     </q-splitter>
   </div>
 </template>

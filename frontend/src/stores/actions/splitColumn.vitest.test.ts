@@ -1,4 +1,3 @@
-import { DeleteColumn } from './deleteColumn';
 import { ElementType, ElementAttributeType, Row } from 'src/models/Grid';
 import { expect, describe, it } from 'vitest';
 import { SplitColumn } from './splitColumn';

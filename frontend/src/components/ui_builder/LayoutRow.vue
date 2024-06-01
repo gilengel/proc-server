@@ -31,6 +31,7 @@
         :splitDisabled="column.width <= 2"
         :editable="!isDraggingColumnSize"
         v-for="(column, col_index) in model.columns"
+        :data-testid="`grid-column-${col_index}-${rowIndex}`"
         :key="col_index"
       />
 

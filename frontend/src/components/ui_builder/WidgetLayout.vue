@@ -3,6 +3,7 @@
   <div class="row">
     <div class="col-2">
       <ElementList
+        data-testid="ui-builder-element-list"
         :startDragging="(rowDraggingDisabled = true)"
         :stopDragging="(rowDraggingDisabled = false)"
       />
@@ -29,6 +30,7 @@
               :model="element"
               :rowIndex="index"
               :key="index"
+              :data-testid="`layout-row-${index}`"
             />
           </transition>
         </template>

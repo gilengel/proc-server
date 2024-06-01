@@ -61,9 +61,7 @@ export const useGridModuleStore = <T extends string, S extends string>() =>
     function deleteColumn(rowIndex: number, columnIndex: number) {
       const row = grid.value?.rows[rowIndex];
 
-      _undoRedoStore.execute(
-        new DeleteColumn<T, S>(row, columnIndex, grid.value),
-      );
+      _undoRedoStore.execute(new DeleteColumn<T, S>(row, columnIndex));
     }
 
     function splitColumn(rowIndex: number, columnIndex: number) {

@@ -9,6 +9,13 @@ export default defineConfig({
     environment: 'happy-dom',
     coverage: {
       provider: 'istanbul', // or 'v8'
+      exclude: [
+        'quasar.config.ts',
+        'quasar.config.ts*.mjs',
+        '.quasar*',
+        '.eslintrc.cjs',
+        'src/router/index.ts', // not testable with vitest, must be done with cypress
+      ],
     },
     setupFiles: 'test/vitest/setup-file.ts',
     include: [
@@ -17,7 +24,6 @@ export default defineConfig({
       'src/**/*.vitest.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'test/vitest/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
-    exclude: ['quasar.config.ts', 'quasar.config.ts*.mjs'],
   },
   plugins: [
     vue({

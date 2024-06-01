@@ -3,7 +3,7 @@ await loadAllModules();
 
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { installPinia } from 'app/test/vitest/setupPinia';
 import LayoutRow from './LayoutRow.vue';
@@ -25,10 +25,12 @@ vi.mock('src/composables/useChangeableComputedAttributeModel.ts', async () => {
   };
 });
 
-installQuasarPlugin();
-installPinia({ stubActions: false, createSpy: vi.fn });
-
 describe('LayoutRow', () => {
+  beforeAll(() => {
+    installQuasarPlugin();
+    installPinia({ stubActions: false, createSpy: vi.fn });
+  });
+
   it('should mount correctly', async () => {
     const row: Row<ElementType, ElementAttributeType> = {
       id: '',

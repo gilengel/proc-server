@@ -1,6 +1,6 @@
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { installPinia } from 'app/test/vitest/setupPinia';
 import ToggleOption from './ToggleOption.vue';
@@ -8,9 +8,6 @@ import ToggleOption from './ToggleOption.vue';
 import { Element, ElementAttributeType, ElementType } from 'src/models/Grid';
 import { IOptionProps } from '.';
 import { ref } from 'vue';
-
-installQuasarPlugin();
-installPinia({ stubActions: false, createSpy: vi.fn });
 
 // We mock here the overall logic how it would be handled by the grid since this is
 // a unit test and mocking the complete behaviour is not necessary for the test to work.
@@ -25,6 +22,11 @@ vi.mock('src/composables/useChangeableComputedAttributeModel.ts', async () => {
 });
 
 describe('ToggleOption', () => {
+  beforeAll(() => {
+    installQuasarPlugin();
+    installPinia({ stubActions: false, createSpy: vi.fn });
+  });
+
   it('should mount correctly', async () => {
     const model: Element<ElementType, ElementAttributeType> = new Element(
       ElementType.Text,

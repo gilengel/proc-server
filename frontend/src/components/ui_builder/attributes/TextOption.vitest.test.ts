@@ -1,6 +1,6 @@
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { installPinia } from 'app/test/vitest/setupPinia';
 import TextOption from './TextOption.vue';
@@ -21,10 +21,12 @@ vi.mock('src/composables/useChangeableComputedAttributeModel.ts', async () => {
   };
 });
 
-installQuasarPlugin();
-installPinia({ stubActions: false, createSpy: vi.fn });
-
 describe('TextOption', () => {
+  beforeAll(() => {
+    installQuasarPlugin();
+    installPinia({ stubActions: false, createSpy: vi.fn });
+  });
+
   it('should mount correctly', async () => {
     const model: Element<ElementType, ElementAttributeType> = new Element(
       ElementType.Text,

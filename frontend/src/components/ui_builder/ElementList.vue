@@ -12,6 +12,7 @@
           class="list-group-item"
           :key="element.id"
           :data-element="element.name.toLowerCase()"
+          :data-testid="`element-list-entry-${element.name.toLowerCase()}`"
         >
           <q-item-section>
             <i

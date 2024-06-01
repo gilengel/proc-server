@@ -1,11 +1,21 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="lHh Lpr lFf" data-testid="layout-main">
     <q-header>
       <q-toolbar>
         <q-toolbar-title>Page Builder</q-toolbar-title>
         <q-tabs inline-label v-model="tab" class="text-white">
-          <q-tab name="layout" icon="las la-th-list" label="Layout" />
-          <q-tab name="logic" icon="las la-project-diagram" label="Logic" />
+          <q-tab
+            name="layout"
+            icon="las la-th-list"
+            label="Layout"
+            data-testid="tab-layout"
+          />
+          <q-tab
+            name="logic"
+            icon="las la-project-diagram"
+            label="Logic"
+            data-testid="tab-logic"
+          />
         </q-tabs>
         <q-space />
         <q-btn

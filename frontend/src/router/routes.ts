@@ -9,7 +9,8 @@ const routes: RouteRecordRaw[] = [
   // Always leave this as last one,
   // but you can also remove it
   {
-    path: '/:catchAll(.*)*',
+    path: '/:pathMatch(.*)*',
+    name: '404',
     component: () => import('pages/ErrorNotFound.vue'),
   },
 ];

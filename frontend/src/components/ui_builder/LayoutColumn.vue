@@ -32,7 +32,10 @@
       />
     </div>
 
-    <div class="element-container">
+    <div
+      class="element-container"
+      :data-testid="`layout-column-element-container-${columnIndex}-${rowIndex}`"
+    >
       <component
         :is="elementComponent"
         v-bind="{ uuid: '', editable: true, model: model.element }"
@@ -51,6 +54,7 @@
       class="drop-container"
       @end="onEnd($event)"
       @add="elementAdded($event as AddEvent)"
+      :data-testid="`layout-column-drop-container-${columnIndex}-${rowIndex}`"
     >
       <template #item="{ element }">
         <div class="draggable" :key="element.id">
@@ -174,6 +178,7 @@ const emptyList: ComputedRef<WorkaroundElement[]> = computed(() => []);
  *              'data-element' and a valid value of a ElementType enum key (but all in lowercase).
  */
 function elementAdded(event: AddEvent) {
+  console.log(event);
   event.preventDefault();
 
   // workaround to directly remove the already dropped and added element. Not the

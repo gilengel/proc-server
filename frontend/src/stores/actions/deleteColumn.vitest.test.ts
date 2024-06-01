@@ -1,5 +1,5 @@
 import { DeleteColumn } from './deleteColumn';
-import { ElementType, ElementAttributeType, Grid, Row } from 'src/models/Grid';
+import { ElementType, ElementAttributeType, Row } from 'src/models/Grid';
 import { expect, describe, it } from 'vitest';
 
 const createTestRow = (): Row<ElementType, ElementAttributeType> => {
